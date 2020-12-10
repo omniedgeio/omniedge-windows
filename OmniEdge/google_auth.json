@@ -1,0 +1,13 @@
+{
+    "web": {
+        "client_id": "203074056791-sskuii36b64km9q8fmotsshu1kosend6.apps.googleusercontent.com",
+        "project_id": "squarebook",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_secret": "J1Lu4lxdA4GUaOTXHIeEj_hQ",
+        "redirect_uris": [
+            "http://127.0.0.1:5476/"
+        ]
+    }
+}

@@ -1,6 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include "edgenode.h"
+#include "googleoauth.h"
 
 int main(int argc, char *argv[])
 {
@@ -12,7 +12,8 @@ int main(int argc, char *argv[])
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
-    EdgeNode edge;
-    edge.EdgeNodeRun();
+
+    GoogleOAuth* google = new GoogleOAuth;
+    google->grant();
     return app.exec();
 }
