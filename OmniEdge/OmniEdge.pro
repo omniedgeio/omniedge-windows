@@ -13,9 +13,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    edge.cpp \
     googleoauth.cpp \
         main.cpp
 HEADERS += \
+    edge.h \
     googleoauth.h
 
 RESOURCES += qml.qrc
@@ -31,12 +33,3 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-
-
-win32: LIBS += -L$$PWD/./ -ln2n
-
-INCLUDEPATH += $$PWD/.
-DEPENDPATH += $$PWD/.
-
-win32:!win32-g++: PRE_TARGETDEPS += $$PWD/./n2n.lib
-#else:win32-g++: PRE_TARGETDEPS += $$PWD/./libn2n.a

@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include "googleoauth.h"
+#include "edge.h"
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +21,16 @@ int main(int argc, char *argv[])
     {
         QObject::connect(pObjGoogleOAuth,SIGNAL(googleAuthClicked()),&hGoogleOAuth,SLOT(grant()));
     }
+
+    // Test edge.exe
+    Edge* edge = new Edge();
+    edge->connectSuperNode(
+                "52.80.139.238",
+                "7787",
+                "omniedge",
+                "66YRd88kyYdhzk",
+                "192.168.8.2"
+                );
 
     return app.exec();
 }
