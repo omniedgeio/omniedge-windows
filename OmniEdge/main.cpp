@@ -13,7 +13,13 @@ int main(int argc, char *argv[])
     if (engine.rootObjects().isEmpty())
         return -1;
 
-    GoogleOAuth* google = new GoogleOAuth;
-    google->grant();
+    GoogleOAuth hGoogleOAuth;
+    QObject* root = engine.rootObjects().first();
+    QObject *pObjGoogleOAuth = root->findChild<QObject*>("item_auth");
+    if(pObjGoogleOAuth)
+    {
+        QObject::connect(pObjGoogleOAuth,SIGNAL(googleAuthClicked()),&hGoogleOAuth,SLOT(grant()));
+    }
+
     return app.exec();
 }

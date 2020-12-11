@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>google_auth.json</file>
+        <file>images/Sign.png</file>
     </qresource>
 </RCC>

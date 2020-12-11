@@ -20,6 +20,8 @@ class GoogleOAuth : public QObject
     Q_OBJECT
 public:
     explicit GoogleOAuth(QObject *parent = nullptr);
+
+public slots:
     void grant();
 
 private:
