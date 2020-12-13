@@ -40,3 +40,5 @@ DEPENDPATH += $$PWD/.
 
 win32:!win32-g++: PRE_TARGETDEPS += $$PWD/./n2n.lib
 #else:win32-g++: PRE_TARGETDEPS += $$PWD/./libn2n.a
+
+DISTFILES +=

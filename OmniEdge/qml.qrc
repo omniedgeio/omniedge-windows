@@ -3,5 +3,9 @@
         <file>main.qml</file>
         <file>google_auth.json</file>
         <file>images/Sign.png</file>
+        <file>images/logo.jpeg</file>
+        <file>ConnectForm.qml</file>
+        <file>LoginForm.qml</file>
+        <file>StatusForm.qml</file>
     </qresource>
 </RCC>
