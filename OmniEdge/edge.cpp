@@ -22,7 +22,11 @@ void Edge::output(void)
 
 void Edge::connectSuperNode(QString server_ip, QString port, QString community_name, QString password, QString internal_ip)
 {
-    QString command = " -l" + server_ip + ":" + port + " -c " + community_name + " -k " + password + " -a " + internal_ip;
+    QProcess p;
+    p.start("pkill edge.exe");
+    p.waitForFinished();
+    QString command = " -l " + server_ip + ":" + port + " -c " + community_name + " -k " + password + " -a " + internal_ip;
+    qDebug() << command;
     this->edge_process->start("edge.exe" + command);
     if(this->edge_process->state() == QProcess::NotRunning){
         qDebug() << "edge.exe not running";
