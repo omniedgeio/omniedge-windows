@@ -19,5 +19,9 @@ Window {
         id:connectForm
         visible: false
     }
+    StatusForm{
+        id:statusForm
+        visible: false
+    }
 
 }

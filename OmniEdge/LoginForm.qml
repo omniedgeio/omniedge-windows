@@ -3,8 +3,8 @@ import QtQuick.Controls 2.3
 
 Page {
     id: loginPage
-    width: 450*2/3
-    height: 810*2/3
+    width: 300
+    height: 540
     Image {
         x: 165
         y: 189

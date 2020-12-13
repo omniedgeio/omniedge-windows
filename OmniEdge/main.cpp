@@ -27,6 +27,8 @@ int main(int argc, char *argv[])
     if(pObjConnect)
     {
         QObject::connect(pObjConnect,SIGNAL(connetToSN(QString,QString,QString,QString,QString)),&hEdge,SLOT(connectSuperNode(QString,QString,QString,QString,QString)));
+        QObject::connect(&hEdge,SIGNAL(replyConnectStatus(int)),pObjConnect,SIGNAL(statusOfConnect(int)));
+
     }
     // Test edge.exe
 //    Edge* edge = new Edge();
