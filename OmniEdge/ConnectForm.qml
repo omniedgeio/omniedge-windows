@@ -3,8 +3,11 @@ import QtQuick.Controls 2.3
 
 Page {
     id: connectPage
-    width: 450*2/3
-    height: 810*2/3
+    objectName: "item_connect"
+    width: 300
+    height: 540
+    signal connetToSN(string server_ip, string port, string community_name, string password, string internal_ip)
+
     Image {
         width: 120
         height: 120
@@ -47,6 +50,7 @@ Page {
             id: serverIP
             width: 150
             height: 40
+            text: "52.80.139.238"
             anchors.verticalCenterOffset: -70
             anchors.horizontalCenterOffset: -50
             placeholderText: "Server IP"
@@ -64,6 +68,7 @@ Page {
             id: serverPort
             width: 80
             height: 40
+            text: "7787"
             anchors.verticalCenterOffset: -70
             font.family: "Arial"
             anchors.horizontalCenterOffset: 80
@@ -81,6 +86,7 @@ Page {
             y: 312
             width: 246
             height: 40
+            text: "192.168.8.2"
             font.family: "Arial"
             font.pointSize: 12
             anchors.verticalCenter: parent.verticalCenter
@@ -93,6 +99,7 @@ Page {
             id: serverName
             width: 246
             height: 40
+            text: "omniedge"
             font.family: "Arial"
             font.pointSize: 12
             placeholderText: qsTr("Server name")
@@ -105,6 +112,7 @@ Page {
             id: password
             width: 246
             height: 40
+            text: "66YRd88kyYdhzk"
             font.family: "Arial"
             font.pointSize: 12
             anchors.verticalCenter: parent.verticalCenter
@@ -113,23 +121,22 @@ Page {
             anchors.horizontalCenter: parent.horizontalCenter
         }
     }
-
-    Button {
-        id: buttonConnect
-        x: 30
-        y: 463
-        width: 243
-        height: 40
-        text: qsTr("Connect")
-        autoRepeat: false
-        flat: false
-        antialiasing: false
-        highlighted: true
-        anchors.verticalCenterOffset: 220
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
-        rotation: 0
-    }
-
+        Button {
+            id: buttonConnect
+            x: 30
+            y: 463
+            width: 243
+            height: 40
+            text: qsTr("Connect")
+            flat: false
+            antialiasing: false
+            highlighted: true
+            anchors.verticalCenterOffset: 220
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            onClicked: {
+                connetToSN(serverIP.text,serverPort.text,serverName.text,password.text,tapIP.text)
+            }
+        }
 }
 
