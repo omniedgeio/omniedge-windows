@@ -7,5 +7,6 @@
         <file>ConnectForm.qml</file>
         <file>LoginForm.qml</file>
         <file>StatusForm.qml</file>
+        <file>n2n-2.6-stable/build/Release/edge.exe</file>
     </qresource>
 </RCC>

@@ -7,7 +7,7 @@ Page {
         id: statusPage
         width: 300
         height: 540
-
+        property alias tabView: tabView
         TabView {
             id: tabView
             width: 276
@@ -17,15 +17,15 @@ Page {
             style: TabViewStyle {
                 frameOverlap: 1
                 tab: Rectangle {
-                    color:"grey"
+                    color:"white"
                     implicitWidth: Math.min(txtTitle.width+10, 100)
-                    implicitHeight: 40
+                    implicitHeight: 38
                     radius: 2
                     Text {
                         id: txtTitle
                         anchors.centerIn: parent
                         text: styleData.title
-                        color: "white"
+                        color: "#111827"
                         font.pointSize: 12
                     }
                 }
@@ -42,22 +42,35 @@ Page {
                     frameVisible: false
                     itemDelegate: Item {
                         Text {
-                            color: "Black"
+                            //color: "Black"
+                            color: "#111827"
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.horizontalCenter: parent.horizontalCenter
                             elide: styleData.elideMode
                             text: styleData.value
-                            font.pointSize: 12
+                            font.pointSize: 10
+                            font.weight: Font.Light
                         }
                     }
                     headerDelegate: Rectangle {
                         height: 40
-                        color: "grey"
+                        clip: true
+                        anchors.centerIn: parent
+                        Rectangle {
+                            anchors.fill: parent
+                            anchors.rightMargin: -border.width
+                            anchors.topMargin:  -border.width
+                            anchors.leftMargin: -border.width
+                            border.width: 1
+                            border.color:"#9CA3AF"
+                        }
                         Text {
                             id: headerName
                             text: styleData.value
-                            font.pointSize: 12
-                            color: "white"
+                            font.pointSize: 8
+                            font.weight: Font.Bold
+                            //color: "white"
+                            color: "#9CA3AF"
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                             anchors.fill: parent
@@ -65,8 +78,8 @@ Page {
                     }
                     rowDelegate: Rectangle {
                         id: rowRectangle
-                        property color rowColor:(styleData.alternate ? "WhiteSmoke" : "Gainsboro")
-                        color: rowColor
+                        //property color rowColor:(styleData.alternate ? "WhiteSmoke" : "Gainsboro")
+                        color: "white"
                         height: 40
                     }
 //                    style: TableViewStyle {
@@ -85,13 +98,13 @@ Page {
 //                    }
                     TableViewColumn {
                         role: "id"
-                        title: qsTr("No.")
+                        title: qsTr("NO.")
                         width:36
                         movable: false
                     }
                     TableViewColumn {
                         role: "device"
-                        title: qsTr("Device")
+                        title: qsTr("DEVICE")
                         width:100
                         movable: false
                     }
@@ -103,7 +116,7 @@ Page {
                     }
                     TableViewColumn {
                         role: "ping"
-                        title: qsTr("Ping")
+                        title: qsTr("PING")
                         width:40
                         movable: false
                     }
