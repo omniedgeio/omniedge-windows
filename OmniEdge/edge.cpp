@@ -27,17 +27,20 @@ void Edge::output(void)
                 this->supernodes.resize(index + 1);
             }
             this->supernodes[index] = ip;
-        } else if (command == "ENCRYPT_KEY") {
+        }
+        else if (command == "ENCRYPT_KEY") {
             QString encrypt_key = params[0];
             if (this->password != encrypt_key) {
                 this->kill();
                 emit fatalError("Given password not same as n2n collected");
             }
-        } else if (command == "STARTING_N2N") {
+        }
+        else if (command == "STARTING_N2N") {
             QString version = params[0];
             QString build_date = params[1];
             emit info("Using n2n " + version + " built on " + build_date);
-        } else if (command == "REQUIRED_TAPINSTALL_EXE") {
+        }
+        else if (command == "REQUIRED_TAPINSTALL_EXE") {
             this->kill();
             if(retry_count){
                 emit fatalError("Tap needed, Please install it from openvpn website");
@@ -46,19 +49,23 @@ void Edge::output(void)
                 retry_count++;
             }
 
-        } else if (command == "IP_MODE") {
+        }
+        else if (command == "IP_MODE") {
             this->ip_mode = params[0];
-        } else if (command == "SET_DEVICE_IP_FAILED") {
+        }
+        else if (command == "SET_DEVICE_IP_FAILED") {
             QString interface = params[0];
             QString error = params[1];
             this->kill();
             emit fatalError("Set device ip failed, please check for administrator permission.");
-        } else if (command == "SUPERNODE") {
+        }
+        else if (command == "SUPERNODE") {
             int index = params[0].toInt();
             QString supernode = params[1];
             this->supernodes[index] = supernode;
             this->current_supernode = this->supernodes[index];
-        } else if (command == "STARTED") {
+        }
+        else if (command == "STARTED") {
             emit replyConnectStatus(ConnectStatus(Success));
             this->status = ConnectStatus(Success);
             this->ping("10.254.1.2");

@@ -5,9 +5,11 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 1.4
 Page {
         id: statusPage
+        objectName: "item_status"
         width: 300
         height: 540
         property alias tabView: tabView
+        signal statusOfPing(string ip,int delay)
         TabView {
             id: tabView
             width: 276
@@ -132,7 +134,10 @@ Page {
                         tapIPModel.append({id:"9",device:"Android phone",ip:"10.254.1.9",ping:"10ms"})
                     }
                 }
-
             }
+        }
+        onStatusOfPing: {
+                   console.info(ip,delay)
+
         }
 }

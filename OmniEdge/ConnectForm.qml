@@ -81,7 +81,7 @@ Page {
             y: 312
             width: 246
             height: 40
-            text: "10.254.1.1"
+            text: "10.254.1.2"
             font.family: "Arial"
             font.pointSize: 12
             anchors.verticalCenter: parent.verticalCenter
@@ -147,7 +147,11 @@ Page {
             buttonConnect.text = qsTr("Disconnect")
         }
         else    //fail or timeout
+        {
+            connectForm.visible = true
+            statusForm.visible = false
             buttonConnect.text = qsTr("Connect")
+        }
     }
 }
 

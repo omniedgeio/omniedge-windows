@@ -3,6 +3,7 @@
 #include <QIcon>
 #include "googleoauth.h"
 #include "edge.h"
+#include "syslog.h"
 
 int main(int argc, char *argv[])
 {
@@ -29,7 +30,17 @@ int main(int argc, char *argv[])
     {
         QObject::connect(pObjConnect,SIGNAL(connetToSN(QString,QString,QString,QString,QString)),&hEdge,SLOT(connectSuperNode(QString,QString,QString,QString,QString)));
         QObject::connect(&hEdge,SIGNAL(replyConnectStatus(int)),pObjConnect,SIGNAL(statusOfConnect(int)));
+   }
+    QObject *pObjStatus = root->findChild<QObject*>("item_status");
+    if(pObjStatus)
+    {
+        QObject::connect(&hEdge,SIGNAL(replyPingMs(QString,int)),pObjStatus,SIGNAL(statusOfPing(QString,int)));
 
     }
+
+    #ifdef QT_NO_DEBUG
+        syslog hlog;
+        hlog.installReleaseMsgHandler();
+    #endif
     return app.exec();
 }

@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QProcess>
-
+#include <QVector>
 class Edge : public QObject
 {
     Q_OBJECT
@@ -17,7 +17,7 @@ public:
         Fail = 2,
         Timeout = 3,
     };
-    Q_ENUM(ConnectStatus);
+    Q_ENUM(ConnectStatus)
     void kill();
 
     void ping(QString ip);

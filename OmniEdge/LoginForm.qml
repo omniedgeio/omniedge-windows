@@ -33,7 +33,6 @@ Page {
                 anchors.fill: parent
                 hoverEnabled: true
                 onClicked: {
-                   console.info("image clicked!")
                     item_auth.googleAuthClicked()
                     connectForm.visible = true
                     loginForm.visible = false
