@@ -116,20 +116,24 @@ void Edge::checkTimeout()
 
 void Edge::ping(QString ip){
     QProcess* ping_process = new QProcess(this);
-    ping_process->start("ping " + ip);
-    connect(ping_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-        [=](int exitCode, QProcess::ExitStatus exitStatus){
+    ping_process->start("ping " + ip + " -t");
+    connect(ping_process, &QProcess::readyReadStandardOutput,
+        [=](){
         QString output = ping_process->readAllStandardOutput();
-        if(output.contains("statistics")) {
-            QString ip = output.split(":\r\n")[1].split("for ")[1];
-            if(output.contains("Average")){
-                int ms = output.split("Average = ")[1].replace("ms\r\n","").toInt();
+        if(output.contains("Request timed out.")){
+            emit replyPingMs(ip, -1);
+        } else if (output.contains("Reply")){
+            // Reply from 10.254.1.2: bytes=32 time<1ms TTL=128
+            if(output.contains("<")){
+                int ms = output.remove(0,output.indexOf("<") + 1).split("ms ")[0].toInt();
                 emit replyPingMs(ip, ms);
-                //qDebug() << ip << " " << ms << "ms";
-            } else if (output.constEnd()) {
-                emit replyPingMs(ip, -1);
-               // qDebug() << ip << " " << "offline";
+            } else if (output.contains("=")) {
+                int ms = output.remove(0,output.indexOf("=") + 1).split("ms ")[0].toInt();
+                emit replyPingMs(ip, ms);
             }
+        } else if (output.contains("Destination host unreachable.")) {
+            emit replyPingMs(ip, -2);
+            ping_process->kill();
         }
     });
 }

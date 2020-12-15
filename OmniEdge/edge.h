@@ -18,6 +18,7 @@ public:
         Timeout = 3,
     };
     Q_ENUM(ConnectStatus)
+
     void kill();
 
     void ping(QString ip);
