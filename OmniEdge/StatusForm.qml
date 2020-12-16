@@ -33,7 +33,7 @@ Page {
             }
             Tab {
                 id: tab_list
-                title: qsTr("设备列表")
+                title: qsTr("Device list")
                 TableView {
                     id: tapIPTable
                     model: tapIPModel

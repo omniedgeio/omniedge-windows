@@ -32,17 +32,20 @@ void Edge::output(void)
             QString encrypt_key = params[0];
             if (this->password != encrypt_key) {
                 this->kill();
+                qDebug()<<("Given password not same as n2n collected");
                 emit fatalError("Given password not same as n2n collected");
             }
         }
         else if (command == "STARTING_N2N") {
             QString version = params[0];
             QString build_date = params[1];
+            qDebug()<<"[INFO]"<<"Using n2n " + version + " built on " + build_date;
             emit info("Using n2n " + version + " built on " + build_date);
         }
         else if (command == "REQUIRED_TAPINSTALL_EXE") {
             this->kill();
             if(retry_count){
+                qDebug()<<("[ERROR]Tap needed, Please install it from openvpn website");
                 emit fatalError("Tap needed, Please install it from openvpn website");
             } else {
                 connectSuperNode(this->server_ip, this->port, this->community_name, this->password, this->tap_ip);
@@ -57,7 +60,8 @@ void Edge::output(void)
             QString interface = params[0];
             QString error = params[1];
             this->kill();
-            emit fatalError("Set device ip failed, please check for administrator permission.");
+            qDebug()<<("[ERROR]Set device ip failed, please check for administrator permission");
+            emit fatalError("Set device ip failed, please check for administrator permission");
         }
         else if (command == "SUPERNODE") {
             int index = params[0].toInt();
@@ -78,8 +82,8 @@ void Edge::output(void)
             this->ping("10.254.1.8");
             this->ping("10.254.1.9");
         }
-        qDebug() << command;
-        qDebug() << params;
+        if(command != QString::fromLocal8Bit(""))
+            qDebug() << "[INFO]" << command << params;
     }
 }
 
