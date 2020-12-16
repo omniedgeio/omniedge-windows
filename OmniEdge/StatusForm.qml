@@ -8,7 +8,6 @@ Page {
         objectName: "item_status"
         width: 300
         height: 540
-        property alias tabView: tabView
         signal statusOfPing(string ip,int delay)
         TabView {
             id: tabView
@@ -37,14 +36,13 @@ Page {
                 title: qsTr("设备列表")
                 TableView {
                     id: tapIPTable
-                    model: ListModel { id: tapIPModel }
+                    model: tapIPModel
                     x: 8
                     y: 0
                     anchors.fill: parent
                     frameVisible: false
                     itemDelegate: Item {
                         Text {
-                            //color: "Black"
                             color: "#111827"
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -71,7 +69,6 @@ Page {
                             text: styleData.value
                             font.pointSize: 8
                             font.weight: Font.Bold
-                            //color: "white"
                             color: "#9CA3AF"
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
@@ -84,20 +81,6 @@ Page {
                         color: "white"
                         height: 40
                     }
-//                    style: TableViewStyle {
-//                        handle: Rectangle {
-//                            color: "#222222"
-//                            implicitWidth: 15
-//                        }
-//                        scrollBarBackground: Rectangle {
-//                            color: "#555555"
-//                            implicitWidth: 15
-//                        }
-//                        incrementControl: Item {
-//                        }
-//                        decrementControl: Item {
-//                        }
-//                    }
                     TableViewColumn {
                         role: "id"
                         title: qsTr("NO.")
@@ -136,8 +119,12 @@ Page {
                 }
             }
         }
+        ListModel { id: tapIPModel }
         onStatusOfPing: {
-                   console.info(ip,delay)
-
+           if(delay>1)
+                tapIPModel.get(ip.split(".")[3] - 1).ping = delay.toString()+"ms"
+            else
+                tapIPModel.get(ip.split(".")[3] - 1).ping = delay.toString()
         }
+
 }

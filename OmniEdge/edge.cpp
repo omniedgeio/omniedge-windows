@@ -68,9 +68,15 @@ void Edge::output(void)
         else if (command == "STARTED") {
             emit replyConnectStatus(ConnectStatus(Success));
             this->status = ConnectStatus(Success);
+            this->ping("10.254.1.1");
             this->ping("10.254.1.2");
             this->ping("10.254.1.3");
             this->ping("10.254.1.4");
+            this->ping("10.254.1.5");
+            this->ping("10.254.1.6");
+            this->ping("10.254.1.7");
+            this->ping("10.254.1.8");
+            this->ping("10.254.1.9");
         }
         qDebug() << command;
         qDebug() << params;
@@ -120,20 +126,22 @@ void Edge::ping(QString ip){
     connect(ping_process, &QProcess::readyReadStandardOutput,
         [=](){
         QString output = ping_process->readAllStandardOutput();
-        if(output.contains("Request timed out.")){
+        if(output.contains("<"))// Reply from 10.254.1.2: bytes=32 time<1ms TTL=128
+        {
+            int ms = output.remove(0,output.indexOf("<") + 1).split("ms ")[0].toInt();
+            emit replyPingMs(ip, ms);
+        }
+        else if (output.contains("="))
+        {
+            output.remove(0,output.indexOf("=") + 1);
+            output.remove(0,output.indexOf("=") + 1);
+            int ms = output.split("ms ")[0].toInt();
+            emit replyPingMs(ip, ms);
+        }
+        else
+        {
             emit replyPingMs(ip, -1);
-        } else if (output.contains("Reply")){
-            // Reply from 10.254.1.2: bytes=32 time<1ms TTL=128
-            if(output.contains("<")){
-                int ms = output.remove(0,output.indexOf("<") + 1).split("ms ")[0].toInt();
-                emit replyPingMs(ip, ms);
-            } else if (output.contains("=")) {
-                int ms = output.remove(0,output.indexOf("=") + 1).split("ms ")[0].toInt();
-                emit replyPingMs(ip, ms);
-            }
-        } else if (output.contains("Destination host unreachable.")) {
-            emit replyPingMs(ip, -2);
-            ping_process->kill();
+            //ping_process->kill();
         }
     });
 }
