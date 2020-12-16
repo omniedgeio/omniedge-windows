@@ -16,7 +16,6 @@ void Edge::output(void)
 {
     QString StandardOutput = edge_process->readAllStandardOutput();
     QString StandardError = edge_process->readAllStandardError();
-    //qDebug() << StandardOutput;
     for(QString line : StandardOutput.split("\r\n")){
         QString command = line.split("<>")[0];
         QStringList params = line.replace(command + "<>", "").split("<>");
@@ -82,8 +81,8 @@ void Edge::output(void)
             this->ping("10.254.1.8");
             this->ping("10.254.1.9");
         }
-        if(command != QString::fromLocal8Bit(""))
-            qDebug() << "[INFO]" << command << params;
+       // if(command != QString::fromLocal8Bit(""))
+            //qDebug() << "[INFO]" << command << params;
     }
 }
 

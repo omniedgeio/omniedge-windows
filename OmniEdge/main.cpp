@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     if(pObjGoogleOAuth)
     {
         // Disabled google oauth
-        //QObject::connect(pObjGoogleOAuth,SIGNAL(googleAuthClicked()),&hGoogleOAuth,SLOT(grant()));
+        // QObject::connect(pObjGoogleOAuth,SIGNAL(googleAuthClicked()),&hGoogleOAuth,SLOT(grant()));
     }
     Edge hEdge;
     QObject *pObjConnect = root->findChild<QObject*>("item_connect");
