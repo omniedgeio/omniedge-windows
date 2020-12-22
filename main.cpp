@@ -24,21 +24,8 @@ int main(int argc, char *argv[])
         // Disabled google oauth
         // QObject::connect(pObjGoogleOAuth,SIGNAL(googleAuthClicked()),&hGoogleOAuth,SLOT(grant()));
     }
-    Edge hEdge;
-    QObject *pObjConnect = root->findChild<QObject*>("item_connect");
-    if(pObjConnect)
-    {
-        QObject::connect(pObjConnect,SIGNAL(connetToSN(QString,QString,QString,QString,QString)),&hEdge,SLOT(connectSuperNode(QString,QString,QString,QString,QString)));
-        QObject::connect(&hEdge,SIGNAL(replyConnectStatus(int)),pObjConnect,SIGNAL(statusOfConnect(int)));
-   }
-    QObject *pObjStatus = root->findChild<QObject*>("item_status");
-    if(pObjStatus)
-    {
-        QObject::connect(&hEdge,SIGNAL(replyPingMs(QString,int)),pObjStatus,SIGNAL(statusOfPing(QString,int)));
 
-    }
-
-    #ifdef QT_NO_DEBUG
+    #ifdef QT_NO_DEBUGW
         syslog hlog;
         hlog.installReleaseMsgHandler();
     #endif
