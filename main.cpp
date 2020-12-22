@@ -2,7 +2,6 @@
 #include <QQmlApplicationEngine>
 #include <QIcon>
 #include "googleoauth.h"
-#include "edge.h"
 #include "syslog.h"
 
 int main(int argc, char *argv[])
