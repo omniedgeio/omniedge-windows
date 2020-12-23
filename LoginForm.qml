@@ -20,24 +20,29 @@ Page {
     Item{
         id:item_auth
         objectName: "item_auth"
-        signal googleAuthClicked()
+        signal googleOAuth()
         anchors.verticalCenterOffset: 80
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
-        Image {
-            id: image
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            source: "./images/Sign.png"
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onClicked: {
-                    item_auth.googleAuthClicked()
-                    connectForm.visible = true
-                    loginForm.visible = false
 
-                }
+        Button {
+            id:googleButton
+            width: 180
+            text: qsTr("Sign in with Google")
+            flat: true
+            icon.source : "qrc:/images/google.png"
+            icon.color: "transparent"
+            font.family: "Segoe UI"
+            background:Rectangle {
+                border.width: googleButton.pressed?2:1;
+                border.color: "gray"
+            }
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            onClicked: {
+                item_auth.googleOAuth()
+                //connectForm.visible = true
+                //loginForm.visible = false
             }
         }
     }

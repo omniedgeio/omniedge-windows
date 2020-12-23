@@ -3,6 +3,7 @@
 #include <QIcon>
 #include "googleoauth.h"
 #include "syslog.h"
+#include "omniproxy.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,6 +16,8 @@ int main(int argc, char *argv[])
     if (engine.rootObjects().isEmpty())
         return -1;
 
+    OmniProxy hOmniProxy;
+    hOmniProxy.JoinToVirtualNetwork();
     GoogleOAuth hGoogleOAuth;
     QObject* root = engine.rootObjects().first();
     QObject *pObjGoogleOAuth = root->findChild<QObject*>("item_auth");
