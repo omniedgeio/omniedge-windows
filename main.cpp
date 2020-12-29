@@ -17,7 +17,9 @@ int main(int argc, char *argv[])
         return -1;
 
     OmniProxy hOmniProxy;
-    hOmniProxy.JoinToVirtualNetwork();
+    //hOmniProxy.getDeviceList();
+    hOmniProxy.joinToVirtualNetwork();
+
     GoogleOAuth hGoogleOAuth;
     QObject* root = engine.rootObjects().first();
     QObject *pObjGoogleOAuth = root->findChild<QObject*>("item_auth");

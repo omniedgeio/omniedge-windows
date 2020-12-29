@@ -13,7 +13,7 @@ Window {
 
     LoginForm{
         id:loginForm
-        visible: true
+        //visible: true
     }
     ConnectForm{
         id:connectForm
