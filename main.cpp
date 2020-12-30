@@ -1,5 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QThread>
 #include <QIcon>
 #include "googleoauth.h"
 #include "syslog.h"
@@ -17,27 +18,31 @@ int main(int argc, char *argv[])
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
-    QString device_name="";
-    QString community_name="omniedge";
-    QString encrypt_key="66YRd88kyYdhzk";
-    QString device_mac="";
-    QString local_ip_address="10.254.1.8";
-    QString supernode_ip_address_port="52.80.139.238:7787";
-    int keep_on_running=1;
-    /* Increase tracelevel to see what's happening */
-      setTraceLevel(10);
-    N2NWrapper n2nwapper;
 
-    n2nwapper.startEdge(device_name.toLatin1().data(), community_name.toLatin1().data(),
-                    encrypt_key.toLatin1().data(),device_mac.toLatin1().data(),
-                    local_ip_address.toLatin1().data(),supernode_ip_address_port.toLatin1().data(),
-                    &keep_on_running);
+
+    QString community_name = "omniedge";
+    QString encrypt_key    = "66YRd88kyYdhzk";
+
+    N2NWrapper* n2nwrapper = new N2NWrapper();
+    //QThread* n2nThread = new QThread();
+    //n2nwrapper->moveToThread(n2nThread);
+    //n2nThread->start();
+
+   // n2nwrapper->setVirtualIp("10.254.1.8", "twofish");
+    //n2nwrapper->startEdge(community_name, encrypt_key);
+
+
     GoogleOAuth hGoogleOAuth;
     QObject* root = engine.rootObjects().first();
     QObject *pObjGoogleOAuth = root->findChild<QObject*>("item_auth");
+
     if(pObjGoogleOAuth)
     {
-        // Disabled google oauth
+        QObject::connect(
+                    pObjGoogleOAuth,
+                    SIGNAL(googleAuthClicked(QString, QString)),
+                    n2nwrapper,
+                    SLOT(startEdge(QString, QString)));        // Disabled google oauth
         // QObject::connect(pObjGoogleOAuth,SIGNAL(googleAuthClicked()),&hGoogleOAuth,SLOT(grant()));
     }
 

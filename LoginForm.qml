@@ -20,7 +20,7 @@ Page {
     Item{
         id:item_auth
         objectName: "item_auth"
-        signal googleAuthClicked()
+        signal googleAuthClicked(string name, string pass)
         anchors.verticalCenterOffset: 80
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
@@ -33,7 +33,7 @@ Page {
                 anchors.fill: parent
                 hoverEnabled: true
                 onClicked: {
-                    item_auth.googleAuthClicked()
+                    item_auth.googleAuthClicked("omniedge","66YRd88kyYdhzk")
                     connectForm.visible = true
                     loginForm.visible = false
 
