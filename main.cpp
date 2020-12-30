@@ -3,6 +3,7 @@
 #include <QIcon>
 #include "googleoauth.h"
 #include "syslog.h"
+#include "n2nwrapper.h"
 extern "C" {
 #include "n2n/n2n.h"
 }
@@ -25,8 +26,9 @@ int main(int argc, char *argv[])
     int keep_on_running=1;
     /* Increase tracelevel to see what's happening */
       setTraceLevel(10);
+    N2NWrapper n2nwapper;
 
-    quick_edge_init(device_name.toLatin1().data(), community_name.toLatin1().data(),
+    n2nwapper.startEdge(device_name.toLatin1().data(), community_name.toLatin1().data(),
                     encrypt_key.toLatin1().data(),device_mac.toLatin1().data(),
                     local_ip_address.toLatin1().data(),supernode_ip_address_port.toLatin1().data(),
                     &keep_on_running);
