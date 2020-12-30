@@ -16,13 +16,16 @@ int main(int argc, char *argv[])
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
-    QString device_name="laptop";
+    QString device_name="";
     QString community_name="omniedge";
     QString encrypt_key="66YRd88kyYdhzk";
-    QString device_mac="fe80::fce2:8d0a:921:47df";
-    QString local_ip_address="10.254.1.2";
+    QString device_mac="";
+    QString local_ip_address="10.254.1.8";
     QString supernode_ip_address_port="52.80.139.238:7787";
     int keep_on_running=1;
+    /* Increase tracelevel to see what's happening */
+      setTraceLevel(10);
+
     quick_edge_init(device_name.toLatin1().data(), community_name.toLatin1().data(),
                     encrypt_key.toLatin1().data(),device_mac.toLatin1().data(),
                     local_ip_address.toLatin1().data(),supernode_ip_address_port.toLatin1().data(),
