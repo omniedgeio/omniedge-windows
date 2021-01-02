@@ -1,6 +1,5 @@
 #include "omniproxy.h"
 
-
 OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
 {
     // create network manager
@@ -9,9 +8,11 @@ OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
 
     connect(this->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleFinished(QNetworkReply*)));
 
+    instanceID = QSysInfo::machineUniqueId();
     deviceName = QSysInfo::machineHostName();
     description = QSysInfo::prettyProductName();
-    qDebug()<<"[deviceName:]"<<deviceName<<"[description:]"<<description;
+
+    this->getInternalIP();
 }
 
 OmniProxy::~OmniProxy()
@@ -22,65 +23,68 @@ OmniProxy::~OmniProxy()
 QString OmniProxy::getInternalIP()
 {
     //获取本地IP片地址,
-    QList<QHostAddress> addList = QNetworkInterface::allAddresses();
+    QList<QHostAddress> addressList = QNetworkInterface::allAddresses();
 
-    foreach(QHostAddress address,addList)
+    foreach(QNetworkInterface interface, QNetworkInterface::allInterfaces())
     {
-        //排除IPV6，排除回环地址
-        if(address.protocol() == QAbstractSocket::IPv4Protocol
-                && address != QHostAddress(QHostAddress::LocalHost))
-        {
-            //输出，转换为字符串格式
-            qDebug() << address.toString();
-            return address.toString();
-        }
+        if (interface.flags().testFlag(QNetworkInterface::IsUp) && !interface.flags().testFlag(QNetworkInterface::IsLoopBack))
+            foreach (QNetworkAddressEntry entry, interface.addressEntries())
+            {
+                if ( interface.hardwareAddress() != "00:00:00:00:00:00" &&
+                     entry.ip().toString().contains(".") &&
+                     !interface.humanReadableName().contains("VM")){
+                    deviceLanIp = entry.ip().toString();
+                    deviceMacAddr = interface.hardwareAddress();
+                }
+            }
     }
     return nullptr;
 }
 void OmniProxy::joinToVirtualNetwork(){
 
-    QString baseUrl = "https://ae4ffa2f-d6a5-42bc-878a-05ab291b9ab1.mock.pstmn.io/join";
-    QUrl url(baseUrl);
+    QUrl url(apiUrl + "/join");
 
     QJsonObject json;
-    json.insert("name", "deviceName");// required, 用户设置的设备名称
-    json.insert("summary", "NULL");//optional, 设备的备注
-    json.insert("description", "description");// optional，设备的描述
-    json.insert("instance_id", "NULL");// required, 设备的唯一标示
-    json.insert("internal_ip", "0.0.0.0");// optional, 设备的网卡ip
+    json.insert("name", deviceName);// required, 用户设置的设备名称
+    json.insert("summary", "OMNIEDGE WINDOWS CLIENT");//optional, 设备的备注
+    json.insert("description", description);// optional，设备的描述
+    json.insert("instance_id", instanceID);// required, 设备的唯一标示
+    json.insert("internal_ip", deviceLanIp);// optional, 设备的网卡ip
 
     QJsonDocument document;
     document.setObject(json);
     QByteArray dataArray = document.toJson(QJsonDocument::Compact);
 
     QNetworkRequest request;
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setUrl(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setHeader( QNetworkRequest::ContentTypeHeader, " Authorization: Bearer " + token);
 
-    this->networkManager->post(request, dataArray);
+    QNetworkReply* reply = this->networkManager->post(request, dataArray);
+    endPoints[reply] = EndPoint::PostJoinNetwork;
 }
 
 void OmniProxy::getDeviceList(){
-
-    QString baseUrl = "https://ae4ffa2f-d6a5-42bc-878a-05ab291b9ab1.mock.pstmn.io/devices";
-    QUrl url(baseUrl);
+    QUrl url(apiUrl + "/devices");
 
     QNetworkRequest request;
     request.setUrl(url);
+    request.setHeader( QNetworkRequest::ContentTypeHeader, " Authorization: Bearer " + token);
 
-    this->networkManager->get(request);
+    QNetworkReply* reply = this->networkManager->get(request);
+    endPoints[reply] = EndPoint::GetDevicesList;
 }
 
 void OmniProxy::getVirtualNetworkKey(){
 
-    QString baseUrl = "http://omniedge.io/user/devices/{instance_id}/virtualNetworks/{virtual_network_id}";
-    QUrl url(baseUrl);
+    QUrl url(apiUrl + "/user/devices/" + instanceID + "/virtualNetworks/{virtual_network_id}");
 
     QNetworkRequest request;
     request.setUrl(url);
-    request.setHeader( QNetworkRequest::ContentTypeHeader, " Authorization: Bearer user_token" );
+    request.setHeader( QNetworkRequest::ContentTypeHeader, " Authorization: Bearer " + token);
 
-    this->networkManager->get(request);
+    QNetworkReply* reply = this->networkManager->get(request);
+    endPoints[reply] = EndPoint::GetVirtualNetworkSecret;
 }
 
 void OmniProxy::handleReadyRead(QNetworkReply *networkReply){
@@ -103,31 +107,33 @@ void OmniProxy::handleFinished(QNetworkReply *networkReply){
         if (httpStatusCode >= 200 && httpStatusCode < 300) // OK
         {
             QString reply = networkReply->readAll();
+            QJsonDocument jsonResponse = QJsonDocument::fromJson(reply.toUtf8());
+            QVariantMap replyMap = jsonResponse.object().toVariantMap();
+
             qDebug() << reply;
-            // get the root object
-//            QJsonDocument itemDoc = QJsonDocument::fromJson(reply.toUtf8());
-//            QJsonObject rootObject = itemDoc.object();
 
-//            // parse virtual_ip & encryptMethod from json
-//            vNetReply.tapIP = rootObject.value("virtual_ip").toString();
-//            vNetReply.encryptMethod = rootObject.value("encrypt_method").toString();
-//            qDebug() << "tapIP:" << vNetReply.tapIP;
-
-            QJsonParseError jsonError;
-            QJsonDocument devicesJson = QJsonDocument::fromJson(reply.toUtf8(),&jsonError);
-
-            if (jsonError.error != QJsonParseError::NoError){
-                qDebug() << jsonError.errorString();
-            }
-            QList<QVariant> list = devicesJson.toVariant().toList();
-            for(int i=0;i<list.count();i++){
-                QMap<QString, QVariant> map = list[i].toMap();
-                if(map.contains("twofish")){
-                    qDebug() <<i << "joinToVirtualNetwork" <<"tapIP:" << map["virtual_ip"].toString();
-                }
-                else{
-                    qDebug() <<i<<"getDeviceList"<< map["virtual_ip"].toString();
-                }
+            switch(endPoints[networkReply]){
+                case EndPoint::PostJoinNetwork:
+                    virtualIP = replyMap["virtual_ip"].toString();
+                    encryptMethod = replyMap["encrypt_method"].toString();
+                    break;
+                case EndPoint::GetVirtualNetworkSecret:
+                    secretKey = replyMap["secret_key"].toString();
+                    communityName = replyMap["community_name"].toString();
+                    break;
+                case EndPoint::GetDevicesList:
+                    QVariant obj;
+                    foreach(obj, jsonResponse.array().toVariantList()){
+                        QVariantMap deviceMap = obj.toMap();
+                        Device device;
+                        device.name = deviceMap["name"].toString();
+                        device.summary = deviceMap["summary"].toString();
+                        device.virtualIP = deviceMap["virtual_ip"].toString();
+                        device.instanceID = deviceMap["instace_id"].toString();
+                        device.description = deviceMap["description"].toString();
+                        devices.append(device);
+                    }
+                    break;
             }
 
         }
@@ -160,7 +166,7 @@ void OmniProxy::handleFinished(QNetworkReply *networkReply){
     }
     else
     {
-        qDebug() << "errorString: " << networkReply->errorString();
+        qDebug() << "Error: " << networkReply->errorString();
     }
 
     networkReply->manager()->deleteLater();

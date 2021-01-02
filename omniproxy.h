@@ -20,23 +20,19 @@ class OmniProxy : public QObject
 {
     Q_OBJECT
 
-    typedef struct{
-         QString tapIP;
-         QString encryptMethod;
-    }V_Net_Reply;
+    enum EndPoint{
+        PostJoinNetwork = 0,
+        GetDevicesList = 1,
+        GetVirtualNetworkSecret = 2,
+    };
 
     typedef struct{
-         QString instanceID;
          QString name;
-         QString tapIP;
+         QString virtualIP;
+         QString instanceID;
          QString summary;
          QString description;
-    }Devices_Reply;
-
-    typedef struct{
-         QString communityName;
-         QString secretKey;
-    }SecretKey_Reply;
+    }Device;
 
 public:
     explicit OmniProxy(QObject *parent = nullptr);
@@ -53,11 +49,27 @@ public slots:
 signals:
 
 private:
+
+    // Local
+    QString token;
+    QString instanceID;
+    QString deviceName;
+    QString description;
+    QString deviceLanIp;
+    QString deviceMacAddr;
+
+    // Fetch from API
+    QString virtualIP;
+    QString encryptMethod;
+    QString secretKey;
+    QString communityName;
+
+    QList<Device> devices;
     QNetworkAccessManager *networkManager;
-    QString deviceName,description;
-    V_Net_Reply vNetReply;
-    Devices_Reply devicesReply;
-    SecretKey_Reply secretKeyReply;
+    QHash<QNetworkReply*, EndPoint> endPoints;
+    QString apiUrl = "https://ae4ffa2f-d6a5-42bc-878a-05ab291b9ab1.mock.pstmn.io";
+
+
     QString getInternalIP();
 
 };
