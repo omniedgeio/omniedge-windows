@@ -40,7 +40,13 @@ QString OmniProxy::getInternalIP()
     }
     return nullptr;
 }
-void OmniProxy::joinToVirtualNetwork(){
+
+void OmniProxy::setToken(QString token)
+{
+    this->token = token;
+}
+
+void OmniProxy::joinVirtualNetwork(){
 
     QUrl url(apiUrl + "/join");
 

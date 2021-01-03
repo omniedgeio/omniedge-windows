@@ -38,11 +38,14 @@ public:
     explicit OmniProxy(QObject *parent = nullptr);
     ~OmniProxy();
 
-    void joinToVirtualNetwork();
+
 
 public slots:
     void handleFinished(QNetworkReply *networkReply);
     void handleReadyRead(QNetworkReply *networkReply);
+
+    void setToken(QString token);
+    void joinVirtualNetwork();
     void getDeviceList();
     void getVirtualNetworkKey();
 
