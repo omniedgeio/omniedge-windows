@@ -4,7 +4,7 @@
 #include <QIcon>
 #include "googleoauth.h"
 #include "syslog.h"
-#include "n2nwrapper.h"
+#include "n2nworkerwrapper.h"
 extern "C" {
 #include "n2n/n2n.h"
 }
@@ -23,14 +23,7 @@ int main(int argc, char *argv[])
     QString community_name = "omniedge";
     QString encrypt_key    = "66YRd88kyYdhzk";
 
-    N2NWrapper* n2nwrapper = new N2NWrapper();
-    //QThread* n2nThread = new QThread();
-    //n2nwrapper->moveToThread(n2nThread);
-    //n2nThread->start();
-
-   // n2nwrapper->setVirtualIp("10.254.1.8", "twofish");
-    //n2nwrapper->startEdge(community_name, encrypt_key);
-
+    N2NWorkerWrapper* n2n = new N2NWorkerWrapper();
 
     GoogleOAuth hGoogleOAuth;
     QObject* root = engine.rootObjects().first();
@@ -41,9 +34,19 @@ int main(int argc, char *argv[])
         QObject::connect(
                     pObjGoogleOAuth,
                     SIGNAL(googleAuthClicked(QString, QString)),
-                    n2nwrapper,
+                    n2n,
                     SLOT(startEdge(QString, QString)));        // Disabled google oauth
         // QObject::connect(pObjGoogleOAuth,SIGNAL(googleAuthClicked()),&hGoogleOAuth,SLOT(grant()));
+    }
+
+    QObject *pObjConnectForm = root->findChild<QObject*>("item_connect");
+    if(pObjConnectForm)
+    {
+        QObject::connect(
+                    pObjConnectForm,
+                    SIGNAL(connetToSN()),
+                    n2n,
+                    SLOT(stopEdge()));
     }
 
     #ifdef QT_NO_DEBUGW

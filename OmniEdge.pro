@@ -19,7 +19,8 @@ DEFINES  -= UNICODE
 SOURCES += \
     googleoauth.cpp \
         main.cpp \
-    n2nwrapper.cpp \
+    n2nworker.cpp \
+    n2nworkerwrapper.cpp \
     syslog.cpp \
     n2n/edge_utils.c \
     n2n/minilzo.c \
@@ -34,7 +35,8 @@ SOURCES += \
     n2n/n2n.c
 HEADERS += \
     googleoauth.h \
-    n2nwrapper.h \
+    n2nworker.h \
+    n2nworkerwrapper.h \
     syslog.h \
     n2n/lzoconf.h \
     n2n/lzodefs.h \

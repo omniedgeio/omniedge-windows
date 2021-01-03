@@ -1812,7 +1812,7 @@ int run_edge_loop(n2n_edge_t * eee, int *keep_running) {
 #ifdef WIN32
   WaitForSingleObject(tun_read_thread, INFINITE);
 #endif
-
+    traceEvent(TRACE_NORMAL, "Closed");
   send_deregister(eee, &(eee->supernode));
 
   closesocket(eee->udp_sock);
