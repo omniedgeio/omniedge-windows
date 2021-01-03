@@ -7,5 +7,6 @@
         <file>ConnectForm.qml</file>
         <file>LoginForm.qml</file>
         <file>StatusForm.qml</file>
+        <file>images/google.png</file>
     </qresource>
 </RCC>

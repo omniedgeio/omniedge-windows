@@ -1,4 +1,4 @@
-QT += quick networkauth
+QT += quick networkauth network
 CONFIG += c++11
 
 #QMAKE_LFLAGS_WINDOWS += /MANIFESTUAC:"level='requireAdministrator'"
@@ -17,10 +17,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     googleoauth.cpp \
         main.cpp \
-    syslog.cpp
+    syslog.cpp \
+    omniproxy.cpp
 HEADERS += \
     googleoauth.h \
-    syslog.h
+    syslog.h \
+    omniproxy.h
 
 RESOURCES += qml.qrc
 
