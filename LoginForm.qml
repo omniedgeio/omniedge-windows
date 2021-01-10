@@ -20,10 +20,22 @@ Page {
     Item{
         id:item_auth
         objectName: "item_auth"
-        signal googleOAuth()
+        signal googleAuthClicked(string name, string pass)
         anchors.verticalCenterOffset: 80
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
+        Image {
+            id: image
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            source: "./images/Sign.png"
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: {
+                    item_auth.googleAuthClicked("omniedge","66YRd88kyYdhzk")
+                    connectForm.visible = true
+                    loginForm.visible = false
 
         Button {
             id:googleButton
