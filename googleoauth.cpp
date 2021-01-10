@@ -1,9 +1,11 @@
 #include "googleoauth.h"
+#include "myoauthhttpserverreplyhandler.h"
 
 GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
 {
     this->google = new QOAuth2AuthorizationCodeFlow(this);
     this->google->setScope("email");
+
 
     // Google one-time code couldn't be process
     // So need this function to transform the code
@@ -36,13 +38,11 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
     QJsonDocument document = QJsonDocument::fromJson(val);
     QJsonObject object = document.object();
     const auto settingsObject = object["web"].toObject();
-    const QUrl authUri(settingsObject["auth_uri"].toString());
-    const auto clientId = settingsObject["client_id"].toString();
-    const QUrl tokenUri(settingsObject["token_uri"].toString());
-    const auto clientSecret(settingsObject["client_secret"].toString());
-
-    const auto redirectUris = settingsObject["redirect_uris"].toArray();
-    const QUrl redirectUri(redirectUris[0].toString());
+    const QUrl authUri("https://omniedge-dev.auth.us-east-2.amazoncognito.com/login");
+    const auto clientId = "7cvqu5n6n1c8pi327684a56k96";
+    const QUrl tokenUri("https://omniedge-dev.auth.us-east-2.amazoncognito.com/oauth2/token");
+    const auto clientSecret = "1vciunmp54piospic9tq5d0tr19cc0fgsk1fqqvrmqlfc2hspnmi";
+    const QUrl redirectUri("http://localhost:8080/");
     const auto port = static_cast<quint16>(redirectUri.port());
 
     this->google->setAuthorizationUrl(authUri);
@@ -50,7 +50,14 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
     this->google->setAccessTokenUrl(tokenUri);
     this->google->setClientIdentifierSharedKey(clientSecret);
 
-    auto replyHandler = new QOAuthHttpServerReplyHandler(port, this);
+    this->google->setModifyParametersFunction([](QAbstractOAuth::Stage stage, QVariantMap* parameters) {
+          // Percent-decode the "code" parameter so Google can match it
+          if (stage == QAbstractOAuth::Stage::RequestingAccessToken) {
+              QByteArray code = parameters->value("code").toByteArray();
+              (*parameters)["code"] = QUrl::fromPercentEncoding(code);
+          }
+      });
+    auto replyHandler = new MyOAuthHttpServerReplyHandler(port,this);
     this->google->setReplyHandler(replyHandler);
 
     connect(this->google, &QOAuth2AuthorizationCodeFlow::granted, [=](){

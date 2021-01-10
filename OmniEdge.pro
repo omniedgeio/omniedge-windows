@@ -1,4 +1,4 @@
-QT += quick networkauth
+QT += quick networkauth network
 CONFIG += c++11
 
 #QMAKE_LFLAGS_WINDOWS += /MANIFESTUAC:"level='requireAdministrator'"
