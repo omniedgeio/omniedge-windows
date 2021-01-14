@@ -1,5 +1,5 @@
-QT += quick networkauth network
-CONFIG += c++11
+QT += quick networkauth network widgets
+CONFIG += c++11 qml_debug
 
 #QMAKE_LFLAGS_WINDOWS += /MANIFESTUAC:"level='requireAdministrator'"
 
@@ -18,7 +18,9 @@ DEFINES  -= UNICODE
 
 SOURCES += \
     googleoauth.cpp \
+    omniproxy.cpp \
         main.cpp \
+    myoauthhttpserverreplyhandler.cpp \
     n2nworker.cpp \
     n2nworkerwrapper.cpp \
     syslog.cpp \
@@ -35,6 +37,8 @@ SOURCES += \
     n2n/n2n.c
 HEADERS += \
     googleoauth.h \
+    omniproxy.h \
+    myoauthhttpserverreplyhandler.h \
     n2nworker.h \
     n2nworkerwrapper.h \
     syslog.h \
