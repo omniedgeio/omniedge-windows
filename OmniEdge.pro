@@ -18,6 +18,7 @@ DEFINES  -= UNICODE
 
 SOURCES += \
     googleoauth.cpp \
+    omniproxy.cpp \
         main.cpp \
     myoauthhttpserverreplyhandler.cpp \
     n2nworker.cpp \
@@ -36,6 +37,7 @@ SOURCES += \
     n2n/n2n.c
 HEADERS += \
     googleoauth.h \
+    omniproxy.h \
     myoauthhttpserverreplyhandler.h \
     n2nworker.h \
     n2nworkerwrapper.h \
