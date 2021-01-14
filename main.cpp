@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QGuiApplication app(argc, argv);
-    app.setWindowIcon(QIcon(":/images/logo.jpeg"));//设置窗口左上角图标
+    //app.setWindowIcon(QIcon(":/images/logo.jpeg"));//设置窗口左上角图标
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
@@ -24,30 +24,29 @@ int main(int argc, char *argv[])
     QString encrypt_key    = "66YRd88kyYdhzk";
 
     N2NWorkerWrapper* n2n = new N2NWorkerWrapper();
-
-    GoogleOAuth hGoogleOAuth;
+    GoogleOAuth *oauth = new GoogleOAuth();
     QObject* root = engine.rootObjects().first();
-    QObject *pObjGoogleOAuth = root->findChild<QObject*>("item_auth");
+    QObject *pObjConnect = root->findChild<QObject*>("item_connect");
 
-    if(pObjGoogleOAuth)
+    if(pObjConnect)
     {
         QObject::connect(
-                    pObjGoogleOAuth,
-                    SIGNAL(googleAuthClicked(QString, QString)),
+                    pObjConnect,
+                    SIGNAL(connectSN(QString, QString)),
                     n2n,
-                    SLOT(startEdge(QString, QString)));        // Disabled google oauth
-        // QObject::connect(pObjGoogleOAuth,SIGNAL(googleAuthClicked()),&hGoogleOAuth,SLOT(grant()));
-    }
-
-    QObject *pObjConnectForm = root->findChild<QObject*>("item_connect");
-    if(pObjConnectForm)
-    {
+                    SLOT(startEdge(QString, QString)));
         QObject::connect(
-                    pObjConnectForm,
-                    SIGNAL(connetToSN()),
+                    pObjConnect,
+                    SIGNAL(disconnectSN()),
                     n2n,
                     SLOT(stopEdge()));
+        QObject::connect(
+                    pObjConnect,
+                    SIGNAL(oauth()),
+                    oauth,
+                    SLOT(grant()));
     }
+
 
     #ifdef QT_NO_DEBUGW
         syslog hlog;
