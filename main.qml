@@ -1,7 +1,5 @@
 ﻿import QtQuick 2.11
-import QtQuick.Window 2.11
 import QtQuick.Controls 2.3
-import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
 
 ApplicationWindow {
@@ -13,14 +11,21 @@ ApplicationWindow {
         signal disconnectSN()
         signal oauth()
     }
+
     SystemTrayIcon {
         id:trayIcon
         visible: true
         iconSource: "qrc:/images/AppIcon.png"
         tooltip: "OmniEdge: Connect without corcern"
         Component.onCompleted: showMessage("OmniEdge", "Connect without corcern.")
+
         menu: Menu {
             id:sysmenu
+            MenuItem {
+                id:status
+                text: qsTr("My address:10.254.1.2")
+            }
+            MenuSeparator{}
             MenuItem {
                 id:connectMenu
                 text: qsTr("Connect")
@@ -42,7 +47,7 @@ ApplicationWindow {
             }
             MenuSeparator{}
             MenuItem {
-                text: qsTr("Admin console")
+                text: qsTr("Dashboard")
                 onTriggered: Qt.openUrlExternally("http:omniedge.io")
             }
             MenuSeparator{}
@@ -66,7 +71,7 @@ ApplicationWindow {
             }
             MenuItem {
                 text: qsTr("Log out")
-                enabled: false
+                //enabled: false
             }
             MenuSeparator{}
             Menu {
@@ -77,42 +82,18 @@ ApplicationWindow {
             }
             MenuSeparator{}
             MenuItem {
+                text: qsTr("Mininize")
+                onTriggered:{
+                    sysmenu.close()
+                    }
+                }
+            MenuItem {
                 text: qsTr("Quit")
                 shortcut: "Ctrl+X"
                 onTriggered:{
-                    trayIcon.hide()
                     Qt.quit()
-                }
+                    }
                 }
             }
-//        About{
-//           id:aboutPage
-//        }
-        }
-//    onClosing: {
-//        Qt.quit()
-//    }
-
+    }
 }
-
-//Window {
-//    id: window
-//    visible: false
-//    width: 450*2/3
-//    height: 810*2/3
-//    title: qsTr("OmniEdge")
-
-//    LoginForm{
-//        id:loginForm
-//        //visible: true
-//    }
-//    ConnectForm{
-//        id:connectForm
-//        visible: false
-//    }
-//    StatusForm{
-//        id:statusForm
-//        visible: false
-//    }
-
-//}
