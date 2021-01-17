@@ -72,3 +72,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 
+
+INCLUDEPATH += D:\Qt\Qt5.12.9\Tools\mingw730_64\opt\include
+LIBS += -L"C:\Program Files (x86)\OpenSSL-Win32\lib" -llibcrypto
+LIBS += -L"C:\Program Files (x86)\OpenSSL-Win32\lib" -llibssl

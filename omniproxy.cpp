@@ -1,5 +1,18 @@
 #include "omniproxy.h"
+#include <memory>
+using std::unique_ptr;
+#include "openssl/bn.h"
+#include "openssl/rsa.h"
+#include "openssl/pem.h"
+#include "openssl/bio.h"
+#include "openssl/x509.h"
+#include <cassert>
+#define ASSERT assert
 
+using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)>;
+using RSA_ptr = std::unique_ptr<RSA, decltype(&::RSA_free)>;
+using EVP_KEY_ptr = std::unique_ptr<EVP_PKEY, decltype(&::EVP_PKEY_free)>;
+using BIO_FILE_ptr = std::unique_ptr<BIO, decltype(&::BIO_free)>;
 OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
 {
     // create network manager
@@ -12,7 +25,8 @@ OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
     deviceName = QSysInfo::machineHostName();
     description = QSysInfo::prettyProductName();
 
-    this->getInternalIP();
+    //this->getInternalIP();
+    this->generatePubKey();
 }
 
 OmniProxy::~OmniProxy()
@@ -20,26 +34,85 @@ OmniProxy::~OmniProxy()
     delete this->networkManager;
 }
 
-QString OmniProxy::getInternalIP()
+void OmniProxy::generatePubKey()
 {
-    //获取本地IP片地址,
-    QList<QHostAddress> addressList = QNetworkInterface::allAddresses();
+    int rc;
 
-    foreach(QNetworkInterface interface, QNetworkInterface::allInterfaces())
-    {
-        if (interface.flags().testFlag(QNetworkInterface::IsUp) && !interface.flags().testFlag(QNetworkInterface::IsLoopBack))
-            foreach (QNetworkAddressEntry entry, interface.addressEntries())
-            {
-                if ( interface.hardwareAddress() != "00:00:00:00:00:00" &&
-                     entry.ip().toString().contains(".") &&
-                     !interface.humanReadableName().contains("VM")){
-                    deviceLanIp = entry.ip().toString();
-                    deviceMacAddr = interface.hardwareAddress();
-                }
-            }
-    }
-    return nullptr;
+        RSA_ptr rsa(RSA_new(), ::RSA_free);
+        BN_ptr bn(BN_new(), ::BN_free);
+
+        BIO_FILE_ptr pem1(BIO_new_file("rsa-public-1.pem", "w"), ::BIO_free);
+        BIO_FILE_ptr pem2(BIO_new_file("rsa-public-2.pem", "w"), ::BIO_free);
+        BIO_FILE_ptr pem3(BIO_new_file("rsa-private-1.pem", "w"), ::BIO_free);
+        BIO_FILE_ptr pem4(BIO_new_file("rsa-private-2.pem", "w"), ::BIO_free);
+        BIO_FILE_ptr pem5(BIO_new_file("rsa-private-3.pem", "w"), ::BIO_free);
+        BIO_FILE_ptr der1(BIO_new_file("rsa-public.der", "w"), ::BIO_free);
+        BIO_FILE_ptr der2(BIO_new_file("rsa-private.der", "w"), ::BIO_free);
+
+        rc = BN_set_word(bn.get(), RSA_F4);
+        ASSERT(rc == 1);
+
+        // Generate key
+        rc = RSA_generate_key_ex(rsa.get(), 2048, bn.get(), NULL);
+        ASSERT(rc == 1);
+
+        // Convert RSA to PKEY
+        EVP_KEY_ptr pkey(EVP_PKEY_new(), ::EVP_PKEY_free);
+        rc = EVP_PKEY_set1_RSA(pkey.get(), rsa.get());
+        ASSERT(rc == 1);
+
+        //////////
+
+        // Write public key in ASN.1/DER
+        rc = i2d_RSAPublicKey_bio(der1.get(), rsa.get());
+        ASSERT(rc == 1);
+
+        // Write public key in PKCS PEM
+        rc = PEM_write_bio_RSAPublicKey(pem1.get(), rsa.get());
+        ASSERT(rc == 1);
+
+        // Write public key in Traditional PEM
+        rc = PEM_write_bio_PUBKEY(pem2.get(), pkey.get());
+        ASSERT(rc == 1);
+
+        //////////
+
+        // Write private key in ASN.1/DER
+        rc = i2d_RSAPrivateKey_bio(der2.get(), rsa.get());
+        ASSERT(rc == 1);
+
+        // Write private key in PKCS PEM.
+        rc = PEM_write_bio_PrivateKey(pem3.get(), pkey.get(), NULL, NULL, 0, NULL, NULL);
+        ASSERT(rc == 1);
+
+        // Write private key in PKCS PEM
+        rc = PEM_write_bio_PKCS8PrivateKey(pem4.get(), pkey.get(), NULL, NULL, 0, NULL, NULL);
+        ASSERT(rc == 1);
+
+        // Write private key in Traditional PEM
+        rc = PEM_write_bio_RSAPrivateKey(pem5.get(), rsa.get(), NULL, NULL, 0, NULL, NULL);
+        ASSERT(rc == 1);
 }
+//QString OmniProxy::getInternalIP()
+//{
+//    //获取本地IP片地址,
+//    QList<QHostAddress> addressList = QNetworkInterface::allAddresses();
+
+//    foreach(QNetworkInterface interface, QNetworkInterface::allInterfaces())
+//    {
+//        if (interface.flags().testFlag(QNetworkInterface::IsUp) && !interface.flags().testFlag(QNetworkInterface::IsLoopBack))
+//            foreach (QNetworkAddressEntry entry, interface.addressEntries())
+//            {
+//                if ( interface.hardwareAddress() != "00:00:00:00:00:00" &&
+//                     entry.ip().toString().contains(".") &&
+//                     !interface.humanReadableName().contains("VM")){
+//                    deviceLanIp = entry.ip().toString();
+//                    deviceMacAddr = interface.hardwareAddress();
+//                }
+//            }
+//    }
+//    return nullptr;
+//}
 
 void OmniProxy::setToken(QString token)
 {
