@@ -32,9 +32,8 @@ int main(int argc, char *argv[])
             l81ff3EYWjcsWgUQu34Sg9YKDcwOa5lluINdYAPbuXZcUNovyYoOKOtSW_6nW6W7DvxxpCnHhtbsH1Xp0bvE2V87o8i8zTb-mWeB7PLaZ9rHfqE6fGGr\
             hW2KyhbbEG-P0ssqpj6Q4NQppZcMolTI0NYA2hkyPxXAE3UyfHmUTzkQ";
     OmniProxy *proxy = new OmniProxy();
-    proxy->setToken(idToken);
-    proxy->joinVirtualNetwork();
-    //proxy->generatePubKey();
+//    proxy->setToken(idToken);
+//    proxy->joinVirtualNetwork();
 
     QString community_name = "omniedge";
     QString encrypt_key    = "66YRd88kyYdhzk";
@@ -42,25 +41,14 @@ int main(int argc, char *argv[])
     N2NWorkerWrapper* n2n = new N2NWorkerWrapper();
     GoogleOAuth *oauth = new GoogleOAuth();
     QObject* root = engine.rootObjects().first();
-    QObject *pObjConnect = root->findChild<QObject*>("item_connect");
+    QObject *pObjQml = root->findChild<QObject*>("item_qml");
 
-    if(pObjConnect)
+    if(pObjQml)
     {
-        QObject::connect(
-                    pObjConnect,
-                    SIGNAL(connectSN(QString, QString)),
-                    n2n,
-                    SLOT(startEdge(QString, QString)));
-        QObject::connect(
-                    pObjConnect,
-                    SIGNAL(disconnectSN()),
-                    n2n,
-                    SLOT(stopEdge()));
-        QObject::connect(
-                    pObjConnect,
-                    SIGNAL(oauth()),
-                    oauth,
-                    SLOT(grant()));
+        QObject::connect(pObjQml,SIGNAL(connectSN(QString, QString)),n2n,SLOT(startEdge(QString, QString)));
+        QObject::connect(pObjQml,SIGNAL(disconnectSN()),n2n,SLOT(stopEdge()));
+        QObject::connect(pObjQml,SIGNAL(oauth()),oauth,SLOT(grant()));
+        QObject::connect(proxy,SIGNAL(passMsg(QString,QString)),pObjQml,SIGNAL(showMsg(QString,QString)));
     }
 
 

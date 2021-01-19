@@ -5,7 +5,8 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
 {
     this->google = new QOAuth2AuthorizationCodeFlow(this);
     this->google->setScope("email");
-
+    this->google->setScope("openid");
+    reg = new QSettings("HKEY_CURRENT_USER\\Software\\OmniEdge", QSettings::NativeFormat);
 
     // Google one-time code couldn't be process
     // So need this function to transform the code
@@ -60,13 +61,21 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
     auto replyHandler = new MyOAuthHttpServerReplyHandler(port,this);
     this->google->setReplyHandler(replyHandler);
 
+    connect(replyHandler, &MyOAuthHttpServerReplyHandler::tokensReceived, [=](const QVariantMap &data){
+            qDebug() << data["id_token"].toString();
+            reg->setValue("id_token",data["id_token"].toString());
+        });
     connect(this->google, &QOAuth2AuthorizationCodeFlow::granted, [=](){
         qDebug() << this->google->token();
         qDebug() << this->google->refreshToken();
     });
 
 }
-
+GoogleOAuth::~GoogleOAuth()
+{
+    delete this->google;
+    delete reg;
+}
 void GoogleOAuth::grant()
 {
     this->google->grant();

@@ -15,6 +15,7 @@
 //#include <QtNetwork/QNetworkInterface>
 #include <QHostAddress>
 #include <QUrl>
+#include <QSettings>
 
 class OmniProxy : public QObject
 {
@@ -38,6 +39,9 @@ public:
     explicit OmniProxy(QObject *parent = nullptr);
     ~OmniProxy();
 
+signals:
+   void passMsg(QString title,QString msg);
+
 public slots:
     void handleFinished(QNetworkReply *networkReply);
     void handleReadyRead(QNetworkReply *networkReply);
@@ -47,12 +51,9 @@ public slots:
     void getDeviceList();
     void getVirtualNetworkKey();
 
-
-
-signals:
-
 private:
 
+   QSettings *reg;
     // Local
     QString token;
     QString instanceID;

@@ -25,13 +25,24 @@ OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
     deviceName = QSysInfo::machineHostName();
     description = QSysInfo::prettyProductName();
 
-    //this->getInternalIP();
+    reg = new QSettings("HKEY_CURRENT_USER\\Software\\OmniEdge",QSettings::NativeFormat);
+    if (reg->value("id_token",QVariant()).toString()=="")
+    {
+       emit passMsg("OmniEdge","Please Login");
+    }
+    else
+    {
+       //qDebug()<<reg->value("id_token",QVariant()).toString();
+       emit passMsg("OmniEdge",reg->value("id_token",QVariant()).toString());
+    }
+
     this->generatePubKey();
 }
 
 OmniProxy::~OmniProxy()
 {
     delete this->networkManager;
+    delete reg;
 }
 
 void OmniProxy::generatePubKey()
