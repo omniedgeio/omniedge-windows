@@ -154,3 +154,26 @@ QVariantMap OmniProxy::joinVirtualNetwork(QString virtualNetworkID){
     return responseObj;
 }
 
+QList<VirtualNetwork> OmniProxy::getVirtualNetworks(){
+    QVariantMap response = graphqlQuery(LIST_VIRTUAL_NETWORKS_QUERY, QVariantMap());
+    if(!response.contains("data")) return QList<VirtualNetwork>();
+
+    QVariantList gqlVirtualNetworks = response["data"].toMap()["listVirtualNetworks"].toMap()["items"].toList();
+    QList<VirtualNetwork> virtualNetworks;
+    for(QVariant gqlVirtualNetwork : gqlVirtualNetworks) {
+        VirtualNetwork virtualNetwork;
+        virtualNetwork.id = gqlVirtualNetwork.toMap()["id"].toString();
+        virtualNetwork.ipPrefix = gqlVirtualNetwork.toMap()["ipPrefix"].toString();
+        virtualNetwork.communityName = gqlVirtualNetwork.toMap()["communityName"].toString();
+        for(QVariant gqlDevice : gqlVirtualNetwork.toMap()["devices"].toMap()["items"].toList()){
+            Device device;
+            device.id = gqlDevice.toMap()["id"].toString();
+            device.name = gqlDevice.toMap()["name"].toString();
+            device.virtualIP = gqlDevice.toMap()["virtualIP"].toString();
+            device.description = gqlDevice.toMap()["description"].toString();
+            virtualNetwork.devices.append(device);
+        }
+        virtualNetworks.append(virtualNetwork);
+    }
+    return virtualNetworks;
+}
