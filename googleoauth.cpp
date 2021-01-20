@@ -1,10 +1,11 @@
 #include "googleoauth.h"
 #include "myoauthhttpserverreplyhandler.h"
-
+#include <QSettings>
 GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
 {
     this->google = new QOAuth2AuthorizationCodeFlow(this);
     this->google->setScope("email");
+    this->google->setScope("openid");
 
 
     // Google one-time code couldn't be process
@@ -18,7 +19,7 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
         }
     });
 
-    connect(this->google , &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, [=](QUrl url) {
+    connect(this->google, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, [=](QUrl url) {
         QUrlQuery query(url);
 
         query.addQueryItem("prompt", "consent");      // Param required to get data everytime
@@ -29,7 +30,7 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
 
     QByteArray val;
     QFile file;
-    file.setFileName(":/google_auth.json");
+    file.setFileName(":/oauth.json");
     if(file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         val = file.readAll();
@@ -37,12 +38,12 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
     }
     QJsonDocument document = QJsonDocument::fromJson(val);
     QJsonObject object = document.object();
-    const auto settingsObject = object["web"].toObject();
-    const QUrl authUri("https://omniedge-dev.auth.us-east-2.amazoncognito.com/login");
-    const auto clientId = "7cvqu5n6n1c8pi327684a56k96";
-    const QUrl tokenUri("https://omniedge-dev.auth.us-east-2.amazoncognito.com/oauth2/token");
-    const auto clientSecret = "1vciunmp54piospic9tq5d0tr19cc0fgsk1fqqvrmqlfc2hspnmi";
-    const QUrl redirectUri("http://localhost:8080/");
+    const auto settingsObject = object["dev"].toObject();
+    const QUrl authUri(settingsObject["auth_uri"].toString());
+    const auto clientId = settingsObject["client_id"].toString();
+    const QUrl tokenUri(settingsObject["token_uri"].toString());
+    const auto clientSecret = settingsObject["client_secret"].toString();
+    const QUrl redirectUri(settingsObject["redirect_uri"].toString());
     const auto port = static_cast<quint16>(redirectUri.port());
 
     this->google->setAuthorizationUrl(authUri);
@@ -58,13 +59,14 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
           }
       });
     auto replyHandler = new MyOAuthHttpServerReplyHandler(port,this);
-    this->google->setReplyHandler(replyHandler);
 
-    connect(this->google, &QOAuth2AuthorizationCodeFlow::granted, [=](){
-        qDebug() << this->google->token();
-        qDebug() << this->google->refreshToken();
+    connect(replyHandler, &MyOAuthHttpServerReplyHandler::tokensReceived, [=](const QVariantMap &data){
+        QSettings settings;
+        settings.setValue("idToken", data["id_token"]);
+        settings.setValue("accessToken", data["access_token"]);
+        settings.setValue("refreshToken", data["refresh_token"]);
     });
-
+    this->google->setReplyHandler(replyHandler);
 }
 
 void GoogleOAuth::grant()

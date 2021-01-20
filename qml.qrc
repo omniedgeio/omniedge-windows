@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>google_auth.json</file>
+        <file>oauth.json</file>
         <file>images/AppIcon.png</file>
     </qresource>
 </RCC>

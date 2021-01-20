@@ -1,4 +1,7 @@
 #include "omniproxy.h"
+#include <QNetworkAccessManager>
+#include <QEventLoop>
+#include <QThread>
 
 OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
 {
@@ -6,18 +9,69 @@ OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
     this->networkManager = new QNetworkAccessManager(this);
     this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
 
-    connect(this->networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleFinished(QNetworkReply*)));
-
     instanceID = QSysInfo::machineUniqueId();
     deviceName = QSysInfo::machineHostName();
     description = QSysInfo::prettyProductName();
 
     this->getInternalIP();
+
+    // Get client id and client secret from oauth.json
+    QFile file;
+    QByteArray val;
+    file.setFileName(":/oauth.json");
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        val = file.readAll();
+        file.close();
+    }
+    QJsonDocument document = QJsonDocument::fromJson(val);
+    QJsonObject object = document.object();
+
+    const auto settingsObject = object["dev"].toObject();
+    tokenUri = settingsObject["token_uri"].toString();
+    clientId = settingsObject["client_id"].toString();
+    clientSecret = settingsObject["client_secret"].toString();
+    graphqlEndpoint = settingsObject["graphql_endpoint"].toString();
+
+    this->getVirtualNetworks();
 }
 
 OmniProxy::~OmniProxy()
 {
     delete this->networkManager;
+}
+
+void OmniProxy::refreshToken(){
+    QSettings settings;
+    QNetworkReply* reply;
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl(QUrl(tokenUri));
+    networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+
+    // Set basic auth
+    QString concatenated = clientId + ":" + clientSecret;
+    QByteArray data = concatenated.toLocal8Bit().toBase64();
+    networkRequest.setRawHeader("Authorization", "Basic " + data);
+
+    // Set post body
+    QUrlQuery params;
+    params.addQueryItem("grant_type", "refresh_token");
+    params.addQueryItem("client_id", clientId);
+    params.addQueryItem("refresh_token", settings.value("refreshToken").toString());
+
+    QEventLoop connection_loop;
+    connect(networkManager, SIGNAL(finished(QNetworkReply*)), &connection_loop, SLOT(quit()));
+    reply = networkManager->post(networkRequest, params.query().toUtf8());
+    connection_loop.exec();
+    reply->deleteLater();
+
+    QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
+    QVariantMap responseObj = responseDoc.object().toVariantMap();
+
+    // Save to registry
+    settings.setValue("accessToken", responseObj["access_token"].toString());
+    settings.setValue("idToken", responseObj["id_token"].toString());
+    idToken = responseObj["id_token"].toString();
 }
 
 QString OmniProxy::getInternalIP()
@@ -41,139 +95,62 @@ QString OmniProxy::getInternalIP()
     return nullptr;
 }
 
-void OmniProxy::setToken(QString token)
-{
-    this->token = token;
+QVariantMap OmniProxy::graphqlQuery(QString query, QVariantMap variables){
+    QSettings settings;
+    QNetworkReply* reply;
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl(QUrl(graphqlEndpoint));
+    networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    this->refreshToken();
+    // Set basic auth
+    networkRequest.setRawHeader("Authorization", idToken.toLocal8Bit());
+    QJsonObject obj;
+    obj["query"] = query;
+    obj["variables"] = QJsonObject::fromVariantMap(variables);
+    QJsonDocument doc(obj);
+    QByteArray data = doc.toJson();
+
+    QEventLoop connection_loop;
+    connect(networkManager, SIGNAL(finished(QNetworkReply*)), &connection_loop, SLOT(quit()));
+    reply = networkManager->post(networkRequest, data);
+    connection_loop.exec();
+    reply->deleteLater();
+
+    QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
+    QVariantMap responseObj = responseDoc.object().toVariantMap();
+    return responseObj;
 }
 
-void OmniProxy::joinVirtualNetwork(){
+QVariantMap OmniProxy::joinVirtualNetwork(QString virtualNetworkID){
+    QSettings settings;
+    QNetworkReply* reply;
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl(QUrl(apiEndpoint + "/virtual-network/" + virtualNetworkID + "/join"));
+    networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    QUrl url(apiUrl + "/join");
+    QJsonObject obj;
+    obj.insert("name", deviceName);// required, 用户设置的设备名称
+    obj.insert("userAgent", "WINDOWS");//optional, 设备的备注
+    obj.insert("description", description);// optional，设备的描述
+    obj.insert("publicKey", settings.value("publicKey").toString());
+    obj.insert("instance_id", instanceID);// required, 设备的唯一标示
+    obj.insert("virtualNetworkID", virtualNetworkID);// optional, 设备的网卡ip
+    QJsonDocument doc(obj);
+    QByteArray data = doc.toJson();
 
-    QJsonObject json;
-    json.insert("name", deviceName);// required, 用户设置的设备名称
-    json.insert("summary", "OMNIEDGE WINDOWS CLIENT");//optional, 设备的备注
-    json.insert("description", description);// optional，设备的描述
-    json.insert("instance_id", instanceID);// required, 设备的唯一标示
-    json.insert("internal_ip", deviceLanIp);// optional, 设备的网卡ip
+    // Set token
+    this->refreshToken();
+    networkRequest.setRawHeader("Authorization", idToken.toLocal8Bit());
 
-    QJsonDocument document;
-    document.setObject(json);
-    QByteArray dataArray = document.toJson(QJsonDocument::Compact);
+    QEventLoop connection_loop;
+    connect(networkManager, SIGNAL(finished(QNetworkReply*)), &connection_loop, SLOT(quit()));
+    reply = networkManager->post(networkRequest, data);
+    connection_loop.exec();
+    reply->deleteLater();
 
-    QNetworkRequest request;
-    request.setUrl(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setHeader( QNetworkRequest::ContentTypeHeader, " Authorization: Bearer " + token);
-
-    QNetworkReply* reply = this->networkManager->post(request, dataArray);
-    endPoints[reply] = EndPoint::PostJoinNetwork;
+    QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
+    QVariantMap responseObj = responseDoc.object().toVariantMap();
+    return responseObj;
 }
 
-void OmniProxy::getDeviceList(){
-    QUrl url(apiUrl + "/devices");
-
-    QNetworkRequest request;
-    request.setUrl(url);
-    request.setHeader( QNetworkRequest::ContentTypeHeader, " Authorization: Bearer " + token);
-
-    QNetworkReply* reply = this->networkManager->get(request);
-    endPoints[reply] = EndPoint::GetDevicesList;
-}
-
-void OmniProxy::getVirtualNetworkKey(){
-
-    QUrl url(apiUrl + "/user/devices/" + instanceID + "/virtualNetworks/{virtual_network_id}");
-
-    QNetworkRequest request;
-    request.setUrl(url);
-    request.setHeader( QNetworkRequest::ContentTypeHeader, " Authorization: Bearer " + token);
-
-    QNetworkReply* reply = this->networkManager->get(request);
-    endPoints[reply] = EndPoint::GetVirtualNetworkSecret;
-}
-
-void OmniProxy::handleReadyRead(QNetworkReply *networkReply){
-    // free later
-    networkReply->deleteLater();
-    qDebug() << networkReply->readAll();
-    networkReply->manager()->deleteLater();
-}
-
-void OmniProxy::handleFinished(QNetworkReply *networkReply){
-    // free later
-    networkReply->deleteLater();
-
-    // no error in request
-    if (networkReply->error() == QNetworkReply::NoError)
-    {
-        // get HTTP status code
-        qint32 httpStatusCode = networkReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        // 200
-        if (httpStatusCode >= 200 && httpStatusCode < 300) // OK
-        {
-            QString reply = networkReply->readAll();
-            QJsonDocument jsonResponse = QJsonDocument::fromJson(reply.toUtf8());
-            QVariantMap replyMap = jsonResponse.object().toVariantMap();
-
-            qDebug() << reply;
-
-            switch(endPoints[networkReply]){
-                case EndPoint::PostJoinNetwork:
-                    virtualIP = replyMap["virtual_ip"].toString();
-                    encryptMethod = replyMap["encrypt_method"].toString();
-                    break;
-                case EndPoint::GetVirtualNetworkSecret:
-                    secretKey = replyMap["secret_key"].toString();
-                    communityName = replyMap["community_name"].toString();
-                    break;
-                case EndPoint::GetDevicesList:
-                    QVariant obj;
-                    foreach(obj, jsonResponse.array().toVariantList()){
-                        QVariantMap deviceMap = obj.toMap();
-                        Device device;
-                        device.name = deviceMap["name"].toString();
-                        device.summary = deviceMap["summary"].toString();
-                        device.virtualIP = deviceMap["virtual_ip"].toString();
-                        device.instanceID = deviceMap["instace_id"].toString();
-                        device.description = deviceMap["description"].toString();
-                        devices.append(device);
-                    }
-                    break;
-            }
-
-        }
-        else if (httpStatusCode >= 300 && httpStatusCode < 400) // 300 Redirect
-        {
-            // Get new url, can be relative
-            QUrl relativeUrl = networkReply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
-
-            // url can be relative, we use the previous url to resolve it
-            QUrl redirectUrl = networkReply->url().resolved(relativeUrl);
-
-            // redirect to new url
-            networkReply->manager()->get(QNetworkRequest(redirectUrl));
-
-            // maintain manager
-            return;
-        }
-        else if (httpStatusCode >= 400 && httpStatusCode < 500) // 400 Error
-        {
-            qDebug() << httpStatusCode << " Error!";
-        }
-        else if (httpStatusCode >= 500 && httpStatusCode < 600) // 500 Internal Server Error
-        {
-            qDebug() << httpStatusCode << " Error!";
-        }
-        else
-        {
-            qDebug() << "Status code invalid! " << httpStatusCode;
-        }
-    }
-    else
-    {
-        qDebug() << "Error: " << networkReply->errorString();
-    }
-
-    networkReply->manager()->deleteLater();
-}

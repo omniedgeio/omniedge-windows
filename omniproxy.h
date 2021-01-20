@@ -16,64 +16,77 @@
 #include <QHostAddress>
 #include <QUrl>
 
+struct Device {
+    QString id;
+    QString name;
+    QString virtualIP;
+    QString description;
+};
+
+struct VirtualNetwork {
+    QString id;
+    QString ipPrefix;
+    QString communityName;
+    QList<Device> devices;
+};
+
+const QString LIST_VIRTUAL_NETWORKS_QUERY = " \
+query { \
+  listVirtualNetworks { \
+    items { \
+      id \
+      ipPrefix \
+      communityName \
+      devices { \
+        items { \
+          id \
+          name \
+          virtualIP \
+          description \
+        } \
+      } \
+    } \
+  } \
+}";
+
+
+
 class OmniProxy : public QObject
 {
     Q_OBJECT
-
-    enum EndPoint{
-        PostJoinNetwork = 0,
-        GetDevicesList = 1,
-        GetVirtualNetworkSecret = 2,
-    };
-
-    typedef struct{
-         QString name;
-         QString virtualIP;
-         QString instanceID;
-         QString summary;
-         QString description;
-    }Device;
 
 public:
     explicit OmniProxy(QObject *parent = nullptr);
     ~OmniProxy();
 
-
-
 public slots:
-    void handleFinished(QNetworkReply *networkReply);
-    void handleReadyRead(QNetworkReply *networkReply);
-
-    void setToken(QString token);
-    void joinVirtualNetwork();
-    void getDeviceList();
-    void getVirtualNetworkKey();
+    QList<VirtualNetwork> getVirtualNetworks();
+    QVariantMap joinVirtualNetwork(QString virtualNetworkID);
 
 signals:
 
 private:
 
     // Local
-    QString token;
     QString instanceID;
     QString deviceName;
     QString description;
     QString deviceLanIp;
     QString deviceMacAddr;
 
-    // Fetch from API
-    QString virtualIP;
-    QString encryptMethod;
-    QString secretKey;
-    QString communityName;
+    // Fetch settings from oauth.json
+    QString idToken;
+    QString clientId;
+    QString tokenUri;
+    QString clientSecret;
+    QString apiEndpoint;
+    QString graphqlEndpoint;
 
-    QList<Device> devices;
     QNetworkAccessManager *networkManager;
-    QHash<QNetworkReply*, EndPoint> endPoints;
-    QString apiUrl = "https://ae4ffa2f-d6a5-42bc-878a-05ab291b9ab1.mock.pstmn.io";
 
-
+    void refreshToken();
     QString getInternalIP();
+    QVariantMap graphqlQuery(QString query, QVariantMap variables);
 
 };
 
