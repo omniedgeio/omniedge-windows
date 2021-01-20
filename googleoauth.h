@@ -14,18 +14,21 @@
 #include <QFile>
 #include <QDir>
 #include <QUrl>
+#include <QSettings>
 
 class GoogleOAuth : public QObject
 {
     Q_OBJECT
 public:
     explicit GoogleOAuth(QObject *parent = nullptr);
+    virtual ~GoogleOAuth();
 
 public slots:
     void grant();
 
 private:
     QOAuth2AuthorizationCodeFlow* google;
+    QSettings *reg;
 };
 
 #endif // GOOGLEOAUTH_H

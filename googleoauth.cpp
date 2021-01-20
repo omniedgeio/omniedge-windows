@@ -7,7 +7,6 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
     this->google->setScope("email");
     this->google->setScope("openid");
 
-
     // Google one-time code couldn't be process
     // So need this function to transform the code
     this->google->setModifyParametersFunction([](QAbstractOAuth::Stage stage,
@@ -68,7 +67,11 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
     });
     this->google->setReplyHandler(replyHandler);
 }
-
+GoogleOAuth::~GoogleOAuth()
+{
+    delete this->google;
+    delete reg;
+}
 void GoogleOAuth::grant()
 {
     this->google->grant();
