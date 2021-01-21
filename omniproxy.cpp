@@ -41,14 +41,16 @@ OmniProxy::~OmniProxy()
 {
     delete this->networkManager;
 }
-void OmniProxy::checkToken(){
+bool OmniProxy::checkToken(){
     QSettings settings;
     if(!settings.value("idToken").toString().isEmpty()){
         emit isLogin(true);
         this->getVirtualNetworks();
+        return true;
     }
     else{
         emit isLogin(false);
+        return false;
     }
 }
 
@@ -165,11 +167,13 @@ QVariantMap OmniProxy::joinVirtualNetwork(QString virtualNetworkID){
     return responseObj;
 }
 
-QList<VirtualNetwork> OmniProxy::getVirtualNetworks(){
+QVariantList OmniProxy::getVirtualNetworks(){
     QVariantMap response = graphqlQuery(LIST_VIRTUAL_NETWORKS_QUERY, QVariantMap());
-    if(!response.contains("data")) return QList<VirtualNetwork>();
-
-    QVariantList gqlVirtualNetworks = response["data"].toMap()["listVirtualNetworks"].toMap()["items"].toList();
+    if(response.contains("data")) {
+        emit updateVirtualNetworks(response["data"].toMap()["listVirtualNetworks"].toMap());
+        return response["data"].toMap()["listVirtualNetworks"].toMap()["items"].toList();
+    }
+    /*QVariantList gqlVirtualNetworks = response["data"].toMap()["listVirtualNetworks"].toMap()["items"].toList();
     QList<VirtualNetwork> virtualNetworks;
     for(QVariant gqlVirtualNetwork : gqlVirtualNetworks) {
         VirtualNetwork virtualNetwork;
@@ -186,6 +190,5 @@ QList<VirtualNetwork> OmniProxy::getVirtualNetworks(){
         }
         virtualNetworks.append(virtualNetwork);
     }
-    updateDevices(virtualNetworks.at(0).devices);
-    return virtualNetworks;
+    return virtualNetworks;*/
 }

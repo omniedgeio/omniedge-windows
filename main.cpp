@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QThread>
 #include <QIcon>
+#include <QQmlContext>
 #include "omniproxy.h"
 #include "googleoauth.h"
 #include "syslog.h"
@@ -40,9 +41,14 @@ int main(int argc, char *argv[])
         QObject::connect(n2n,SIGNAL(configError()),pObjQml,SIGNAL(configError()));
         QObject::connect(n2n,SIGNAL(wintapError()),pObjQml,SIGNAL(wintapError()));
         QObject::connect(proxy,SIGNAL(isLogin(bool)),pObjQml,SIGNAL(isLogin(bool)));
-        //QObject::connect(proxy,SIGNAL(updateDevices(QVariantList)),pObjQml,SIGNAL(updateDevices(QVariantList)));
     }
-    proxy->checkToken();
+
+    if(proxy->checkToken()){
+        QVariantList vns = proxy->getVirtualNetworks();
+        qDebug() << vns;
+        engine.rootContext()->setContextProperty("vns", vns);
+    }
+
     #ifdef QT_NO_DEBUGW
         syslog hlog;
         hlog.installReleaseMsgHandler();

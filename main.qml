@@ -8,7 +8,7 @@ ApplicationWindow {
     Item {
         id: item_qml
         objectName: "item_qml"
-        signal connectSN(string community,string key )
+        signal connectSN(string community,string key)
         signal disconnectSN()
         signal oauth()
         signal logout()
@@ -16,7 +16,7 @@ ApplicationWindow {
         signal wintapError()
         signal configError()
         signal showMsg(string title,string msg)
-        signal updateDevices(var devices)
+        signal updateVirtualNetworks()
         onWintapError:{
             trayIcon.show("Wintap Error","Please check if you have install wintap driver")
         }
@@ -38,8 +38,8 @@ ApplicationWindow {
                 logout.text = qsTr("Logout")
             }
         }
-        onUpdateDevices: {
-			console.log(devices)
+        onUpdateVirtualNetworks: {
+            console.log(virtualNetworks)
 		}
     }
 
@@ -86,14 +86,20 @@ ApplicationWindow {
             MenuSeparator{}
             Menu {
                 title: "Network Devices"
-                MenuItem {
-                    text: qsTr("10.254.1.1"+"   ping:30ms")
-                }
-                MenuItem {
-                    text: qsTr("10.254.1.2")
-                }
-                MenuItem {
-                    text: qsTr("10.254.1.3")
+                visible: true
+                id: contextMenu
+                Instantiator {
+                   //model: vns[0].devices.items
+                   //MenuItem {
+                   //   text: modelData.name
+                   //}
+                    model: vns
+                    MenuItem {
+                       text: modelData.ipPrefix
+                    }
+                    // The trick is on those two lines
+                    onObjectAdded: contextMenu.insertItem(index, object)
+                    onObjectRemoved: contextMenu.removeItem(object)
                 }
             }
             MenuSeparator{}
@@ -130,8 +136,8 @@ ApplicationWindow {
                 text: qsTr("Mininize")
                 onTriggered:{
                     sysmenu.close()
-                    }
                 }
+            }
             MenuItem {
                 text: qsTr("Quit")
                 onTriggered:{

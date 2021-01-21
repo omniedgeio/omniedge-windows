@@ -61,17 +61,17 @@ class OmniProxy : public QObject
 public:
     explicit OmniProxy(QObject *parent = nullptr);
     virtual ~OmniProxy();
-    void checkToken();
+    bool checkToken();
 
 public slots:
-    QList<VirtualNetwork> getVirtualNetworks();
+    QVariantList getVirtualNetworks();
     QVariantMap joinVirtualNetwork(QString virtualNetworkID);
 
 
 signals:
     void isLogin(bool status);
     void passMsg(QString title,QString msg);
-    void updateDevices(QList<Device> devices);
+    void updateVirtualNetworks(QVariantMap data);
 private:
 
     // Local
