@@ -15,6 +15,9 @@
 #include <QtNetwork/QNetworkInterface>
 #include <QHostAddress>
 #include <QUrl>
+#include <QThread>
+#include <QList>
+#include "googleoauth.h"
 
 struct Device {
     QString id;
@@ -57,14 +60,18 @@ class OmniProxy : public QObject
 
 public:
     explicit OmniProxy(QObject *parent = nullptr);
-    ~OmniProxy();
+    virtual ~OmniProxy();
+    void checkToken();
 
 public slots:
     QList<VirtualNetwork> getVirtualNetworks();
     QVariantMap joinVirtualNetwork(QString virtualNetworkID);
 
-signals:
 
+signals:
+    void isLogin(bool status);
+    void passMsg(QString title,QString msg);
+    void updateDevices(QList<Device> devices);
 private:
 
     // Local
@@ -88,6 +95,7 @@ private:
     QString getInternalIP();
     QVariantMap graphqlQuery(QString query, QVariantMap variables);
 
+    GoogleOAuth* oauth;
 };
 
 #endif // OMNIPROXY_H

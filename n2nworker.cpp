@@ -21,7 +21,6 @@ void N2NWorker::setVirtualIp(QString virtual_ip, QString encryption)
 
 void N2NWorker::startEdge(QString community_name, QString encrypt_key)
 {
-    this->setVirtualIp("10.254.1.8", "twofish");
     QByteArray community = community_name.toLatin1();
     QByteArray secret = encrypt_key.toLatin1();
     int rv;

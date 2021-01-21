@@ -1,10 +1,12 @@
 #include "omniproxy.h"
 #include <QNetworkAccessManager>
 #include <QEventLoop>
-#include <QThread>
+#include <QtDebug>
+
 
 OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
 {
+    oauth = new GoogleOAuth();
     // create network manager
     this->networkManager = new QNetworkAccessManager(this);
     this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
@@ -13,7 +15,7 @@ OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
     deviceName = QSysInfo::machineHostName();
     description = QSysInfo::prettyProductName();
 
-    this->getInternalIP();
+    //this->getInternalIP();
 
     // Get client id and client secret from oauth.json
     QFile file;
@@ -32,13 +34,22 @@ OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
     clientId = settingsObject["client_id"].toString();
     clientSecret = settingsObject["client_secret"].toString();
     graphqlEndpoint = settingsObject["graphql_endpoint"].toString();
-
-    this->getVirtualNetworks();
+    QObject::connect(oauth,SIGNAL(toGetVirtualNetworks()),this,SLOT(getVirtualNetworks()));
 }
 
 OmniProxy::~OmniProxy()
 {
     delete this->networkManager;
+}
+void OmniProxy::checkToken(){
+    QSettings settings;
+    if(!settings.value("idToken").toString().isEmpty()){
+        emit isLogin(true);
+        this->getVirtualNetworks();
+    }
+    else{
+        emit isLogin(false);
+    }
 }
 
 void OmniProxy::refreshToken(){
@@ -154,3 +165,27 @@ QVariantMap OmniProxy::joinVirtualNetwork(QString virtualNetworkID){
     return responseObj;
 }
 
+QList<VirtualNetwork> OmniProxy::getVirtualNetworks(){
+    QVariantMap response = graphqlQuery(LIST_VIRTUAL_NETWORKS_QUERY, QVariantMap());
+    if(!response.contains("data")) return QList<VirtualNetwork>();
+
+    QVariantList gqlVirtualNetworks = response["data"].toMap()["listVirtualNetworks"].toMap()["items"].toList();
+    QList<VirtualNetwork> virtualNetworks;
+    for(QVariant gqlVirtualNetwork : gqlVirtualNetworks) {
+        VirtualNetwork virtualNetwork;
+        virtualNetwork.id = gqlVirtualNetwork.toMap()["id"].toString();
+        virtualNetwork.ipPrefix = gqlVirtualNetwork.toMap()["ipPrefix"].toString();
+        virtualNetwork.communityName = gqlVirtualNetwork.toMap()["communityName"].toString();
+        for(QVariant gqlDevice : gqlVirtualNetwork.toMap()["devices"].toMap()["items"].toList()){
+            Device device;
+            device.id = gqlDevice.toMap()["id"].toString();
+            device.name = gqlDevice.toMap()["name"].toString();
+            device.virtualIP = gqlDevice.toMap()["virtualIP"].toString();
+            device.description = gqlDevice.toMap()["description"].toString();
+            virtualNetwork.devices.append(device);
+        }
+        virtualNetworks.append(virtualNetwork);
+    }
+    updateDevices(virtualNetworks.at(0).devices);
+    return virtualNetworks;
+}

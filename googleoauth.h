@@ -25,7 +25,9 @@ public:
 
 public slots:
     void grant();
-
+    void clearToken();
+signals:
+   void toGetVirtualNetworks();
 private:
     QOAuth2AuthorizationCodeFlow* google;
     QSettings *reg;

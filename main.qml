@@ -1,23 +1,46 @@
 ﻿import QtQuick 2.11
 import QtQuick.Controls 2.3
 import Qt.labs.platform 1.1
-import GraphQlClient 1.0
-
 
 ApplicationWindow {
     id: window
-    property var subscriptions: [];
+
     Item {
         id: item_qml
         objectName: "item_qml"
         signal connectSN(string community,string key )
         signal disconnectSN()
         signal oauth()
+        signal logout()
+        signal isLogin(bool status)
+        signal wintapError()
+        signal configError()
         signal showMsg(string title,string msg)
+        signal updateDevices(var devices)
+        onWintapError:{
+            trayIcon.show("Wintap Error","Please check if you have install wintap driver")
+        }
+        onConfigError:{
+            trayIcon.show("Config Error","Please check your config")
+        }
         onShowMsg:{
-            console.debug("onShowMsg")
             trayIcon.showMessage(title,msg)
         }
+        onIsLogin: {
+            if(status===1){
+                login.enabled = false
+                logout.enabled = true
+                logout.text = qsTr("Logout as test6@gmail.com")
+            }
+            else{
+                login.enabled = true
+                logout.enabled = false
+                logout.text = qsTr("Logout")
+            }
+        }
+        onUpdateDevices: {
+			console.log(devices)
+		}
     }
 
     SystemTrayIcon {
@@ -27,7 +50,6 @@ ApplicationWindow {
         tooltip: "OmniEdge: Connect without corcern"
         Component.onCompleted: {
             showMessage("OmniEdge", "Connect without corcern.")
-            executeQuery("query {\n  company {\n    ceo\n    coo\n    cto_propulsion\n    cto\n    employees\n    founded\n    founder\n    launch_sites\n    name\n    summary\n    test_sites\n    valuation\n    vehicles\n  }\n}")
         }
 
         menu: Menu {
@@ -76,13 +98,25 @@ ApplicationWindow {
             }
             MenuSeparator{}
             MenuItem {
+                id:login
                 text: qsTr("Log in...")
-                onTriggered:
+                onTriggered:{
+                    login.enabled = false
+                    logout.enabled = true
+                    logout.text = qsTr("Logout as test6@gmail.com")
                     item_qml.oauth()
+                }
             }
             MenuItem {
-                text: qsTr("Log out")
-                //enabled: false
+                id:logout
+                text: qsTr("Logout")
+                onTriggered:
+                {
+                    login.enabled = true
+                    logout.enabled = false
+                    logout.text = qsTr("Logout")
+                    item_qml.logout()
+                }
             }
             MenuSeparator{}
             Menu {
@@ -100,74 +134,10 @@ ApplicationWindow {
                 }
             MenuItem {
                 text: qsTr("Quit")
-                shortcut: "Ctrl+X"
                 onTriggered:{
                     Qt.quit()
                     }
                 }
             }
-    }
-
-    function executeQuery(query) {
-            if (query.indexOf("mutation") !== -1) {
-                var mutationId = gql.mutate(query);
-                console.log("mutation id is: " + mutationId);
-            }
-            else if (query.indexOf("subscription") !== -1) {
-                var subscriptionId = gql.query(query);
-                console.log("subscription id is: " + subscriptionId);
-                subscriptions.push(subscriptionId);                
-            }
-            else {
-                var queryId = gql.query(query);
-                console.log("query id is: " + queryId);
-            }
-        }
-
-    function unsubscribeAllSubscriptions() {
-        console.log(subscriptions.length);
-        for(var i = 0; i < subscriptions.length; ++i) {
-            var id = subscriptions[i];
-            console.log("unsubscribe " + id);
-            gql.unsubscribe(id);
-        }
-        subscriptions = [];
-    }
-
-    GraphQlConnection {
-        id: gql
-        url: "https://api.spacex.land/graphql/"    //using a http connection
-
-        //if you are using a websocket connection use this to open the connection
-//        Component.onCompleted: {
-//            console.log("completed");
-//            open();
-//        }
-
-        onDataReceived: {
-            //result data is available as json object
-            var resultAsJson = JSON.stringify(data, /*replacer*/ null, /*spacing*/ 2);
-            console.log(resultAsJson)
-            console.log("response from query with id:" + data.id);
-
-            if (data.payload.errors) {
-                console.log("having errors");
-                console.log(resultAsJson)
-            } else {
-                console.log(subscriptions.indexOf(data.id));
-                if (subscriptions.indexOf(data.id) > 0) {
-                    console.log("received a subscription");
-                    txtResult.text = "=== Data from subscription: ===\n\n" +  resultAsJson + "\n\n=== End data from subscription";
-                } else {
-                    console.log(resultAsJson)
-                }
-            }
-        }
-
-        onError: {
-            var resultAsJson = JSON.stringify(error, /*replacer*/ null, /*spacing*/ 2);
-            console.log(resultAsJson)
-            console.log("Error: " + error.message);
-        }
     }
 }
