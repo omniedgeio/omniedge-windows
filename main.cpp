@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     QObject *pObjQml = root->findChild<QObject*>("item_qml");
     N2NWorkerWrapper* n2n = new N2NWorkerWrapper();
     GoogleOAuth* oauth = new GoogleOAuth();
-    OmniProxy* proxy = new OmniProxy();
+    OmniProxy* proxy = new OmniProxy(&engine);
 
     if(pObjQml)
     {
@@ -41,13 +41,15 @@ int main(int argc, char *argv[])
         QObject::connect(n2n,SIGNAL(configError()),pObjQml,SIGNAL(configError()));
         QObject::connect(n2n,SIGNAL(wintapError()),pObjQml,SIGNAL(wintapError()));
         QObject::connect(proxy,SIGNAL(isLogin(bool)),pObjQml,SIGNAL(isLogin(bool)));
+        QObject::connect(oauth,SIGNAL(loginToGetVirtualNetworks()),proxy,SLOT(getVirtualNetworks()));
     }
-
-    if(proxy->checkToken()){
-        QVariantList vns = proxy->getVirtualNetworks();
-        qDebug() << vns;
-        engine.rootContext()->setContextProperty("vns", vns);
-    }
+    proxy->checkToken();
+//    if(proxy->checkToken()){
+//        proxy->vns = proxy->getVirtualNetworks();
+//        qDebug() << proxy->vns <<"[VirtualNetworkid]"<<proxy->vns.first().toMap().value("id").toString();
+//        engine.rootContext()->setContextProperty("vns", proxy->vns);
+//        proxy->joinVirtualNetwork(proxy->vns.first().toMap().value("id").toString());
+//    }
 
     #ifdef QT_NO_DEBUGW
         syslog hlog;

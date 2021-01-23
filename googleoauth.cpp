@@ -64,14 +64,13 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
         settings.setValue("idToken", data["id_token"]);
         settings.setValue("accessToken", data["access_token"]);
         settings.setValue("refreshToken", data["refresh_token"]);
-        emit toGetVirtualNetworks();
+        emit this->loginToGetVirtualNetworks();
     });
     this->google->setReplyHandler(replyHandler);
 }
 GoogleOAuth::~GoogleOAuth()
 {
     delete this->google;
-    delete reg;
 }
 
 void GoogleOAuth::grant()

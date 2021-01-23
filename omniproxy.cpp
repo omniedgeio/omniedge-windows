@@ -2,10 +2,22 @@
 #include <QNetworkAccessManager>
 #include <QEventLoop>
 #include <QtDebug>
+#include <QQmlContext>
+#include <memory>
+#include "openssl/bn.h"
+#include "openssl/rsa.h"
+#include "openssl/pem.h"
+#include "openssl/bio.h"
+#include "openssl/x509.h"
+using std::unique_ptr;
+using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)>;
+using RSA_ptr = std::unique_ptr<RSA, decltype(&::RSA_free)>;
+using EVP_KEY_ptr = std::unique_ptr<EVP_PKEY, decltype(&::EVP_PKEY_free)>;
+using BIO_FILE_ptr = std::unique_ptr<BIO, decltype(&::BIO_free)>;
 
-
-OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
+OmniProxy::OmniProxy(QQmlApplicationEngine* engine)
 {
+    qmlEngine = engine;
     oauth = new GoogleOAuth();
     // create network manager
     this->networkManager = new QNetworkAccessManager(this);
@@ -14,8 +26,18 @@ OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
     instanceID = QSysInfo::machineUniqueId();
     deviceName = QSysInfo::machineHostName();
     description = QSysInfo::prettyProductName();
-
-    //this->getInternalIP();
+    QSettings settings;
+    if(settings.value("publicKey").toString().isEmpty())
+    {
+        this->generatePubKey();
+        QFile file("rsa-public-1.pem");
+        if (file.open(QFile::ReadOnly | QFile::Text))
+        {
+            QTextStream in(&file);
+            QString pbk = file.readAll();
+            settings.setValue("publicKey", pbk);
+        }
+    }
 
     // Get client id and client secret from oauth.json
     QFile file;
@@ -34,18 +56,44 @@ OmniProxy::OmniProxy(QObject *parent) : QObject(parent)
     clientId = settingsObject["client_id"].toString();
     clientSecret = settingsObject["client_secret"].toString();
     graphqlEndpoint = settingsObject["graphql_endpoint"].toString();
-    QObject::connect(oauth,SIGNAL(toGetVirtualNetworks()),this,SLOT(getVirtualNetworks()));
 }
 
 OmniProxy::~OmniProxy()
 {
     delete this->networkManager;
 }
+void OmniProxy::generatePubKey()
+{
+    int rc;
+    RSA_ptr rsa(RSA_new(), ::RSA_free);
+    BN_ptr bn(BN_new(), ::BN_free);
+    BIO_FILE_ptr pem1(BIO_new_file("rsa-public-1.pem", "w"), ::BIO_free);
+
+    rc = BN_set_word(bn.get(), RSA_F4);
+    if(rc != 1)
+        qDebug()<<"generatePubKey BN_set_word err \n";
+
+    // Generate key
+    rc = RSA_generate_key_ex(rsa.get(), 2048, bn.get(), NULL);
+    if(rc != 1)
+        qDebug()<<"generatePubKey RSA_generate_key_ex err \n";
+
+    // Convert RSA to PKEY
+    EVP_KEY_ptr pkey(EVP_PKEY_new(), ::EVP_PKEY_free);
+    rc = EVP_PKEY_set1_RSA(pkey.get(), rsa.get());
+    if(rc != 1)
+        qDebug()<<"generatePubKey EVP_PKEY_set1_RSA err \n";
+
+    // Write public key in PKCS PEM
+    rc = PEM_write_bio_RSAPublicKey(pem1.get(), rsa.get());
+    if(rc != 1)
+        qDebug()<<"generatePubKey PEM_write_bio_RSAPublicKey err \n";
+}
 bool OmniProxy::checkToken(){
     QSettings settings;
     if(!settings.value("idToken").toString().isEmpty()){
         emit isLogin(true);
-        this->getVirtualNetworks();
+        getVirtualNetworks();
         return true;
     }
     else{
@@ -164,31 +212,16 @@ QVariantMap OmniProxy::joinVirtualNetwork(QString virtualNetworkID){
 
     QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
     QVariantMap responseObj = responseDoc.object().toVariantMap();
+    qDebug()<<"joinVirtualNetwork"<<responseObj;
     return responseObj;
 }
 
-QVariantList OmniProxy::getVirtualNetworks(){
+void OmniProxy::getVirtualNetworks(){
     QVariantMap response = graphqlQuery(LIST_VIRTUAL_NETWORKS_QUERY, QVariantMap());
     if(response.contains("data")) {
-        emit updateVirtualNetworks(response["data"].toMap()["listVirtualNetworks"].toMap());
-        return response["data"].toMap()["listVirtualNetworks"].toMap()["items"].toList();
+        vns = response["data"].toMap()["listVirtualNetworks"].toMap()["items"].toList();
+        qDebug() << vns <<"[VirtualNetworkid]"<<vns.first().toMap().value("id").toString();
+        qmlEngine->rootContext()->setContextProperty("vns", vns);
+        joinVirtualNetwork(vns.first().toMap().value("id").toString());
     }
-    /*QVariantList gqlVirtualNetworks = response["data"].toMap()["listVirtualNetworks"].toMap()["items"].toList();
-    QList<VirtualNetwork> virtualNetworks;
-    for(QVariant gqlVirtualNetwork : gqlVirtualNetworks) {
-        VirtualNetwork virtualNetwork;
-        virtualNetwork.id = gqlVirtualNetwork.toMap()["id"].toString();
-        virtualNetwork.ipPrefix = gqlVirtualNetwork.toMap()["ipPrefix"].toString();
-        virtualNetwork.communityName = gqlVirtualNetwork.toMap()["communityName"].toString();
-        for(QVariant gqlDevice : gqlVirtualNetwork.toMap()["devices"].toMap()["items"].toList()){
-            Device device;
-            device.id = gqlDevice.toMap()["id"].toString();
-            device.name = gqlDevice.toMap()["name"].toString();
-            device.virtualIP = gqlDevice.toMap()["virtualIP"].toString();
-            device.description = gqlDevice.toMap()["description"].toString();
-            virtualNetwork.devices.append(device);
-        }
-        virtualNetworks.append(virtualNetwork);
-    }
-    return virtualNetworks;*/
 }

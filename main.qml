@@ -1,6 +1,8 @@
 ﻿import QtQuick 2.11
-import QtQuick.Controls 2.3
+import QtQuick.Controls 2.12
 import Qt.labs.platform 1.1
+import QtQml 2.12
+
 
 ApplicationWindow {
     id: window
@@ -16,7 +18,7 @@ ApplicationWindow {
         signal wintapError()
         signal configError()
         signal showMsg(string title,string msg)
-        signal updateVirtualNetworks()
+
         onWintapError:{
             trayIcon.show("Wintap Error","Please check if you have install wintap driver")
         }
@@ -27,7 +29,7 @@ ApplicationWindow {
             trayIcon.showMessage(title,msg)
         }
         onIsLogin: {
-            if(status===1){
+            if(status===true){
                 login.enabled = false
                 logout.enabled = true
                 logout.text = qsTr("Logout as test6@gmail.com")
@@ -38,9 +40,6 @@ ApplicationWindow {
                 logout.text = qsTr("Logout")
             }
         }
-        onUpdateVirtualNetworks: {
-            console.log(virtualNetworks)
-		}
     }
 
     SystemTrayIcon {
@@ -51,9 +50,9 @@ ApplicationWindow {
         Component.onCompleted: {
             showMessage("OmniEdge", "Connect without corcern.")
         }
-
         menu: Menu {
             id:sysmenu
+
             MenuItem {
                 id:status
                 text: qsTr("My address:10.254.1.2")
@@ -81,7 +80,7 @@ ApplicationWindow {
             MenuSeparator{}
             MenuItem {
                 text: qsTr("Dashboard")
-                onTriggered: Qt.openUrlExternally("http:omniedge.io")
+                onTriggered: Qt.openUrlExternally("http://dashboard.omniedge.io")
             }
             MenuSeparator{}
             Menu {
@@ -89,12 +88,9 @@ ApplicationWindow {
                 visible: true
                 id: contextMenu
                 Instantiator {
-                   //model: vns[0].devices.items
-                   //MenuItem {
-                   //   text: modelData.name
-                   //}
                     model: vns
                     MenuItem {
+                       id:deviceMenu
                        text: modelData.ipPrefix
                     }
                     // The trick is on those two lines
@@ -121,6 +117,7 @@ ApplicationWindow {
                     login.enabled = true
                     logout.enabled = false
                     logout.text = qsTr("Logout")
+                    contextMenu.removeItem(contextMenu.items[0])
                     item_qml.logout()
                 }
             }
@@ -146,4 +143,5 @@ ApplicationWindow {
                 }
             }
     }
+
 }
