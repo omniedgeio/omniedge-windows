@@ -3,7 +3,7 @@
         "client_id": "7cvqu5n6n1c8pi327684a56k96",
         "project_id": "omniedge",
         "auth_uri": "https://omniedge-dev.auth.us-east-2.amazoncognito.com/login",
-        "token_uri": "https://omniedge-dev.auth.us-east-2.amazoncognito.com/oauth2/token",
+        "cognito_uri": "https://omniedge-dev.auth.us-east-2.amazoncognito.com",
         "client_secret": "1vciunmp54piospic9tq5d0tr19cc0fgsk1fqqvrmqlfc2hspnmi",
         "redirect_uri": "http://localhost:8080/",
         "graphql_endpoint": "https://nhgt5ptb5fhjzgu6qmwf76hhka.appsync-api.us-east-2.amazonaws.com/graphql",

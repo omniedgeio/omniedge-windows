@@ -4,6 +4,7 @@
 #include <QtDebug>
 #include <QQmlContext>
 #include <memory>
+/*
 #include "openssl/bn.h"
 #include "openssl/rsa.h"
 #include "openssl/pem.h"
@@ -13,7 +14,7 @@ using std::unique_ptr;
 using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)>;
 using RSA_ptr = std::unique_ptr<RSA, decltype(&::RSA_free)>;
 using EVP_KEY_ptr = std::unique_ptr<EVP_PKEY, decltype(&::EVP_PKEY_free)>;
-using BIO_FILE_ptr = std::unique_ptr<BIO, decltype(&::BIO_free)>;
+using BIO_FILE_ptr = std::unique_ptr<BIO, decltype(&::BIO_free)>;*/
 
 OmniProxy::OmniProxy(QQmlApplicationEngine* engine)
 {
@@ -52,7 +53,7 @@ OmniProxy::OmniProxy(QQmlApplicationEngine* engine)
     QJsonObject object = document.object();
 
     const auto settingsObject = object["dev"].toObject();
-    tokenUri = settingsObject["token_uri"].toString();
+    cognitoUri = settingsObject["cognito_uri"].toString();
     clientId = settingsObject["client_id"].toString();
     clientSecret = settingsObject["client_secret"].toString();
     graphqlEndpoint = settingsObject["graphql_endpoint"].toString();
@@ -64,7 +65,7 @@ OmniProxy::~OmniProxy()
 }
 void OmniProxy::generatePubKey()
 {
-    int rc;
+    /*int rc;
     RSA_ptr rsa(RSA_new(), ::RSA_free);
     BN_ptr bn(BN_new(), ::BN_free);
     BIO_FILE_ptr pem1(BIO_new_file("rsa-public-1.pem", "w"), ::BIO_free);
@@ -87,13 +88,15 @@ void OmniProxy::generatePubKey()
     // Write public key in PKCS PEM
     rc = PEM_write_bio_RSAPublicKey(pem1.get(), rsa.get());
     if(rc != 1)
-        qDebug()<<"generatePubKey PEM_write_bio_RSAPublicKey err \n";
+        qDebug()<<"generatePubKey PEM_write_bio_RSAPublicKey err \n";*/
 }
+
 bool OmniProxy::checkToken(){
     QSettings settings;
     if(!settings.value("idToken").toString().isEmpty()){
-        emit isLogin(true);
         getVirtualNetworks();
+        getUserInfo();
+        emit isLogin(true);
         return true;
     }
     else{
@@ -102,11 +105,12 @@ bool OmniProxy::checkToken(){
     }
 }
 
-void OmniProxy::refreshToken(){
+
+bool OmniProxy::refreshToken(){
     QSettings settings;
     QNetworkReply* reply;
     QNetworkRequest networkRequest;
-    networkRequest.setUrl(QUrl(tokenUri));
+    networkRequest.setUrl(QUrl(cognitoUri + "/oauth2/token"));
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
     // Set basic auth
@@ -126,6 +130,11 @@ void OmniProxy::refreshToken(){
     connection_loop.exec();
     reply->deleteLater();
 
+    if(reply->error() != QNetworkReply::NoError){
+        emit isLogin(false);
+        return false;
+    }
+
     QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
     QVariantMap responseObj = responseDoc.object().toVariantMap();
 
@@ -133,6 +142,7 @@ void OmniProxy::refreshToken(){
     settings.setValue("accessToken", responseObj["access_token"].toString());
     settings.setValue("idToken", responseObj["id_token"].toString());
     idToken = responseObj["id_token"].toString();
+    return true;
 }
 
 QString OmniProxy::getInternalIP()
@@ -163,7 +173,9 @@ QVariantMap OmniProxy::graphqlQuery(QString query, QVariantMap variables){
     networkRequest.setUrl(QUrl(graphqlEndpoint));
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    this->refreshToken();
+    if(!this->refreshToken()) {
+        return QVariantMap();
+    }
     // Set basic auth
     networkRequest.setRawHeader("Authorization", idToken.toLocal8Bit());
     QJsonObject obj;
@@ -201,7 +213,9 @@ QVariantMap OmniProxy::joinVirtualNetwork(QString virtualNetworkID){
     QByteArray data = doc.toJson();
 
     // Set token
-    this->refreshToken();
+    if(!this->refreshToken()){
+        return QVariantMap();
+    }
     networkRequest.setRawHeader("Authorization", idToken.toLocal8Bit());
 
     QEventLoop connection_loop;
@@ -216,12 +230,48 @@ QVariantMap OmniProxy::joinVirtualNetwork(QString virtualNetworkID){
     return responseObj;
 }
 
+QVariantMap OmniProxy::getUserInfo(){
+    QSettings settings;
+    QNetworkReply* reply;
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl(QUrl(cognitoUri + "/oauth2/userInfo"));
+
+    if(!this->refreshToken()){
+        return QVariantMap();
+    }
+
+    // Set access token
+    networkRequest.setRawHeader("Authorization", "Bearer " + settings.value("accessToken").toString().toLocal8Bit());
+
+    QEventLoop connection_loop;
+    connect(networkManager, SIGNAL(finished(QNetworkReply*)), &connection_loop, SLOT(quit()));
+    reply = networkManager->get(networkRequest);
+    connection_loop.exec();
+    reply->deleteLater();
+
+    QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
+    QVariantMap responseObj = responseDoc.object().toVariantMap();
+
+    /* Sample
+        {
+           "sub": "248289761001",
+           "name": "Jane Doe",
+           "given_name": "Jane",
+           "family_name": "Doe",
+           "preferred_username": "j.doe",
+           "email": "janedoe@example.com"
+        }
+    */
+    qDebug() << responseObj;
+    qmlEngine->rootContext()->setContextProperty("user", responseObj);
+    return responseObj;
+}
+
 void OmniProxy::getVirtualNetworks(){
     QVariantMap response = graphqlQuery(LIST_VIRTUAL_NETWORKS_QUERY, QVariantMap());
     if(response.contains("data")) {
-        vns = response["data"].toMap()["listVirtualNetworks"].toMap()["items"].toList();
-        qDebug() << vns <<"[VirtualNetworkid]"<<vns.first().toMap().value("id").toString();
-        qmlEngine->rootContext()->setContextProperty("vns", vns);
-        joinVirtualNetwork(vns.first().toMap().value("id").toString());
+        virtualNetworkList = response["data"].toMap()["listVirtualNetworks"].toMap()["items"].toList();
+        qmlEngine->rootContext()->setContextProperty("vns", virtualNetworkList);
+        //joinVirtualNetwork(vns.first().toMap().value("id").toString());
     }
 }

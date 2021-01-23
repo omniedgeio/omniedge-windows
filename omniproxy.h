@@ -20,20 +20,6 @@
 #include <QQmlApplicationEngine>
 #include "googleoauth.h"
 
-struct Device {
-    QString id;
-    QString name;
-    QString virtualIP;
-    QString description;
-};
-
-struct VirtualNetwork {
-    QString id;
-    QString ipPrefix;
-    QString communityName;
-    QList<Device> devices;
-};
-
 const QString LIST_VIRTUAL_NETWORKS_QUERY = " \
 query { \
   listVirtualNetworks { \
@@ -63,12 +49,14 @@ public:
     explicit OmniProxy(QQmlApplicationEngine *engine);
     virtual ~OmniProxy();
     bool checkToken();
-    QVariantList vns;
+
+    QVariantList virtualNetworkList;
+    QVariantMap userInfo;
 
 public slots:
     void getVirtualNetworks();
     QVariantMap joinVirtualNetwork(QString virtualNetworkID);
-
+    QVariantMap getUserInfo();
 
 signals:
     void isLogin(bool status);
@@ -86,16 +74,16 @@ private:
     // Fetch settings from oauth.json
     QString idToken;
     QString clientId;
-    QString tokenUri;
+    QString cognitoUri;
     QString clientSecret;
     QString apiEndpoint;
     QString graphqlEndpoint;
 
     QNetworkAccessManager *networkManager;
 
-    void refreshToken();
-    QString getInternalIP();
+    bool refreshToken();
     void generatePubKey();
+    QString getInternalIP();
     QVariantMap graphqlQuery(QString query, QVariantMap variables);
 
     GoogleOAuth* oauth;

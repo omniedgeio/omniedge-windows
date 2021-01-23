@@ -35,12 +35,13 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
         val = file.readAll();
         file.close();
     }
+
     QJsonDocument document = QJsonDocument::fromJson(val);
     QJsonObject object = document.object();
     const auto settingsObject = object["dev"].toObject();
-    const QUrl authUri(settingsObject["auth_uri"].toString());
+    const QUrl authUri(settingsObject["cognito_uri"].toString() + "/login");
     const auto clientId = settingsObject["client_id"].toString();
-    const QUrl tokenUri(settingsObject["token_uri"].toString());
+    const QUrl tokenUri(settingsObject["cognito_uri"].toString() + "/oauth2/token");
     const auto clientSecret = settingsObject["client_secret"].toString();
     const QUrl redirectUri(settingsObject["redirect_uri"].toString());
     const auto port = static_cast<quint16>(redirectUri.port());

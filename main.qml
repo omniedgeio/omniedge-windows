@@ -29,10 +29,11 @@ ApplicationWindow {
             trayIcon.showMessage(title,msg)
         }
         onIsLogin: {
+            console.log(status)
             if(status===true){
                 login.enabled = false
                 logout.enabled = true
-                logout.text = qsTr("Logout as test6@gmail.com")
+                logout.text = qsTr("Logout as " + (user ? user.email : ""))
             }
             else{
                 login.enabled = true
