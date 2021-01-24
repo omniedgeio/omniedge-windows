@@ -18,7 +18,11 @@
 #include <QThread>
 #include <QList>
 #include <QQmlApplicationEngine>
-#include "googleoauth.h"
+#include <QNetworkAccessManager>
+#include <QEventLoop>
+#include <QtDebug>
+#include <QQmlContext>
+#include <memory>
 
 const QString LIST_VIRTUAL_NETWORKS_QUERY = " \
 query { \
@@ -39,24 +43,38 @@ query { \
   } \
 }";
 
+enum class ResponseStatus {
+  UnknownError,
+  AccessDenied, // 400
+  Unauthorized, // 401
+  InternalFailure, // 500
+  InvalidToken, // 403
+  MalformedQueryString, // 404
+  ServiceUnavailable, // 503
+  Success, // 200
+};
 
+struct Response {
+  QVariantMap data;
+  ResponseStatus status;
+};
 
 class OmniProxy : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit OmniProxy(QQmlApplicationEngine *engine);
+    explicit OmniProxy();
     virtual ~OmniProxy();
-    bool checkToken();
 
     QVariantList virtualNetworkList;
     QVariantMap userInfo;
+    Response refreshToken();
+    Response getUserInfo();
+    Response getVirtualNetworks();
+    Response joinVirtualNetwork(QString virtualNetworkID);
+    Response transformHttpReplyToResponse(QNetworkReply* reply);
 
-public slots:
-    void getVirtualNetworks();
-    QVariantMap joinVirtualNetwork(QString virtualNetworkID);
-    QVariantMap getUserInfo();
 
 signals:
     void isLogin(bool status);
@@ -73,6 +91,7 @@ private:
 
     // Fetch settings from oauth.json
     QString idToken;
+    QString accessToken;
     QString clientId;
     QString cognitoUri;
     QString clientSecret;
@@ -81,12 +100,9 @@ private:
 
     QNetworkAccessManager *networkManager;
 
-    bool refreshToken();
     void generatePubKey();
     QString getInternalIP();
-    QVariantMap graphqlQuery(QString query, QVariantMap variables);
-
-    GoogleOAuth* oauth;
+    Response graphqlQuery(QString query, QVariantMap variables);
 };
 
 #endif // OMNIPROXY_H

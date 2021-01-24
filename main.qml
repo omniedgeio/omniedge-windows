@@ -12,9 +12,9 @@ ApplicationWindow {
         objectName: "item_qml"
         signal connectSN(string community,string key)
         signal disconnectSN()
-        signal oauth()
+        signal login()
+        signal loginStatus(bool status)
         signal logout()
-        signal isLogin(bool status)
         signal wintapError()
         signal configError()
         signal showMsg(string title,string msg)
@@ -28,18 +28,8 @@ ApplicationWindow {
         onShowMsg:{
             trayIcon.showMessage(title,msg)
         }
-        onIsLogin: {
-            console.log(status)
-            if(status===true){
-                login.enabled = false
-                logout.enabled = true
-                logout.text = qsTr("Logout as " + (user ? user.email : ""))
-            }
-            else{
-                login.enabled = true
-                logout.enabled = false
-                logout.text = qsTr("Logout")
-            }
+        onLoginStatus: {
+            sysmenu.isLogin = status
         }
     }
 
@@ -53,15 +43,23 @@ ApplicationWindow {
         }
         menu: Menu {
             id:sysmenu
-
+            property var isLogin: false
             MenuItem {
-                id:status
-                text: qsTr("My address:10.254.1.2")
+                text: qsTr("Status: Starting Application...")
+                visible: loading
             }
-            MenuSeparator{}
             MenuItem {
-                id:connectMenu
+                id:statusMenuItem
+                text: qsTr("My address:10.254.1.2")
+                visible: sysmenu.isLogin && !loading
+            }
+            MenuSeparator{
+                visible: sysmenu.isLogin && !loading
+            }
+            MenuItem {
+                id:connectMenuItem
                 text: qsTr("Connect")
+                visible: sysmenu.isLogin && !loading
                 onTriggered: {
                     disconnectMenu.enabled = true
                     connectMenu.enabled = false
@@ -69,8 +67,9 @@ ApplicationWindow {
                 }
             }
             MenuItem {
-                id:disconnectMenu
+                id:disconnectMenuItem
                 text: qsTr("Disconnect")
+                visible: sysmenu.isLogin && !loading
                 enabled: false
                 onTriggered: {
                     connectMenu.enabled = true
@@ -78,47 +77,50 @@ ApplicationWindow {
                     item_qml.disconnectSN()
                 }
             }
-            MenuSeparator{}
+            MenuSeparator{
+                visible: sysmenu.isLogin && !loading
+            }
             MenuItem {
+                id: dashboardMenuItem
                 text: qsTr("Dashboard")
                 onTriggered: Qt.openUrlExternally("http://dashboard.omniedge.io")
+                visible: sysmenu.isLogin && !loading
             }
-            MenuSeparator{}
+            MenuSeparator{
+                visible: sysmenu.isLogin && !loading
+            }
             Menu {
+                id: networkDevicesMenuItem
                 title: "Network Devices"
-                visible: true
-                id: contextMenu
+                visible: sysmenu.isLogin && !loading
                 Instantiator {
-                    model: vns
+                    model: virtualNetworks
                     MenuItem {
                        id:deviceMenu
                        text: modelData.ipPrefix
                     }
                     // The trick is on those two lines
-                    onObjectAdded: contextMenu.insertItem(index, object)
-                    onObjectRemoved: contextMenu.removeItem(object)
+                    onObjectAdded: networkDevicesMenuItem.insertItem(index, object)
+                    onObjectRemoved: networkDevicesMenuItem.removeItem(object)
                 }
             }
-            MenuSeparator{}
+            MenuSeparator{
+                visible: sysmenu.isLogin && !loading
+            }
             MenuItem {
-                id:login
+                id:loginMenuItem
                 text: qsTr("Log in...")
+                visible: !sysmenu.isLogin && !loading
                 onTriggered:{
-                    login.enabled = false
-                    logout.enabled = true
-                    logout.text = qsTr("Logout as test6@gmail.com")
-                    item_qml.oauth()
+                    item_qml.login()
                 }
             }
             MenuItem {
-                id:logout
-                text: qsTr("Logout")
+                id:logoutMenuItem
+                text: qsTr("Logout" + (user ? " as " + user.email : ""))
+                visible: sysmenu.isLogin && !loading
                 onTriggered:
                 {
-                    login.enabled = true
-                    logout.enabled = false
-                    logout.text = qsTr("Logout")
-                    contextMenu.removeItem(contextMenu.items[0])
                     item_qml.logout()
                 }
             }
@@ -127,7 +129,7 @@ ApplicationWindow {
                 title: "About..."
                 MenuItem {
                     text: qsTr("V1.0.0")
-                    }
+                }
             }
             MenuSeparator{}
             MenuItem {
@@ -140,9 +142,9 @@ ApplicationWindow {
                 text: qsTr("Quit")
                 onTriggered:{
                     Qt.quit()
-                    }
                 }
             }
+        }
     }
 
 }

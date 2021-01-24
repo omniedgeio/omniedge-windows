@@ -17,7 +17,8 @@ DEFINES  -= UNICODE
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    googleoauth.cpp \
+    menuflow.cpp \
+    oauth.cpp \
     omniproxy.cpp \
         main.cpp \
     myoauthhttpserverreplyhandler.cpp \
@@ -36,7 +37,8 @@ SOURCES += \
     n2n/win32/wintap.c \
     n2n/n2n.c
 HEADERS += \
-    googleoauth.h \
+    menuflow.h \
+    oauth.h \
     omniproxy.h \
     myoauthhttpserverreplyhandler.h \
     n2nworker.h \

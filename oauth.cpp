@@ -1,24 +1,25 @@
-#include "googleoauth.h"
+#include "oauth.h"
 #include "myoauthhttpserverreplyhandler.h"
 #include <QSettings>
-GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
+
+OAuth::OAuth(QObject *parent) : QObject(parent)
 {
-    this->google = new QOAuth2AuthorizationCodeFlow(this);
-    this->google->setScope("email");
-    this->google->setScope("openid");
+    this->oauth = new QOAuth2AuthorizationCodeFlow(this);
+    this->oauth->setScope("email");
+    this->oauth->setScope("openid");
 
     // Google one-time code couldn't be process
     // So need this function to transform the code
-    this->google->setModifyParametersFunction([](QAbstractOAuth::Stage stage,
+    /*this->oauth->setModifyParametersFunction([](QAbstractOAuth::Stage stage,
                                               QVariantMap* parameters)
     {
         if(stage == QAbstractOAuth::Stage::RequestingAccessToken){
             QByteArray code = parameters->value("code").toByteArray();
             (*parameters)["code"] = QUrl::fromPercentEncoding(code);
         }
-    });
+    });*/
 
-    connect(this->google, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, [=](QUrl url) {
+    connect(this->oauth, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, [=](QUrl url) {
         QUrlQuery query(url);
 
         query.addQueryItem("prompt", "consent");      // Param required to get data everytime
@@ -46,12 +47,12 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
     const QUrl redirectUri(settingsObject["redirect_uri"].toString());
     const auto port = static_cast<quint16>(redirectUri.port());
 
-    this->google->setAuthorizationUrl(authUri);
-    this->google->setClientIdentifier(clientId);
-    this->google->setAccessTokenUrl(tokenUri);
-    this->google->setClientIdentifierSharedKey(clientSecret);
+    this->oauth->setAuthorizationUrl(authUri);
+    this->oauth->setClientIdentifier(clientId);
+    this->oauth->setAccessTokenUrl(tokenUri);
+    this->oauth->setClientIdentifierSharedKey(clientSecret);
 
-    this->google->setModifyParametersFunction([](QAbstractOAuth::Stage stage, QVariantMap* parameters) {
+    this->oauth->setModifyParametersFunction([](QAbstractOAuth::Stage stage, QVariantMap* parameters) {
           // Percent-decode the "code" parameter so Google can match it
           if (stage == QAbstractOAuth::Stage::RequestingAccessToken) {
               QByteArray code = parameters->value("code").toByteArray();
@@ -65,21 +66,25 @@ GoogleOAuth::GoogleOAuth(QObject *parent) : QObject(parent)
         settings.setValue("idToken", data["id_token"]);
         settings.setValue("accessToken", data["access_token"]);
         settings.setValue("refreshToken", data["refresh_token"]);
-        emit this->loginToGetVirtualNetworks();
+        qDebug() << "ID TOKEN " << settings.contains("idToken");
+        qDebug() << "ACCESS TOKEN " << settings.contains("accessToken");
+        qDebug() << "REFRESH TOKEN " << settings.contains("refreshToken");
+        emit granted();
     });
-    this->google->setReplyHandler(replyHandler);
-}
-GoogleOAuth::~GoogleOAuth()
-{
-    delete this->google;
+    this->oauth->setReplyHandler(replyHandler);
 }
 
-void GoogleOAuth::grant()
+OAuth::~OAuth()
 {
-    this->google->grant();
+    delete this->oauth;
 }
 
-void GoogleOAuth::clearToken()
+void OAuth::grant()
+{
+    this->oauth->grant();
+}
+
+void OAuth::clearToken()
 {
     QSettings settings;
     settings.setValue("idToken", "");

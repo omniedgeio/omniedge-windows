@@ -1,5 +1,5 @@
-#ifndef GOOGLEOAUTH_H
-#define GOOGLEOAUTH_H
+#ifndef OAUTH_H
+#define OAUTH_H
 
 #include <QObject>
 #include <QOAuth2AuthorizationCodeFlow>
@@ -16,20 +16,20 @@
 #include <QUrl>
 #include <QSettings>
 
-class GoogleOAuth : public QObject
+class OAuth : public QObject
 {
     Q_OBJECT
 public:
-    explicit GoogleOAuth(QObject *parent = nullptr);
-    virtual ~GoogleOAuth();
+    explicit OAuth(QObject *parent = nullptr);
+    virtual ~OAuth();
 
 public slots:
     void grant();
     void clearToken();
 signals:
-   void loginToGetVirtualNetworks();
+   void granted();
 private:
-    QOAuth2AuthorizationCodeFlow* google;
+    QOAuth2AuthorizationCodeFlow* oauth;
 };
 
-#endif // GOOGLEOAUTH_H
+#endif // OAUTH_H
