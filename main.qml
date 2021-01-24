@@ -10,7 +10,7 @@ ApplicationWindow {
     Item {
         id: item_qml
         objectName: "item_qml"
-        signal connectSN(string community,string key)
+        signal connectSN()
         signal disconnectSN()
         signal login()
         signal loginStatus(bool status)
@@ -61,9 +61,9 @@ ApplicationWindow {
                 text: qsTr("Connect")
                 visible: sysmenu.isLogin && !loading
                 onTriggered: {
-                    disconnectMenu.enabled = true
-                    connectMenu.enabled = false
-                    item_qml.connectSN("omniedge","66YRd88kyYdhzk")
+                    disconnectMenuItem.enabled = true
+                    connectMenuItem.enabled = false
+                    item_qml.connectSN()
                 }
             }
             MenuItem {
@@ -72,8 +72,8 @@ ApplicationWindow {
                 visible: sysmenu.isLogin && !loading
                 enabled: false
                 onTriggered: {
-                    connectMenu.enabled = true
-                    disconnectMenu.enabled = false
+                    connectMenuItem.enabled = true
+                    disconnectMenuItem.enabled = false
                     item_qml.disconnectSN()
                 }
             }

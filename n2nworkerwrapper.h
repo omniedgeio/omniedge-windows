@@ -21,7 +21,7 @@ signals:
     void startEdgeSignal(QString community_name, QString encrypt_key);
     void setVirtualIpSignal(QString virtual_ip, QString encryption);
 
-public slots:
+public:
     void setVirtualIp(QString virtual_ip, QString encryption);
     void startEdge(QString community_name, QString encrypt_key);
     void stopEdge();

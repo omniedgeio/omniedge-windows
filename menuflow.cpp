@@ -68,5 +68,17 @@ void MenuFlow::logout()
 {
     QSettings settings;
     settings.clear();
+    n2n->stopEdge();
     emit loginStatus(false);
+}
+
+void MenuFlow::connectSN()
+{
+    n2n->setVirtualIp("10.254.1.22","twofish");
+    n2n->startEdge("omniedge","66YRd88kyYdhzk");
+}
+
+void MenuFlow::disconnectSN()
+{
+    n2n->stopEdge();
 }

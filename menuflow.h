@@ -26,6 +26,8 @@ signals:
 public slots:
     void authenticate();
     void logout();
+    void connectSN();
+    void disconnectSN();
     //void joinVirtualNetwork(QString virtualNetworkID);
 
 private:

@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
         QObject::connect(pObjQml,SIGNAL(logout()),menuFlow,SLOT(logout()));
         QObject::connect(pObjQml,SIGNAL(login()),menuFlow,SLOT(authenticate()));
         QObject::connect(menuFlow,SIGNAL(loginStatus(bool)),pObjQml,SIGNAL(loginStatus(bool)));
-        //QObject::connect(pObjQml,SIGNAL(connectSN(QString, QString)),n2n,SLOT(startEdge(QString, QString)));
-        //QObject::connect(pObjQml,SIGNAL(disconnectSN()),n2n,SLOT(stopEdge()));
+        QObject::connect(pObjQml,SIGNAL(connectSN()),menuFlow,SLOT(connectSN()));
+        QObject::connect(pObjQml,SIGNAL(disconnectSN()),menuFlow,SLOT(disconnectSN()));
         //QObject::connect(n2n,SIGNAL(configError()),pObjQml,SIGNAL(configError()));
         //QObject::connect(n2n,SIGNAL(wintapError()),pObjQml,SIGNAL(wintapError()));
         if(menuFlow->checkToken()){
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 //        proxy->joinVirtualNetwork(proxy->vns.first().toMap().value("id").toString());
 //    }
 
-    #ifdef QT_NO_DEBUGW
+    #ifdef QT_NO_DEBUG
         syslog hlog;
         hlog.installReleaseMsgHandler();
     #endif
