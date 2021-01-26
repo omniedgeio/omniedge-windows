@@ -3,5 +3,6 @@
         <file>main.qml</file>
         <file>oauth.json</file>
         <file>images/AppIcon.png</file>
+        <file>success.html</file>
     </qresource>
 </RCC>

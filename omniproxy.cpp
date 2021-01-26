@@ -121,6 +121,7 @@ Response OmniProxy::refreshToken(){
         accessToken = responseObj["access_token"].toString();
         response.data = responseObj;
     }
+    qDebug() << reply->readAll();
     qDebug() << "DONE Refresh Token " << (response.status == ResponseStatus::Success);
     return response;
 }
