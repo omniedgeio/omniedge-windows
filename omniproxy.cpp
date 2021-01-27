@@ -275,7 +275,7 @@ Response OmniProxy::joinVirtualNetwork(QString virtualNetworkID)
     obj.insert("userAgent", "WINDOWS");//optional, 设备的备注
     obj.insert("description", description);// optional，设备的描述
     obj.insert("publicKey","MIIBCgKCAQEApZw+zI9V6agCTczOauD5BdMlhDWdy3NtDwHF92OQHArvW/xfQJjA");//settings.value("publicKey").toString());
-    obj.insert("instance_id", instanceID);// required, 设备的唯一标示
+    obj.insert("instanceID", instanceID);// required, 设备的唯一标示
     obj.insert("virtualNetworkID", virtualNetworkID);// optional, 设备的网卡ip
     QJsonDocument doc(obj);
     QByteArray data = doc.toJson();
