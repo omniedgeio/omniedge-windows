@@ -51,7 +51,10 @@ void MenuFlow::joinVirtualNetwork()
         Response res = proxy->joinVirtualNetwork(virtualNetworksID);
         if (res.status == ResponseStatus::Success) {
             qmlEngine->rootContext()->setContextProperty("myVirtualIP", res.data["virtualIP"].toString());
-            qDebug()<<res.data<<"virtualIP"<<res.data["virtualIP"].toString();
+            credential.communityName = res.data["communityName"].toString();
+            credential.superNodeAddr = res.data["addr"].toString();
+            credential.virtualIP = res.data["virtualIP"].toString();
+            credential.communityPassword = res.data["secretKey"].toString();
         } else {
             emit showMessage("Unknown Error", "We apologise for the error. Please send us an email to report.");
         }
@@ -92,8 +95,11 @@ void MenuFlow::logout()
 
 void MenuFlow::connectSN()
 {
-    n2n->setVirtualIp("10.254.1.22","twofish");
-    n2n->startEdge("omniedge","66YRd88kyYdhzk");
+    n2n->setVirtualIp(credential.virtualIP,"twofish");
+    n2n->startEdge(
+                credential.superNodeAddr,
+                credential.communityName,
+                credential.communityPassword);
 }
 
 void MenuFlow::disconnectSN()

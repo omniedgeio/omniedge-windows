@@ -9,7 +9,6 @@ extern "C" {
 #include "n2n/n2n.h"
 #include "n2n/n2n_transforms.h"
 }
-#define SUPERNODE_ADDR QString("54.223.23.92:7787")
 
 class N2NWorker : public QObject
 {
@@ -19,7 +18,7 @@ public:
     explicit N2NWorker(int* keep_on_running);
     virtual ~N2NWorker();
     void setVirtualIp(QString virtual_ip, QString encryption);
-    void startEdge(QString community_name, QString encrypt_key);
+    void startEdge(QString addr, QString community_name, QString encrypt_key);
 
 signals:
     void configError();
