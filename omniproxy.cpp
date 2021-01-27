@@ -1,6 +1,6 @@
 #include "omniproxy.h"
 
-#include "openssl/bn.h"
+/*#include "openssl/bn.h"
 #include "openssl/rsa.h"
 #include "openssl/pem.h"
 #include "openssl/bio.h"
@@ -10,7 +10,7 @@ using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)>;
 using RSA_ptr = std::unique_ptr<RSA, decltype(&::RSA_free)>;
 using EVP_KEY_ptr = std::unique_ptr<EVP_PKEY, decltype(&::EVP_PKEY_free)>;
 using BIO_FILE_ptr = std::unique_ptr<BIO, decltype(&::BIO_free)>;
-
+*/
 OmniProxy::OmniProxy()
 {
     // create network manager
@@ -60,7 +60,7 @@ OmniProxy::~OmniProxy()
 
 void OmniProxy::generatePubKey()
 {
-    int rc;
+ /*   int rc;
     RSA_ptr rsa(RSA_new(), ::RSA_free);
     BN_ptr bn(BN_new(), ::BN_free);
     BIO_FILE_ptr pem1(BIO_new_file("rsa-public-1.pem", "w"), ::BIO_free);
@@ -84,6 +84,7 @@ void OmniProxy::generatePubKey()
     rc = PEM_write_bio_RSAPublicKey(pem1.get(), rsa.get());
     if(rc != 1)
         qDebug()<<"generatePubKey PEM_write_bio_RSAPublicKey err \n";
+*/
 }
 
 Response OmniProxy::refreshToken(){

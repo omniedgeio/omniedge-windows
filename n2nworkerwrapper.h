@@ -18,12 +18,12 @@ signals:
     void wintapError();
     void connected();
     void disconnected();
-    void startEdgeSignal(QString community_name, QString encrypt_key);
+    void startEdgeSignal(QString addr, QString community_name, QString encrypt_key);
     void setVirtualIpSignal(QString virtual_ip, QString encryption);
 
 public:
     void setVirtualIp(QString virtual_ip, QString encryption);
-    void startEdge(QString community_name, QString encrypt_key);
+    void startEdge(QString addr, QString community_name, QString encrypt_key);
     void stopEdge();
 
 private:

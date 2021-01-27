@@ -40,12 +40,12 @@ private:
     QVariantList virtualNetworks;
     QThread m_menuflow;
     QString virtualNetworksID;
-    struct Connection{
+    struct Credential{
         QString virtualIP;
         QString superNodeAddr;
         QString communityName;
         QString communityPassword;
-    };
+    } credential;
 };
 
 #endif // MENUFLOW_H

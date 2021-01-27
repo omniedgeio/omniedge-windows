@@ -1,7 +1,7 @@
 QT += quick networkauth network widgets
 CONFIG += c++11 qml_debug
 
-#QMAKE_LFLAGS_WINDOWS += /MANIFESTUAC:"level='requireAdministrator'"
+QMAKE_LFLAGS_WINDOWS += /MANIFESTUAC:"level='requireAdministrator'"
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -75,9 +75,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 
-INCLUDEPATH += D:\Qt\Qt5.12.9\Tools\mingw730_64\opt\include
-LIBS += -L"C:\Program Files (x86)\OpenSSL-Win32\lib" -llibcrypto
-LIBS += -L"C:\Program Files (x86)\OpenSSL-Win32\lib" -llibssl
+#INCLUDEPATH += D:\Qt\Qt5.12.9\Tools\mingw730_64\opt\include
+#LIBS += -L"C:\Program Files (x86)\OpenSSL-Win32\lib" -llibcrypto
+#LIBS += -L"C:\Program Files (x86)\OpenSSL-Win32\lib" -llibssl
 
 
 

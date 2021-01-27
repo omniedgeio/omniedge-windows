@@ -21,10 +21,10 @@ void N2NWorkerWrapper::setVirtualIp(QString virtual_ip, QString encryption)
     emit setVirtualIpSignal(virtual_ip, encryption);
 }
 
-void N2NWorkerWrapper::startEdge(QString community_name, QString encrypt_key)
+void N2NWorkerWrapper::startEdge(QString addr, QString community_name, QString encrypt_key)
 {
     qDebug("startEdge.");
-    emit startEdgeSignal(community_name, encrypt_key);
+    emit startEdgeSignal(addr, community_name, encrypt_key);
 }
 
 void N2NWorkerWrapper::stopEdge()
