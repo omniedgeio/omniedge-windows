@@ -9,7 +9,7 @@ extern "C" {
 #include "n2n/n2n.h"
 #include "n2n/n2n_transforms.h"
 }
-#define SUPERNODE_ADDR QString("52.80.139.238:7787")
+#define SUPERNODE_ADDR QString("54.223.23.92:7787")
 
 class N2NWorker : public QObject
 {

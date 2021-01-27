@@ -4,7 +4,7 @@ import Qt.labs.platform 1.1
 import QtQml 2.12
 
 
-ApplicationWindow {
+Item {
     id: window
 
     Item {
@@ -50,7 +50,7 @@ ApplicationWindow {
             }
             MenuItem {
                 id:statusMenuItem
-                text: qsTr("My address:10.254.1.2")
+                text: qsTr("My address:"+myVirtualIP)
                 visible: sysmenu.isLogin && !loading
             }
             MenuSeparator{

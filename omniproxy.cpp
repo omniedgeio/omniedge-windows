@@ -1,5 +1,5 @@
 #include "omniproxy.h"
-/*
+
 #include "openssl/bn.h"
 #include "openssl/rsa.h"
 #include "openssl/pem.h"
@@ -9,7 +9,7 @@ using std::unique_ptr;
 using BN_ptr = std::unique_ptr<BIGNUM, decltype(&::BN_free)>;
 using RSA_ptr = std::unique_ptr<RSA, decltype(&::RSA_free)>;
 using EVP_KEY_ptr = std::unique_ptr<EVP_PKEY, decltype(&::EVP_PKEY_free)>;
-using BIO_FILE_ptr = std::unique_ptr<BIO, decltype(&::BIO_free)>;*/
+using BIO_FILE_ptr = std::unique_ptr<BIO, decltype(&::BIO_free)>;
 
 OmniProxy::OmniProxy()
 {
@@ -20,7 +20,7 @@ OmniProxy::OmniProxy()
     instanceID = QSysInfo::machineUniqueId();
     deviceName = QSysInfo::machineHostName();
     description = QSysInfo::prettyProductName();
-    /*QSettings settings;
+    QSettings settings;
     if(settings.value("publicKey").toString().isEmpty())
     {
         this->generatePubKey();
@@ -31,7 +31,7 @@ OmniProxy::OmniProxy()
             QString pbk = file.readAll();
             settings.setValue("publicKey", pbk);
         }
-    }*/
+    }
 
     // Get client id and client secret from oauth.json
     QFile file;
@@ -50,6 +50,7 @@ OmniProxy::OmniProxy()
     clientId = settingsObject["client_id"].toString();
     clientSecret = settingsObject["client_secret"].toString();
     graphqlEndpoint = settingsObject["graphql_endpoint"].toString();
+    apiEndpoint = settingsObject["api_endpoint"].toString();
 }
 
 OmniProxy::~OmniProxy()
@@ -59,7 +60,7 @@ OmniProxy::~OmniProxy()
 
 void OmniProxy::generatePubKey()
 {
-    /*int rc;
+    int rc;
     RSA_ptr rsa(RSA_new(), ::RSA_free);
     BN_ptr bn(BN_new(), ::BN_free);
     BIO_FILE_ptr pem1(BIO_new_file("rsa-public-1.pem", "w"), ::BIO_free);
@@ -82,7 +83,7 @@ void OmniProxy::generatePubKey()
     // Write public key in PKCS PEM
     rc = PEM_write_bio_RSAPublicKey(pem1.get(), rsa.get());
     if(rc != 1)
-        qDebug()<<"generatePubKey PEM_write_bio_RSAPublicKey err \n";*/
+        qDebug()<<"generatePubKey PEM_write_bio_RSAPublicKey err \n";
 }
 
 Response OmniProxy::refreshToken(){
@@ -261,6 +262,7 @@ Response OmniProxy::getVirtualNetworks()
 
 Response OmniProxy::joinVirtualNetwork(QString virtualNetworkID)
 {
+    qDebug() << "Joining Virtual Network...";
     QSettings settings;
     QNetworkReply* reply;
     QNetworkRequest networkRequest;
@@ -271,12 +273,11 @@ Response OmniProxy::joinVirtualNetwork(QString virtualNetworkID)
     obj.insert("name", deviceName);// required, 用户设置的设备名称
     obj.insert("userAgent", "WINDOWS");//optional, 设备的备注
     obj.insert("description", description);// optional，设备的描述
-    //obj.insert("publicKey", settings.value("publicKey").toString());
+    obj.insert("publicKey","MIIBCgKCAQEApZw+zI9V6agCTczOauD5BdMlhDWdy3NtDwHF92OQHArvW/xfQJjA");//settings.value("publicKey").toString());
     obj.insert("instance_id", instanceID);// required, 设备的唯一标示
     obj.insert("virtualNetworkID", virtualNetworkID);// optional, 设备的网卡ip
     QJsonDocument doc(obj);
     QByteArray data = doc.toJson();
-
     networkRequest.setRawHeader("Authorization", idToken.toLocal8Bit());
 
     QEventLoop connection_loop;
@@ -292,7 +293,7 @@ Response OmniProxy::joinVirtualNetwork(QString virtualNetworkID)
         QVariantMap responseObj = responseDoc.object().toVariantMap();
         response.data = responseObj;
     }
-    
+    qDebug() << "DONE Joining Virtual Network " << (response.status == ResponseStatus::Success);
     return response;
 }
 

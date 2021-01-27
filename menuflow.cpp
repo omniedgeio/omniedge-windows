@@ -7,7 +7,10 @@ MenuFlow::MenuFlow(QQmlApplicationEngine* engine)
     proxy = new OmniProxy();
     n2n = new N2NWorkerWrapper();
 }
+MenuFlow::~MenuFlow()
+{
 
+}
 bool MenuFlow::checkToken()
 {
     QSettings settings;
@@ -31,15 +34,29 @@ void MenuFlow::getVirtualNetworks()
 {
 	if(this->checkToken())
     {
+        virtualNetworksID.clear();
 		Response res = proxy->getVirtualNetworks();
         if (res.status == ResponseStatus::Success) {
             qmlEngine->rootContext()->setContextProperty("virtualNetworks", res.data["items"].toList());
+            virtualNetworksID = res.data["items"].toList().first().toMap().value("id").toString();
 		} else {
             emit showMessage("Unknown Error", "We apologise for the error. Please send us an email to report.");
 		}
 	}
 }
-
+void MenuFlow::joinVirtualNetwork()
+{
+    if(this->checkToken())
+    {
+        Response res = proxy->joinVirtualNetwork(virtualNetworksID);
+        if (res.status == ResponseStatus::Success) {
+            qmlEngine->rootContext()->setContextProperty("myVirtualIP", res.data["virtualIP"].toString());
+            qDebug()<<res.data<<"virtualIP"<<res.data["virtualIP"].toString();
+        } else {
+            emit showMessage("Unknown Error", "We apologise for the error. Please send us an email to report.");
+        }
+    }
+}
 void MenuFlow::getUserInfo()
 {
 	if(this->checkToken())
@@ -60,6 +77,7 @@ void MenuFlow::authenticate()
         qmlEngine->rootContext()->setContextProperty("loading", true);
         getUserInfo();
         getVirtualNetworks();
+        joinVirtualNetwork();
         qmlEngine->rootContext()->setContextProperty("loading", false);
     });
 }

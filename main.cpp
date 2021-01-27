@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
 
     if(pObjQml)
     {
+        QObject::connect(menuFlow,SIGNAL(showMessage(QString,QString)),pObjQml,SIGNAL(showMsg(QString,QString)));
         QObject::connect(pObjQml,SIGNAL(logout()),menuFlow,SLOT(logout()));
         QObject::connect(pObjQml,SIGNAL(login()),menuFlow,SLOT(authenticate()));
         QObject::connect(menuFlow,SIGNAL(loginStatus(bool)),pObjQml,SIGNAL(loginStatus(bool)));
@@ -39,6 +40,7 @@ int main(int argc, char *argv[])
         if(menuFlow->checkToken()){
             QMetaObject::invokeMethod(menuFlow, &MenuFlow::getUserInfo);
             QMetaObject::invokeMethod(menuFlow, &MenuFlow::getVirtualNetworks);
+            QMetaObject::invokeMethod(menuFlow, &MenuFlow::joinVirtualNetwork);
         }
         engine.rootContext()->setContextProperty("loading", false);
     }

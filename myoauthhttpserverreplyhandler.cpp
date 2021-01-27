@@ -19,14 +19,6 @@ MyOAuthHttpServerReplyHandler::MyOAuthHttpServerReplyHandler(quint16 port, QObje
     this->setCallbackText(val);
 }
 
-//MyOAuthHttpServerReplyHandler::MyOAuthHttpServerReplyHandler(const QHostAddress &address,
-//                                                           quint16 port, QObject *parent) :
-//    QOAuthOobReplyHandler(parent),
-//    d_ptr(new QOAuthHttpServerReplyHandlerPrivate(this))
-//{
-//    listen(address, port);
-//}
-
 QString MyOAuthHttpServerReplyHandler::callback() const
 {
     const QUrl url(QString::fromLatin1("http://localhost:8080/"));
