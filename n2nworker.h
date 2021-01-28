@@ -28,7 +28,6 @@ signals:
     void disconnected();
 
 private:
-    QThread* n2nThread;
     QString virtual_ip;
     tuntap_dev tuntap;
     n2n_edge_t *eee;

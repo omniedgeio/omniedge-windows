@@ -33,3 +33,9 @@ void N2NWorkerWrapper::stopEdge()
     emit stopEdgeSignal();
     keep_on_running = 0;
 }
+
+N2NWorkerWrapper::~N2NWorkerWrapper()
+{
+    n2nThread->wait();
+    n2nThread->quit();
+}

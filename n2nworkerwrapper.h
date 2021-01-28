@@ -12,6 +12,7 @@ class N2NWorkerWrapper : public QObject
 
 public:
     N2NWorkerWrapper();
+    virtual ~N2NWorkerWrapper();
 
 signals:
     void configError();

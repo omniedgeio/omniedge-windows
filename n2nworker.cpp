@@ -68,6 +68,5 @@ void N2NWorker::stopEdge()
 
 N2NWorker::~N2NWorker()
 {
-    n2nThread->wait();
-    n2nThread->quit();
+    tuntap_close(&tuntap);
 }
