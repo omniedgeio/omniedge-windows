@@ -121,6 +121,8 @@ Item {
                 visible: sysmenu.isLogin && !loading
                 onTriggered:
                 {
+                    connectMenuItem.enabled = true
+                    disconnectMenuItem.enabled = false
                     item_qml.logout()
                 }
             }
