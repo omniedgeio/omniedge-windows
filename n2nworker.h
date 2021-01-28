@@ -19,6 +19,7 @@ public:
     virtual ~N2NWorker();
     void setVirtualIp(QString virtual_ip, QString encryption);
     void startEdge(QString addr, QString community_name, QString encrypt_key);
+    void stopEdge();
 
 signals:
     void configError();

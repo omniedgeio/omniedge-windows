@@ -94,10 +94,10 @@ Item {
                 title: "Network Devices"
                 visible: sysmenu.isLogin && !loading
                 Instantiator {
-                    model: virtualNetworks
+                    model: virtualNetworks[0].devices.items
                     MenuItem {
                        id:deviceMenu
-                       text: modelData.ipPrefix
+                       text: modelData.virtualIP + " " + modelData.name
                     }
                     // The trick is on those two lines
                     onObjectAdded: networkDevicesMenuItem.insertItem(index, object)

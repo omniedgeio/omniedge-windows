@@ -23,13 +23,14 @@ void N2NWorker::startEdge(QString addr, QString community_name, QString encrypt_
 {
     QByteArray community = community_name.toLatin1();
     QByteArray secret = encrypt_key.toLatin1();
+    QByteArray supernode_addr = addr.toLatin1();
     int rv;
     /* Setup the configuration */
     edge_init_conf_defaults(&conf);
     conf.encrypt_key = secret.data();
     conf.transop_id = N2N_TRANSFORM_ID_TWOFISH;
     snprintf((char*)conf.community_name, sizeof(conf.community_name), "%s", community.data());
-    edge_conf_add_supernode(&conf, addr.toLatin1().data());
+    edge_conf_add_supernode(&conf, supernode_addr.data());
     /* Validate configuration */
     if(edge_verify_conf(&conf) != 0){
       emit configError();
@@ -57,6 +58,12 @@ void N2NWorker::startEdge(QString addr, QString community_name, QString encrypt_
     quick_edge_init_end:
         emit disconnected();
         tuntap_close(&tuntap);
+}
+
+void N2NWorker::stopEdge()
+{
+    emit disconnected();
+    tuntap_close(&tuntap);
 }
 
 N2NWorker::~N2NWorker()

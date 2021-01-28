@@ -20,6 +20,7 @@ signals:
     void disconnected();
     void startEdgeSignal(QString addr, QString community_name, QString encrypt_key);
     void setVirtualIpSignal(QString virtual_ip, QString encryption);
+    void stopEdgeSignal();
 
 public:
     void setVirtualIp(QString virtual_ip, QString encryption);

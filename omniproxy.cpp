@@ -18,6 +18,7 @@ OmniProxy::OmniProxy()
     this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
 
     instanceID = QSysInfo::machineUniqueId();
+    qDebug() << instanceID;
     deviceName = QSysInfo::machineHostName();
     description = QSysInfo::prettyProductName();
     QSettings settings;
@@ -177,6 +178,7 @@ Response OmniProxy::graphqlQuery(QString query, QVariantMap variables)
         QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
         QVariantMap responseObj = responseDoc.object().toVariantMap();
         response.data = responseObj;
+        qDebug() << responseDoc.toJson();
     }
 
     return response;
@@ -256,6 +258,7 @@ Response OmniProxy::getVirtualNetworks()
     if (response.status == ResponseStatus::Success) {
         response.data = response.data["data"].toMap()["listVirtualNetworks"].toMap();
     }
+    qDebug() << response.data;
 
     qDebug() << "DONE Get Virtual Network " << (response.status == ResponseStatus::Success);
     return response;
@@ -279,6 +282,7 @@ Response OmniProxy::joinVirtualNetwork(QString virtualNetworkID)
     obj.insert("virtualNetworkID", virtualNetworkID);// optional, 设备的网卡ip
     QJsonDocument doc(obj);
     QByteArray data = doc.toJson();
+    qDebug() << data;
     networkRequest.setRawHeader("Authorization", idToken.toLocal8Bit());
 
     QEventLoop connection_loop;
@@ -294,6 +298,7 @@ Response OmniProxy::joinVirtualNetwork(QString virtualNetworkID)
         QVariantMap responseObj = responseDoc.object().toVariantMap();
         response.data = responseObj;
     }
+    qDebug() << response.data;
     qDebug() << "DONE Joining Virtual Network " << (response.status == ResponseStatus::Success);
     return response;
 }
