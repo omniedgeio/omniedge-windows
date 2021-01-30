@@ -20,24 +20,23 @@ class TrayMenu : public QDialog
 public:
     TrayMenu();
 
-    void setVisible(bool visible) override;
-
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void showMessage();
-    void messageClicked();
 
 private:
     void createActions();
     void createTrayIcon();
 
 
-    QAction *minimizeAction;
-    QAction *maximizeAction;
-    QAction *restoreAction;
+    QAction *loginAction;
+    QAction *logoutAction;
+    QAction *connectAction;
+    QAction *disconnectAction;
+    QAction *aboutAction;
     QAction *quitAction;
 
     QSystemTrayIcon *trayIcon;
