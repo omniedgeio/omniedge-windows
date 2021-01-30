@@ -69,4 +69,5 @@ void OAuth::tokenReceived(const QVariantMap &data)
 OAuth::~OAuth()
 {
     delete this->oAuthFlow;
+    delete this->replyHandler;
 }
