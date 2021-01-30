@@ -7,6 +7,7 @@ extern "C" {
 N2NWorker::N2NWorker(int* keep_on_running)
 {
     this->keep_on_running = keep_on_running;
+    //setTraceLevel(20);
 }
 
 void N2NWorker::setVirtualIp(QString virtual_ip, QString encryption)
@@ -34,6 +35,7 @@ void N2NWorker::startEdge(QString addr, QString community_name, QString encrypt_
     /* Validate configuration */
     if(edge_verify_conf(&conf) != 0){
       emit configError();
+      return;
     }
 
       /* Open the tuntap device */
@@ -45,6 +47,8 @@ void N2NWorker::startEdge(QString addr, QString community_name, QString encrypt_
                    (char*) "",
                    DEFAULT_MTU) < 0){
         emit wintapError();
+        emit disconnected();
+        return;
     }
 
       /* Init edge */
@@ -63,7 +67,7 @@ void N2NWorker::startEdge(QString addr, QString community_name, QString encrypt_
 void N2NWorker::stopEdge()
 {
     emit disconnected();
-    tuntap_close(&tuntap);
+    tuntap_close(&tuntap); 
 }
 
 N2NWorker::~N2NWorker()

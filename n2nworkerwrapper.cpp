@@ -24,7 +24,9 @@ void N2NWorkerWrapper::setVirtualIp(QString virtual_ip, QString encryption)
 void N2NWorkerWrapper::startEdge(QString addr, QString community_name, QString encrypt_key)
 {
     qDebug("starting edge.");
+    keep_on_running = 1;
     emit startEdgeSignal(addr, community_name, encrypt_key);
+    //n2nWorker->startEdge(addr, community_name, encrypt_key);
 }
 
 void N2NWorkerWrapper::stopEdge()
@@ -36,6 +38,7 @@ void N2NWorkerWrapper::stopEdge()
 
 N2NWorkerWrapper::~N2NWorkerWrapper()
 {
+    keep_on_running = 0;
     n2nThread->wait();
     n2nThread->quit();
 }
