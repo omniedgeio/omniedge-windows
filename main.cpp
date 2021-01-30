@@ -1,60 +1,19 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-#include <QThread>
-#include <QIcon>
-#include <QQmlContext>
-#include "syslog.h"
-#include "menuflow.h"
-
+#include "traymenu.h"
+#include <QMessageBox>
+#include <QApplication>
+#include <QMenu>
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    Q_INIT_RESOURCE(edge);
+    QApplication a(argc, argv);
 
-    QCoreApplication::setOrganizationName("Omniedge");
-    QCoreApplication::setApplicationName("Omniedge-Desktop-Client");
-
-    QGuiApplication app(argc, argv);
-    QQmlApplicationEngine engine;
-
-    engine.rootContext()->setContextProperty("loading", true);
-
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-    if (engine.rootObjects().isEmpty())
-        return -1;
-
-
-    QObject* root = engine.rootObjects().first();
-    QObject *pObjQml = root->findChild<QObject*>("item_qml");
-    MenuFlow* menuFlow = new MenuFlow(&engine);
-
-    if(pObjQml)
-    {
-        QObject::connect(menuFlow,SIGNAL(showMessage(QString,QString)),pObjQml,SIGNAL(showMsg(QString,QString)));
-        QObject::connect(pObjQml,SIGNAL(logout()),menuFlow,SLOT(logout()));
-        QObject::connect(pObjQml,SIGNAL(login()),menuFlow,SLOT(authenticate()));
-        QObject::connect(menuFlow,SIGNAL(loginStatus(bool)),pObjQml,SIGNAL(loginStatus(bool)));
-        QObject::connect(pObjQml,SIGNAL(connectSN()),menuFlow,SLOT(connectSN()));
-        QObject::connect(pObjQml,SIGNAL(disconnectSN()),menuFlow,SLOT(disconnectSN()));
-        //QObject::connect(n2n,SIGNAL(configError()),pObjQml,SIGNAL(configError()));
-        //QObject::connect(n2n,SIGNAL(wintapError()),pObjQml,SIGNAL(wintapError()));
-        if(menuFlow->checkToken()){
-            QMetaObject::invokeMethod(menuFlow, &MenuFlow::getUserInfo);
-            QMetaObject::invokeMethod(menuFlow, &MenuFlow::getVirtualNetworks);
-            QMetaObject::invokeMethod(menuFlow, &MenuFlow::joinVirtualNetwork);
-        }
-        engine.rootContext()->setContextProperty("loading", false);
-    }
-
-//    if(proxy->checkToken()){
-//        proxy->vns = proxy->getVirtualNetworks();
-//        qDebug() << proxy->vns <<"[VirtualNetworkid]"<<proxy->vns.first().toMap().value("id").toString();
-//        engine.rootContext()->setContextProperty("vns", proxy->vns);
-//        proxy->joinVirtualNetwork(proxy->vns.first().toMap().value("id").toString());
-//    }
-
-    #ifdef QT_NO_DEBUG
-        syslog hlog;
-        hlog.installReleaseMsgHandler();
-    #endif
-    return app.exec();
+    QMenu* menu = new QMenu();
+    QAction *action1;
+    action1= new QAction("action1", NULL);
+    QSystemTrayIcon *trayIcon = new QSystemTrayIcon(QIcon(":/images/AppIcon.png"));
+    menu->addAction(action1);
+    trayIcon->setContextMenu( menu);
+    trayIcon->setVisible(true);
+    trayIcon->showMessage("Test Message", "Text", QSystemTrayIcon::Information, 1000);
+    return a.exec();
 }
