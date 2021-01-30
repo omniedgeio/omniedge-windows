@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui network networkauth
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,9 +17,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
+    oauth.cpp \
+    oauthreplyhandler.cpp \
     traymenu.cpp
 
 HEADERS += \
+    oauth.h \
+    oauthreplyhandler.h \
     traymenu.h
 
 # Default rules for deployment.
@@ -28,5 +32,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    edge.qrc
+    resources.qrc
 RC_ICONS = "./images/logo.ico"
