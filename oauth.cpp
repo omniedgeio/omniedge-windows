@@ -1,7 +1,9 @@
 #include "oauth.h"
 #include <QSettings>
+#include <QDateTime>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QDesktopServices>
 
 OAuth::OAuth(QObject *parent) : QObject(parent)
 {
@@ -41,9 +43,15 @@ OAuth::OAuth(QObject *parent) : QObject(parent)
         qDebug() << "OAuth: Intialize settings successfully.";
 
         this->replyHandler = new OAuthReplyHandler(port, this);
+        this->oAuthFlow->setReplyHandler(replyHandler);
 
+        qDebug() << "OAuth: Intialize reply handler successfully.";
+
+        connect(this->oAuthFlow, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, [=](QUrl url) {
+            QDesktopServices::openUrl(url);
+        });
         connect(this->oAuthFlow, &QOAuth2AuthorizationCodeFlow::granted, this, &OAuth::granted);
-        connect(this->replyHandler, &OAuthReplyHandler::tokensReceived, this, &OAuth::tokenReceived);
+        connect(this->replyHandler, &OAuthReplyHandler::tokensReceived, this, &OAuth::tokensReceived);
     } else {
         qDebug() << "OAuth: Cannot open configuration file.";
     }
@@ -51,19 +59,22 @@ OAuth::OAuth(QObject *parent) : QObject(parent)
 
 void OAuth::grant()
 {
+    qDebug() << "OAuth: grant";
     this->oAuthFlow->grant();
 }
 
-void OAuth::tokenReceived(const QVariantMap &data)
+void OAuth::tokensReceived(const QVariantMap &data)
 {
     QSettings settings;
-    settings.setValue("IdToken", data["id_token"]);
-    settings.setValue("AccessToken", data["access_token"]);
-    settings.setValue("RefreshToken", data["refresh_token"]);
+    settings.setValue(SETTINGS_ID_TOKEN, data["id_token"]);
+    settings.setValue(SETTINGS_ACCESS_TOKEN, data["access_token"]);
+    settings.setValue(SETTINGS_REFRESH_TOKEN, data["refresh_token"]);
+    settings.setValue(SETTINGS_EXPIRES_IN, QDateTime::currentSecsSinceEpoch() + data["expires_in"].toUInt());
     qDebug() << "OAuth: Token received.";
-    qDebug() << "OAuth: ID TOKEN = " << settings.contains("idToken");
-    qDebug() << "OAuth: ACCESS TOKEN = " << settings.contains("accessToken");
-    qDebug() << "OAuth: REFRESH TOKEN = " << settings.contains("refreshToken");
+    qDebug() << "OAuth: ID TOKEN "      << (settings.contains(SETTINGS_ID_TOKEN) ? "Received" : "Not Received");
+    qDebug() << "OAuth: ACCESS TOKEN "  << (settings.contains(SETTINGS_ACCESS_TOKEN) ? "Received" : "Not Received");
+    qDebug() << "OAuth: REFRESH TOKEN " << (settings.contains(SETTINGS_REFRESH_TOKEN) ? "Received" : "Not Received");
+    qDebug() << "OAuth: EXPIRES IN "    << QDateTime::fromSecsSinceEpoch(settings.value(SETTINGS_EXPIRES_IN).toUInt());
 }
 
 OAuth::~OAuth()
