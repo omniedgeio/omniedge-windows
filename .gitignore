@@ -71,4 +71,4 @@ Thumbs.db
 *.dll
 *.exe
 !edge.exe
-
+!tapinstall.exe
