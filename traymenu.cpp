@@ -35,7 +35,8 @@ TrayMenu::TrayMenu()
     connect(aboutAction, &QAction::triggered, this, &TrayMenu::aboutDialog);
 
     quitAction = new QAction(tr("&Quit"), this);
-    quitAction->setShortcut(QKeySequence(tr("Ctrl+Q")));
+    quitAction->setShortcut(QKeySequence("Shift+Q"));
+    quitAction->setShortcutContext(Qt::ApplicationShortcut);
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 
     trayIconMenu = new QMenu(this);
