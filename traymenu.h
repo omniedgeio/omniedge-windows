@@ -2,47 +2,52 @@
 #define TRAYMENU_H
 
 #include <QSystemTrayIcon>
-
-#ifndef QT_NO_SYSTEMTRAYICON
-
 #include <QDialog>
+#include <QAction>
+#include <QMenu>
+#include "menucontroller.h"
 
-QT_BEGIN_NAMESPACE
-class QAction;
-class QMenu;
-QT_END_NAMESPACE
 
-//! [0]
 class TrayMenu : public QDialog
 {
     Q_OBJECT
 
 public:
-    TrayMenu();
-
-protected:
-    void closeEvent(QCloseEvent *event) override;
+    explicit TrayMenu();
+    virtual ~TrayMenu();
 
 private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
-    void showMessage();
+    void aboutDialog();
+    void dashboard();
+    void showMessage(QString title, QString msg);
+    void connected();
+    void disconnected();
+
+signals:
+    void checkLoginStatus();
+    void loginSignal();
+    void logoutSignal();
+    void connectSNSignal();
+    void disconnectSNSignal();
 
 private:
     void createActions();
-    void createTrayIcon();
-
+    void createMenu(bool loginStatus);
 
     QAction *loginAction;
     QAction *logoutAction;
     QAction *connectAction;
     QAction *disconnectAction;
+    QAction *dashboardAction;
     QAction *aboutAction;
     QAction *quitAction;
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
+    QMenu *devicesMenu;
+
+    MenuController* controller;
+
 };
-
-#endif // QT_NO_SYSTEMTRAYICON
-
 #endif

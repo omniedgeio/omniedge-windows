@@ -1,10 +1,16 @@
 #include "traymenu.h"
 #include <QApplication>
-#include "oauth.h"
+#include "menucontroller.h"
+#include "syslog.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+#ifdef QT_NO_DEBUG
+    syslog hlog;
+    hlog.installReleaseMsgHandler();
+#endif
 
     // Setting for QSetting
     QCoreApplication::setOrganizationName("Omniedge");
@@ -12,7 +18,6 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Omniedge Desktop Client");
 
     TrayMenu menu;
-    OAuth* oauth = new OAuth();
-    oauth->grant();
+
     return a.exec();
 }
