@@ -20,6 +20,7 @@ DEFINES -= UNICODE
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    aboutdialog.cpp \
     main.cpp \
     menucontroller.cpp \
     n2nworker.cpp \
@@ -42,6 +43,7 @@ SOURCES += \
     n2n/n2n.c
 
 HEADERS += \
+    aboutdialog.h \
     menucontroller.h \
     n2nworker.h \
     oauth.h \
@@ -72,3 +74,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     resources.qrc
 RC_ICONS = "./images/logo.ico"
+
+FORMS += \
+    aboutdialog.ui

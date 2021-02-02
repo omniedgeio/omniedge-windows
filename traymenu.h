@@ -6,7 +6,7 @@
 #include <QAction>
 #include <QMenu>
 #include "menucontroller.h"
-
+#include "aboutdialog.h"
 
 class TrayMenu : public QDialog
 {
@@ -18,7 +18,7 @@ public:
 
 private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
-    void aboutDialog();
+    void showAboutDialog();
     void dashboard();
     void showMessage(QString title, QString msg);
     void connected();
@@ -48,6 +48,7 @@ private:
     QMenu *devicesMenu;
 
     MenuController* controller;
+    AboutDialog *aboutDlg;
 
 };
 #endif
