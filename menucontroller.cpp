@@ -43,9 +43,14 @@ MenuController::MenuController(QObject *parent) : QObject(parent)
 
 void MenuController::login(){
     emit oAuthGrantSignal();
+    emit updateStatus("Status: Logging in...");
 }
 
 void MenuController::logout(){
+    if (keep_on_running) {
+        keep_on_running = 0;
+        emit updateStatus("Status: Disconnecting...");
+    }
     QSettings settings;
     settings.clear();
     emit oauthloginStatus(false);
@@ -59,10 +64,12 @@ void MenuController::connectSN(){
             info.secretKey,
             info.virtualIP
          );
+    emit updateStatus("Status: Connecting...");
 }
 
 void MenuController::disconnectSN(){
     keep_on_running = 0;
+    emit updateStatus("Status: Disconnecting...");
 }
 
 void MenuController::n2nError(N2NWorkerError error)
@@ -76,7 +83,6 @@ void MenuController::n2nError(N2NWorkerError error)
 void MenuController::oAuthGranted()
 {
     emit getUserInfoSignal();
-    emit showMessage("Login successfully", "Connect without concern");
 }
 
 void MenuController::userInfoReply(

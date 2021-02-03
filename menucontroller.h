@@ -47,6 +47,7 @@ signals:
     void n2nDisconnected();
     void oauthloginStatus(bool status);
     void showMessage(QString title, QString msg);
+    void updateStatus(QString statusMsg);
 
 private:
     QThread* n2nThread;

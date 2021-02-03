@@ -15,21 +15,40 @@ TrayMenu::TrayMenu()
 
     controller = new MenuController();
     connect(this, &TrayMenu::checkLoginStatus, controller, &MenuController::getUserInfoSignal);
+    connect(controller, &MenuController::showMessage, this, &TrayMenu::showMessage);
+    connect(controller, &MenuController::updateStatus, this, &TrayMenu::updateStatus);
     connect(controller, &MenuController::oauthloginStatus, this, &TrayMenu::createMenu);
     connect(controller, &MenuController::n2nConnected, this, &TrayMenu::connected);
     connect(controller, &MenuController::n2nDisconnected, this, &TrayMenu::disconnected);
 
     /* Create actions */
+    statusAction = new QAction(tr("Starting application..."), this);
+
+    statusSeperator = new QAction();
+    statusSeperator->setSeparator(true);
+
     connectAction = new QAction(tr("Connect"), this);
     connect(connectAction, &QAction::triggered, controller, &MenuController::connectSN);
+
     disconnectAction = new QAction(tr("Disconnect"), this);
     connect(disconnectAction, &QAction::triggered, controller, &MenuController::disconnectSN);
+
+    devicesMenu = new QMenu("Network devices");
+
+    connectionSeperator = new QAction();
+    connectionSeperator->setSeparator(true);
 
     loginAction = new QAction(tr("Log in..."), this);
     connect(loginAction, &QAction::triggered, controller, &MenuController::login);
 
+    logoutAction = new QAction(tr("Logout"), this);
+    connect(logoutAction, &QAction::triggered, controller, &MenuController::logout);
+
     dashboardAction = new QAction(tr("Dashboard"), this);
     connect(dashboardAction, &QAction::triggered, this, &TrayMenu::dashboard);
+
+    webSeperator = new QAction();
+    webSeperator->setSeparator(true);
 
     aboutAction = new QAction(tr("About..."), this);
     connect(aboutAction, &QAction::triggered, this, &TrayMenu::aboutDialog);
@@ -39,18 +58,39 @@ TrayMenu::TrayMenu()
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 
     trayIconMenu = new QMenu(this);
+    trayIconMenu->addAction(statusAction);
+    statusAction->setVisible(false);
 
-    QSettings settings;
-    if(settings.contains(SETTINGS_ID_TOKEN)){
-        trayIconMenu->addAction("Status: Starting application...");
-        emit checkLoginStatus();
-    }
+    trayIconMenu->addAction(statusSeperator);
+
+    trayIconMenu->addAction(connectAction);
+    connectAction->setVisible(false);
+
+    trayIconMenu->addAction(disconnectAction);
+    disconnectAction->setVisible(false);
+
+    trayIconMenu->addAction(connectionSeperator);
+    connectionSeperator->setVisible(false);
+
+    trayIconMenu->addAction(dashboardAction);
+    dashboardAction->setVisible(false);
 
     trayIconMenu->addAction(loginAction);
 
-    trayIconMenu->addSeparator();
+    trayIconMenu->addAction(logoutAction);
+    logoutAction->setVisible(false);
+
+    trayIconMenu->addAction(webSeperator);
+
     trayIconMenu->addAction(aboutAction);
     trayIconMenu->addAction(quitAction);
+
+    QSettings settings;
+    if(settings.contains(SETTINGS_ID_TOKEN)){
+        statusAction->setText("Starting application...");
+        statusAction->setVisible(true);
+        emit checkLoginStatus();
+    }
 
     trayIcon->setContextMenu(trayIconMenu);
 }
@@ -62,38 +102,51 @@ TrayMenu::~TrayMenu()
 
 void TrayMenu::createMenu(bool loginStatus)
 {
-    delete trayIconMenu;
-    trayIconMenu = new QMenu(this);
     qDebug() << "Tray menu: Login status : " << loginStatus;
     if(loginStatus){
-        trayIconMenu->addAction("My Address: " + this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP);
-        trayIconMenu->addSeparator();
-        trayIconMenu->addAction(connectAction);
-        trayIconMenu->addAction(disconnectAction);
-        disconnectAction->setEnabled(false);
-        trayIconMenu->addSeparator();
-        trayIconMenu->addAction(dashboardAction);
+        statusAction->setText("My Address: " +
+                              this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP);
+        statusAction->setVisible(true);
+        statusSeperator->setVisible(true);
 
-        devicesMenu= trayIconMenu->addMenu("Network Device");
+        connectAction->setVisible(true);
+        disconnectAction->setVisible(true);
+        disconnectAction->setEnabled(false);
+        connectionSeperator->setVisible(true);
+
+        dashboardAction->setVisible(true);
+
         for(Device device : this->controller->virtualNetworks.at(0).devices){
             devicesMenu->addAction(device.virtualIP + " " + device.name);
         }
-        trayIconMenu->addSeparator();
-        logoutAction = new QAction(tr("Logout as " + this->controller->userInfo.email.toLocal8Bit()), this);
-        connect(logoutAction, &QAction::triggered, controller, &MenuController::logout);
-        trayIconMenu->addAction(logoutAction);
-        trayIconMenu->addAction(aboutAction);
-        trayIconMenu->addAction(quitAction);
+        trayIconMenu->insertMenu(connectionSeperator, devicesMenu);
 
-        trayIcon->setContextMenu(trayIconMenu);
+        logoutAction->setText(tr("Logout as " + this->controller->userInfo.email.toLocal8Bit()));
+        logoutAction->setVisible(true);
+
+        loginAction->setVisible(false);
+        showMessage("Login successfully", "Connect without concern");
     } else {
-        trayIconMenu->addAction(loginAction);
+        statusAction->setText("My Address: " +
+                              this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP);
+        statusAction->setVisible(false);
+        statusSeperator->setVisible(false);
 
-        trayIconMenu->addSeparator();
-        trayIconMenu->addAction(aboutAction);
-        trayIconMenu->addAction(quitAction);
+        connectAction->setVisible(false);
+        disconnectAction->setVisible(false);
+        disconnectAction->setEnabled(false);
+        connectionSeperator->setVisible(false);
 
-        trayIcon->setContextMenu(trayIconMenu);
+        dashboardAction->setVisible(false);
+
+        devicesMenu->clear();
+        trayIconMenu->removeAction(devicesMenu->menuAction());
+
+        logoutAction->setText(tr("Logout as " + this->controller->userInfo.email.toLocal8Bit()));
+        logoutAction->setVisible(false);
+
+        loginAction->setVisible(true);
+        showMessage("Logout successfully", "Looking forward to see you again");
     }
 }
 
@@ -128,14 +181,24 @@ void TrayMenu::showMessage(QString title,QString msg)
     trayIcon->showMessage(title, msg, QSystemTrayIcon::Information, 1000);
 }
 
+void TrayMenu::updateStatus(QString statusMsg)
+{
+    statusAction->setText(statusMsg);
+    statusAction->setVisible(true);
+    statusSeperator->setVisible(true);
+}
+
 void TrayMenu::connected()
 {
     connectAction->setEnabled(false);
     disconnectAction->setEnabled(true);
+    statusAction->setText("My Address: " +
+                          this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP);
 }
 
 void TrayMenu::disconnected()
 {
     connectAction->setEnabled(true);
     disconnectAction->setEnabled(false);
+    statusAction->setText("Status: Offline");
 }

@@ -17,6 +17,8 @@ public:
     explicit OAuthReplyHandler(quint16 port, QObject *parent = nullptr);
 
     QString callback() const override;
+
+    quint16 custom_port;
 };
 
 #endif // OAUTHREPLYHANDLER_H

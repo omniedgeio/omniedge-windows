@@ -23,6 +23,7 @@ private slots:
     void showMessage(QString title, QString msg);
     void connected();
     void disconnected();
+    void updateStatus(QString statusMsg);
 
 signals:
     void checkLoginStatus();
@@ -35,17 +36,24 @@ private:
     void createActions();
     void createMenu(bool loginStatus);
 
-    QAction *loginAction;
-    QAction *logoutAction;
+    QAction *statusAction;
+    QAction *statusSeperator;
+
     QAction *connectAction;
     QAction *disconnectAction;
+    QMenu   *devicesMenu;
+    QAction *connectionSeperator;
+
     QAction *dashboardAction;
+    QAction *loginAction;
+    QAction *logoutAction;
+    QAction *webSeperator;
+
     QAction *aboutAction;
     QAction *quitAction;
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
-    QMenu *devicesMenu;
 
     MenuController* controller;
 
