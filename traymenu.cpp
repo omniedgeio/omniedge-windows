@@ -6,8 +6,10 @@
 #include <QMenu>
 #include <QMessageBox>
 
+
 TrayMenu::TrayMenu()
 {
+    aboutDlg = new AboutDialog();
     trayIcon = new QSystemTrayIcon(QIcon(":/images/AppIcon.png"));
     trayIcon->setVisible(true);
     trayIcon->showMessage("OmniEdge", "Connect without corcern", QSystemTrayIcon::Information, 1000);
@@ -20,7 +22,7 @@ TrayMenu::TrayMenu()
     connect(controller, &MenuController::oauthloginStatus, this, &TrayMenu::createMenu);
     connect(controller, &MenuController::n2nConnected, this, &TrayMenu::connected);
     connect(controller, &MenuController::n2nDisconnected, this, &TrayMenu::disconnected);
-
+    connect(controller, SIGNAL(showMessage(QString,QString)), this, SLOT(showMessage(QString,QString)));
     /* Create actions */
     statusAction = new QAction(tr("Starting application..."), this);
 
@@ -51,10 +53,11 @@ TrayMenu::TrayMenu()
     webSeperator->setSeparator(true);
 
     aboutAction = new QAction(tr("About..."), this);
-    connect(aboutAction, &QAction::triggered, this, &TrayMenu::aboutDialog);
+    connect(aboutAction, &QAction::triggered, this, &TrayMenu::showAboutDialog);
 
-    quitAction = new QAction(tr("&Quit"), this);
-    quitAction->setShortcut(QKeySequence(tr("Ctrl+Q")));
+    quitAction = new QAction(tr("Quit"), this);
+//    quitAction->setShortcut(QKeySequence("Shift+Q"));
+//    quitAction->setShortcutContext(Qt::ApplicationShortcut);
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 
     trayIconMenu = new QMenu(this);
@@ -152,19 +155,19 @@ void TrayMenu::createMenu(bool loginStatus)
 
 void TrayMenu::dashboard()
 {
-    QString link = "https://www.omniedge.io";
+    QString link = "https://www.dashboard.omniedge.io";
     QDesktopServices::openUrl(QUrl(link));
 }
 
-void TrayMenu::aboutDialog()
+void TrayMenu::showAboutDialog()
 {
-    QDialog dialog;
-    this->setWindowTitle("Custom Dialog");
-    resize(400, 300);
+    aboutDlg->open();
+
 }
 
 void TrayMenu::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
+    Q_UNUSED(reason);
  /*   switch (reason) {
     case QSystemTrayIcon::Trigger:
     case QSystemTrayIcon::DoubleClick:

@@ -55,11 +55,11 @@
 
 ; This version number should match the version
 ; number given in ..\version.m4.
-   DriverVer = 10/08/2020,9.24.6.601
+   DriverVer = 04/16/2019,9.23.1.601
 
 [Strings]
-   DeviceDescription = "Omniedge TAP-Windows Adapter V9"
-   Provider = "Omniedge TAP-Windows Provider V9"
+   DeviceDescription = "TAP-Windows Adapter V9"
+   Provider = "TAP-Windows Provider V9"
 
 ;----------------------------------------------------------------
 ;                      Manufacturer + Product Section (Done)
@@ -88,11 +88,10 @@
    CopyFiles       = tap0901.driver, tap0901.files
    AddReg          = tap0901.reg
    AddReg          = tap0901.params.reg
-   DelReg          = tap0901.params.delreg
-   Characteristics = 0x1
-   *IfType            = 53  ; IF_TYPE_PROP_VIRTUAL
+   Characteristics = 0x81
+   *IfType            = 0x6 ; IF_TYPE_ETHERNET_CSMACD
    *MediaType         = 0x0 ; NdisMedium802_3
-   *PhysicalMediaType = 0   ; NdisPhysicalMediumUnspecified
+   *PhysicalMediaType = 14  ; NdisPhysicalMedium802_3
 
 [tap0901.ndi.Services]
    AddService = tap0901,        2, tap0901.service
@@ -118,18 +117,15 @@
    HKR, Ndi\params\MediaStatus,          Optional,  0, "0"
    HKR, Ndi\params\MediaStatus\enum,     "0",       0, "Application Controlled"
    HKR, Ndi\params\MediaStatus\enum,     "1",       0, "Always Connected"
-   HKR, Ndi\params\NetworkAddress,       ParamDesc, 0, "MAC Address"
-   HKR, Ndi\params\NetworkAddress,       Type,      0, "edit"
-   HKR, Ndi\params\NetworkAddress,       Optional,  0, "1"
+   HKR, Ndi\params\MAC,                  ParamDesc, 0, "MAC Address"
+   HKR, Ndi\params\MAC,                  Type,      0, "edit"
+   HKR, Ndi\params\MAC,                  Optional,  0, "1"
    HKR, Ndi\params\AllowNonAdmin,        ParamDesc, 0, "Non-Admin Access"
    HKR, Ndi\params\AllowNonAdmin,        Type,      0, "enum"
    HKR, Ndi\params\AllowNonAdmin,        Default,   0, "1"
    HKR, Ndi\params\AllowNonAdmin,        Optional,  0, "0"
    HKR, Ndi\params\AllowNonAdmin\enum,   "0",       0, "Not Allowed"
    HKR, Ndi\params\AllowNonAdmin\enum,   "1",       0, "Allowed"
-
-[tap0901.params.delreg]
-   HKR, Ndi\params\MAC
 
 ;----------------------------------------------------------------
 ;                             Service Section

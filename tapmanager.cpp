@@ -9,44 +9,34 @@
 
 TapManager::TapManager(QObject *parent) : QObject(parent)
 {
-    static bool is64bitHost = QSysInfo::currentCpuArchitecture().contains(QLatin1String("64"));
-    if (is64bitHost) {
-        this->tapPath = "amd64";
-    } else {
-        this->tapPath = "i386";
-    }
-    this->tapPath = QDir::currentPath() + "\\tap-windows\\" + this->tapPath;
+    QNetworkInterface interface;
+    QStringList interfaceList;
+    QList<QNetworkInterface> IpList = interface.allInterfaces();
+    for (int i = 0; i < IpList.size(); i++)
+        interfaceList.append(IpList.at(i).humanReadableName());
 
-    QFileInfo check_file(this->tapPath + "\\tapinstall.exe");
+    QFileInfo check_file(QDir::currentPath() + "\\tap-windows\\add_tap_device.bat");
     if (check_file.exists() && check_file.isFile()) {
-        qDebug() << "TapManager: " << this->tapPath + "\\tapinstall.exe" << " exists.";
+        qDebug() << "TapManager: " << QDir::currentPath() + "\\tap-windows\\add_tap_device.bat" << " exists.";
+        if(!interfaceList.contains("OmniEdge",Qt::CaseSensitive))
+        {
+            QProcess process;
+            process.start(QDir::currentPath() + "\\tap-windows\\add_tap_device.bat");
+            process.waitForFinished();
+        }
+        else
+            qDebug() << "OmniEdge tap device exist";
+
     } else {
-        qDebug() << "TapManager: " << this->tapPath + "\\tapinstall.exe" << " not exists.";
+        qDebug() << "TapManager: " << QDir::currentPath()  + "\\tap-windows\\add_tap_device.bat" << " not exists.";
     }
 }
 
 void TapManager::addTap()
 {
-    QString infPath = "";
-    if(QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows10) {
-        infPath = "\\win10";
-    }
-
-    QFileInfo check_file(tapPath + infPath + "\\OemVista.inf");
-    if (check_file.exists() && check_file.isFile()) {
-        qDebug() << "TapManager: " << tapPath + infPath + "\\OemVista.inf" << " exists.";
-    } else {
-        qDebug() << "TapManager: " << tapPath + infPath + "\\OemVista.inf" << " not exists.";
-    }
-
     QProcess process;
-    process.start(this->tapPath + "\\tapinstall.exe",
-                  QStringList() <<
-                  "install" <<
-                  tapPath + infPath + "\\OemVista.inf" <<
-                  "TAP0901");
+    process.start(QDir::currentPath() + "\\tap-windows\\add_tap_device.bat");
     process.waitForFinished();
-    qDebug() << process.readAllStandardOutput();
 }
 
 
