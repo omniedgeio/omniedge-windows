@@ -27,6 +27,7 @@ SOURCES += \
     oauth.cpp \
     oauthreplyhandler.cpp \
     proxy.cpp \
+    runguard.cpp \
     syslog.cpp \
     tapmanager.cpp \
     traymenu.cpp \
@@ -49,6 +50,7 @@ HEADERS += \
     oauth.h \
     oauthreplyhandler.h \
     proxy.h \
+    runguard.h \
     syslog.h \
     tapmanager.h \
     traymenu.h \
