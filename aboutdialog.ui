@@ -37,18 +37,12 @@
      <x>60</x>
      <y>10</y>
      <width>251</width>
-     <height>101</height>
+     <height>131</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_4">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_contact">
       <property name="font">
        <font>
         <family>Segoe UI</family>
@@ -56,12 +50,12 @@
        </font>
       </property>
       <property name="text">
-       <string>Release Date:2021-02-01</string>
+       <string>Contact Us: support@omniedge.io</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label">
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_release">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
         <horstretch>0</horstretch>
@@ -74,16 +68,13 @@
         <pointsize>12</pointsize>
        </font>
       </property>
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
       <property name="text">
-       <string>Version:1.0.0</string>
+       <string>Release Date: 2021-02-01</string>
       </property>
      </widget>
     </item>
     <item row="1" column="0">
-     <widget class="QLabel" name="label_3">
+     <widget class="QLabel" name="label_info">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
         <horstretch>0</horstretch>
@@ -101,15 +92,50 @@
       </property>
      </widget>
     </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_version">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <family>Segoe UI</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string>Version: 1.0.0</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="label_twitter">
+      <property name="font">
+       <font>
+        <family>Segoe UI</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Twitter:@omniedgeio</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QPushButton" name="okButton">
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>130</y>
+     <y>160</y>
      <width>121</width>
-     <height>41</height>
+     <height>31</height>
     </rect>
    </property>
    <property name="sizePolicy">
