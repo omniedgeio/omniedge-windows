@@ -120,9 +120,15 @@ void TrayMenu::createMenu(bool loginStatus)
         dashboardAction->setVisible(true);
 
         for(Device device : this->controller->virtualNetworks.at(0).devices){
-            devicesMenu->addAction(device.virtualIP + " " + device.name);
+            deviceActionList[device.virtualIP] = devicesMenu->addAction(device.virtualIP + " " + device.name);
         }
+        deviceActionList[this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP]
+                ->setText(
+                    deviceActionList[this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP]->text() + "[Current device]"
+                );
         trayIconMenu->insertMenu(connectionSeperator, devicesMenu);
+
+
 
         logoutAction->setText(tr("Logout as " + this->controller->userInfo.email.toLocal8Bit()));
         logoutAction->setVisible(true);
@@ -130,8 +136,6 @@ void TrayMenu::createMenu(bool loginStatus)
         loginAction->setVisible(false);
         showMessage("Login successfully", "Connect without concern");
     } else {
-        statusAction->setText("My Address: " +
-                              this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP);
         statusAction->setVisible(false);
         statusSeperator->setVisible(false);
 

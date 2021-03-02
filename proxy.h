@@ -28,6 +28,10 @@ struct Device {
     QString name;
     QString virtualIP;
     QString description;
+        bool operator()(const Device & a, const Device & b) const
+            {
+                return a.virtualIP < b.virtualIP;
+            }
 };
 
 struct VirtualNetwork {

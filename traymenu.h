@@ -57,6 +57,7 @@ private:
 
     MenuController* controller;
     AboutDialog *aboutDlg;
+    QMap<QString, QAction*> deviceActionList;
 
 };
 #endif

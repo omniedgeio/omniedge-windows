@@ -238,6 +238,19 @@ void Proxy::getVirtualNetworks()
         }
     }
 
+    std::sort(virtualNetworksList[0].devices.begin(),
+          virtualNetworksList[0].devices.end(),
+            [](const Device &a, const Device &b){
+        QStringList x = QString(a.virtualIP).split(".");
+        QStringList y = QString(b.virtualIP).split(".");
+        for(int i = 0;i < x.length();i++){
+            if(x[i].toInt() > y[i].toInt()){
+                return false;
+            }
+        }
+      return true;
+    });
+
     qDebug() << response.data;
 
     qDebug() << "DONE Get Virtual Network " << (response.status == ResponseStatus::Success);
@@ -281,6 +294,7 @@ void Proxy::joinVirtualNetwork(QString virtualNetworkID)
 
     if (status == ResponseStatus::Success) {
         QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
+        qDebug() << responseDoc;
         QVariantMap responseObj = responseDoc.object().toVariantMap();
         info.instanceID = responseObj["instaceID"].toString();
         info.virtualNetworkID = responseObj["virtualNetworkID"].toString();
