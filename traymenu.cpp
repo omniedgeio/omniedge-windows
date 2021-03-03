@@ -12,7 +12,7 @@ TrayMenu::TrayMenu()
     aboutDlg = new AboutDialog();
     trayIcon = new QSystemTrayIcon(QIcon(":/images/AppIcon.png"));
     trayIcon->setVisible(true);
-    trayIcon->showMessage("OmniEdge", "Connect without corcern", QSystemTrayIcon::Information, 1000);
+    trayIcon->showMessage("OmniEdge", "Connect without concern", QSystemTrayIcon::Information, 1000);
     trayIcon->setToolTip("OmniEdge");
 
     controller = new MenuController();
