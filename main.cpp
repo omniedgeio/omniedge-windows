@@ -1,10 +1,12 @@
 #include "traymenu.h"
 #include <QApplication>
 #include <QSettings>
-#include <QtAutoUpdaterCore/Updater>
+#include <QQmlApplicationEngine>
+#include <QtQml/qqml.h>
 #include "menucontroller.h"
 #include "syslog.h"
 #include "runguard.h"
+#include "maintenancetool.h"
 
 int main(int argc, char *argv[])
 {
@@ -26,6 +28,11 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Omniedge Desktop Client");
 
     TrayMenu menu;
+    qmlRegisterType<MaintenanceTool>("com.example.plugin.maintenancetool"
+                                   , 1, 0, "MaintenanceTool");
+
+      QQmlApplicationEngine engine;
+      engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
 
     //create the updater with the application as parent -> will live long enough start the tool on exit
      /*   auto updater = new QtAutoUpdater::Updater::create("qtifw", {

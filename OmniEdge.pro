@@ -1,4 +1,4 @@
-QT       += core gui network networkauth autoupdatercore
+QT       += core gui qml quick network networkauth
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,6 +22,7 @@ DEFINES -= UNICODE
 SOURCES += \
     aboutdialog.cpp \
     main.cpp \
+    maintenancetool.cpp \
     menucontroller.cpp \
     n2nworker.cpp \
     oauth.cpp \
@@ -45,6 +46,7 @@ SOURCES += \
 
 HEADERS += \
     aboutdialog.h \
+    maintenancetool.h \
     menucontroller.h \
     n2nworker.h \
     oauth.h \
@@ -72,6 +74,9 @@ HEADERS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+# Additional import path used to resolve QML modules in Qt Creator's code model
+QML_IMPORT_PATH =
 
 RESOURCES += \
     resources.qrc
