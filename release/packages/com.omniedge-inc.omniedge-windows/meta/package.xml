@@ -2,7 +2,7 @@
 <Package>
     <DisplayName>Omniedge Windows</DisplayName>
     <Description>Install omniedge windows version</Description>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <ReleaseDate>2021-03-01</ReleaseDate>
     <Default>true</Default>
 </Package>

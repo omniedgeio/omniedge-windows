@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
   <Name>Omniedge</Name>
-  <Version>0.1.0</Version>
+  <Version>0.1.2</Version>
   <Title>Omniedge Windows Installer</Title>
   <Publisher>Omniedge Inc.</Publisher>
   <StartMenuDir>Omniedge</StartMenuDir>
   <TargetDir>@ApplicationsDir@\Omniedge</TargetDir>
   <RemoteRepositories>
     <Repository>
-      <Url>https://gitlab.com/Tex-tang/omniedge-windows-release/-/raw/master/repository</Url>
+      <Url>https://gitlab.com/Tex-tang/omniedge-windows-release/-/raw/master</Url>
       <Enabled>1</Enabled>
       <DisplayName>Omniedge windows repository</DisplayName>
     </Repository>
