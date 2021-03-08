@@ -14,7 +14,7 @@ TrayMenu::TrayMenu()
     trayIcon->setVisible(true);
     trayIcon->showMessage("OmniEdge", "Connect without concern", QSystemTrayIcon::Information, 1000);
     trayIcon->setToolTip("OmniEdge");
-
+    updater = new MaintenanceTool();
     controller = new MenuController();
     connect(this, &TrayMenu::checkLoginStatus, controller, &MenuController::getUserInfoSignal);
     connect(controller, &MenuController::showMessage, this, &TrayMenu::showMessage);
@@ -55,9 +55,10 @@ TrayMenu::TrayMenu()
     aboutAction = new QAction(tr("About..."), this);
     connect(aboutAction, &QAction::triggered, this, &TrayMenu::showAboutDialog);
 
+    updateAction = new QAction(tr("Check update"), this);
+    connect(updateAction, &QAction::triggered, updater, &MaintenanceTool::checkUpdate);
+
     quitAction = new QAction(tr("Quit"), this);
-//    quitAction->setShortcut(QKeySequence("Shift+Q"));
-//    quitAction->setShortcutContext(Qt::ApplicationShortcut);
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 
     trayIconMenu = new QMenu(this);
@@ -86,6 +87,7 @@ TrayMenu::TrayMenu()
     trayIconMenu->addAction(webSeperator);
 
     trayIconMenu->addAction(aboutAction);
+    trayIconMenu->addAction(updateAction);
     trayIconMenu->addAction(quitAction);
 
     QSettings settings;

@@ -7,6 +7,7 @@
 #include <QMenu>
 #include "menucontroller.h"
 #include "aboutdialog.h"
+#include "maintenancetool.h"
 
 class TrayMenu : public QDialog
 {
@@ -50,12 +51,14 @@ private:
     QAction *webSeperator;
 
     QAction *aboutAction;
+    QAction *updateAction;
     QAction *quitAction;
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
 
     MenuController* controller;
+    MaintenanceTool* updater;
     AboutDialog *aboutDlg;
     QMap<QString, QAction*> deviceActionList;
 
