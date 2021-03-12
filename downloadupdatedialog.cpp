@@ -33,9 +33,7 @@ void DownloadUpdateDialog::startDownload(QString version)
         tmpFile->remove();
     }
     INFO(tr("Saving installer to ") + tmpFile->fileName());
-    //QNetworkRequest downloadRequest("https://github.com/omniedgeio/omniedge-windows-update/releases/download/"+ version +"/omniedge-setup-" + version + ".exe");
-    //QNetworkRequest downloadRequest("https://github.com/omniedgeio/omniedge-windows-update/releases/download/"+ version +"/omniedge-setup-" + version + ".exe");
-    QNetworkRequest downloadRequest(QUrl("https://raw.githubusercontent.com//omniedgeio/omniedge-windows-update/releases/tag/0.2.0/"+ version +"/omniedge-setup-" + version + ".exe"));
+    QNetworkRequest downloadRequest(QUrl("https://raw.githubusercontent.com/omniedgeio/omniedge-windows-update/main/omniedge-setup-" + version + ".exe"));
     QNetworkReply* r = netManager->get(downloadRequest);
     connect(r, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(updateDataTransferProgress(qint64,qint64)));
     INFO(tr("Downloading ") + downloadRequest.url().toString());
