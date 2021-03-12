@@ -1,10 +1,10 @@
-QT       += core gui qml quick network networkauth
+QT       += core gui qml quick network networkauth xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 QMAKE_LFLAGS_WINDOWS += /MANIFESTUAC:"level='requireAdministrator'"
-QMAKE_CXXFLAGS += /std:c++17 /std:latest
-CONFIG += c++17
+#QMAKE_CXXFLAGS += /std:c++17 /std: latest
+CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -21,8 +21,8 @@ DEFINES -= UNICODE
 
 SOURCES += \
     aboutdialog.cpp \
+    downloadupdatedialog.cpp \
     main.cpp \
-    maintenancetool.cpp \
     menucontroller.cpp \
     n2nworker.cpp \
     oauth.cpp \
@@ -42,11 +42,14 @@ SOURCES += \
     n2n/win32/getopt1.c \
     n2n/win32/version-msvc.c \
     n2n/win32/wintap.c \
-    n2n/n2n.c
+    n2n/n2n.c \
+    updater.cpp
 
 HEADERS += \
     aboutdialog.h \
-    maintenancetool.h \
+    arch.h \
+    downloadupdatedialog.h \
+    log.h \
     menucontroller.h \
     n2nworker.h \
     oauth.h \
@@ -68,7 +71,8 @@ HEADERS += \
     n2n/win32/n2n_win32.h \
     n2n/win32/winconfig.h \
     n2n/win32/wintap.h \
-    n2n/n2n_bridging_header.h
+    n2n/n2n_bridging_header.h \
+    updater.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -83,4 +87,5 @@ RESOURCES += \
 RC_ICONS = "./images/logo.ico"
 
 FORMS += \
-    aboutdialog.ui
+    aboutdialog.ui \
+    downloadupdatedialog.ui

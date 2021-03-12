@@ -7,8 +7,7 @@
 #include <QMenu>
 #include "menucontroller.h"
 #include "aboutdialog.h"
-#include "maintenancetool.h"
-
+#include "updater.h"
 class TrayMenu : public QDialog
 {
     Q_OBJECT
@@ -58,7 +57,7 @@ private:
     QMenu *trayIconMenu;
 
     MenuController* controller;
-    MaintenanceTool* updater;
+    Updater* updater;
     AboutDialog *aboutDlg;
     QMap<QString, QAction*> deviceActionList;
 
