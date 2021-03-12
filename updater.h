@@ -22,11 +22,11 @@ public:
     explicit Updater(QObject *parent = 0);
     virtual ~Updater();
     void loadSettings();
-    void checkForUpdates(int flag = 0);
+    void checkForUpdates();
 
 private:
     QNetworkAccessManager *manager;
-    bool notifyUpdates;
+    //bool notifyUpdates = true;
     QString latestVersion;
     int numPluginsUpdating;
     QMessageBox updateMsgBox, pluginUpdateMsgBox;
@@ -44,6 +44,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void showUpdateNotificationDialog();
+    void showNoUpdateNotificationDialog();
     void rejectNotificationDialogs();
     void showChangelog();
     void progressUpdate(int);

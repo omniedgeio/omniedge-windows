@@ -1,6 +1,6 @@
 #include "updater.h"
 #include <QUrlQuery>
-
+#include "aboutdialog.h"
 Updater::Updater(QObject *parent) :
     QObject(parent)
 {
@@ -14,16 +14,8 @@ Updater::~Updater()
     delete manager;
 }
 
-void Updater::checkForUpdates(int flag)
+void Updater::checkForUpdates(void)
 {
-
-    if(flag == ForceNotification)
-    {
-        notifyUpdates = true;
-    }else if(flag == NoNotification)
-    {
-        notifyUpdates = false;
-    }
     QNetworkRequest appUpdateCheckReq;
     appUpdateCheckReq.setUrl(QUrl("https://raw.githubusercontent.com/omniedgeio/omniedge-windows-update/main/check_version.xml"));
     manager->get(appUpdateCheckReq);
@@ -31,34 +23,42 @@ void Updater::checkForUpdates(int flag)
 void Updater::showUpdateNotificationDialog()
 {
     INFO(tr("There is a new verision available (") + latestVersion + ")");
-    if(notifyUpdates)
-    {
-        //Show update message
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(tr("Update available"));
-        msgBox.setIcon(QMessageBox::Information);
-        QPushButton changelogBtn(tr("Changelog"));
-#ifdef Q_OS_WIN
-        msgBox.addButton(QMessageBox::Yes);
-        msgBox.addButton(QMessageBox::No);
-        msgBox.setDefaultButton(QMessageBox::Yes);
-        msgBox.setText(tr("There's a new version of Omniedge available. Do you want to download it?"));
-#endif
-        msgBox.addButton(&changelogBtn, QMessageBox::HelpRole);
-        changelogBtn.disconnect(); //Make sure changelog button dosen't close the dialog
-        connect(&changelogBtn, SIGNAL(clicked()), this, SLOT(showChangelog()));
-        connect(this, SIGNAL(updateDialogsRejected()), &msgBox, SLOT(reject()));
 
-        int selection = msgBox.exec();
-        if(selection == QMessageBox::Yes)
-        {
-            DownloadUpdateDialog dialog;
-            dialog.startDownload(latestVersion);
-            dialog.exec();
-        }
+    //Show update message
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Update available"));
+    msgBox.setIcon(QMessageBox::Information);
+   // QPushButton changelogBtn(tr("Changelog"));
+#ifdef Q_OS_WIN
+    msgBox.addButton(QMessageBox::Yes);
+    msgBox.addButton(QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+    msgBox.setText(tr("There's a new version of Omniedge available. Do you want to update now?"));
+#endif
+//        msgBox.addButton(&changelogBtn, QMessageBox::HelpRole);
+//        changelogBtn.disconnect(); //Make sure changelog button dosen't close the dialog
+//        connect(&changelogBtn, SIGNAL(clicked()), this, SLOT(showChangelog()));
+    connect(this, SIGNAL(updateDialogsRejected()), &msgBox, SLOT(reject()));
+
+    int selection = msgBox.exec();
+    if(selection == QMessageBox::Yes)
+    {
+        DownloadUpdateDialog dialog;
+        dialog.startDownload(latestVersion);
+        dialog.exec();
     }
 }
+void Updater::showNoUpdateNotificationDialog()
+{
+    //Show no update message
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("No Update"));
+    msgBox.setIcon(QMessageBox::Information);
 
+    msgBox.addButton(QMessageBox::Yes);
+    msgBox.setText(tr("Congrats! You are using the latest version."));
+    msgBox.exec();
+}
 void Updater::rejectNotificationDialogs()
 {
     Q_EMIT updateDialogsRejected();
@@ -112,12 +112,14 @@ void Updater::replyFinished(QNetworkReply *reply)
         QDomElement outdatedElem = docElem.firstChildElement("outdated");
         latestVersion = versionElem.text();
         bool outdated = QVariant(outdatedElem.text()).toBool();
-        if(outdated && notifyUpdates)
+        if(outdated  && ( QString::compare(latestVersion, APPVERSION ) != 0 ))
         {
-            Q_EMIT newVersionAvailable(latestVersion);
             showUpdateNotificationDialog();
         }
-        Q_EMIT versionNumberRecieved(latestVersion, outdated);
+        else
+        {
+            showNoUpdateNotificationDialog();
+        }
     }
 }
 

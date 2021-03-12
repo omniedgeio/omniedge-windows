@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
-    <height>199</height>
+    <width>433</width>
+    <height>264</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,8 +21,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>320</width>
-    <height>199</height>
+    <width>640</width>
+    <height>400</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -36,8 +36,8 @@
     <rect>
      <x>60</x>
      <y>10</y>
-     <width>251</width>
-     <height>131</height>
+     <width>351</width>
+     <height>191</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -132,8 +132,8 @@
   <widget class="QPushButton" name="okButton">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>160</y>
+     <x>150</x>
+     <y>210</y>
      <width>121</width>
      <height>31</height>
     </rect>

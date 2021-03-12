@@ -75,7 +75,7 @@ void DownloadUpdateDialog::updateDataTransferProgress(qint64 done, qint64 total)
 void DownloadUpdateDialog::launchInstaller()
 {
     QProcess* process = new QProcess();
-    QString program = "msiexec /i " + QDir::toNativeSeparators(tmpFile->fileName()) + " /qr";
+    QString program =  QDir::toNativeSeparators(tmpFile->fileName());
     INFO(tr("Starting new process: ") + program);
     process->start(program);
     QCoreApplication::exit(0);
