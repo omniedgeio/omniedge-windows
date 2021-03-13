@@ -1,0 +1,12 @@
+{
+    "dev": {
+        "client_id": "274vpj278u5j7njhb9up99ibi8",
+        "project_id": "omniedge",
+        "auth_uri": "https://auth-dev.edgecomputing.network/login",
+        "cognito_uri": "https://auth-dev.edgecomputing.network",
+        "client_secret": "t98n31jmusc3ucci7rql4ojodg7daehjv1nln586p60eu2k4pql",
+        "redirect_uri": "http://localhost:8080/",
+        "graphql_endpoint": "https://nhgt5ptb5fhjzgu6qmwf76hhka.appsync-api.us-east-2.amazonaws.com/graphql",
+        "api_endpoint": "https://3b0loh21sb.execute-api.us-east-2.amazonaws.com/dev"
+    }
+}
