@@ -6,6 +6,8 @@
 class syslog : public QObject
 {
     Q_OBJECT
+private:
+     bool isFileExist(QString fullFileName);
 public:
     explicit syslog(QObject *parent = nullptr);
     ~syslog();

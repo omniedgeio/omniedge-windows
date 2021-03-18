@@ -22,43 +22,16 @@ enum TraceLevel
 
 static const int g_TraceLevel [] = { TL_INFO, TL_WARN, TL_ERRO, TL_CRIT, TL_NULL };
 
-/*
- * Constructor of syslog class
- *
- * @Parameters:
- *    parent: default is nullptr
- *
- * @Retvals:
- *    N/A
- */
 syslog::syslog(QObject *parent) : QObject(parent)
 {
 
 }
 
-/*
- * Destructor of syslog class
- *
- * @Parameters:
- *    N/A
- *
- * @Retvals:
- *    N/A
- */
 syslog::~syslog()
 {
 
 }
 
-/*
- * Close the log file
- *
- * @Parameters:
- *    N/A
- *
- * @Retvals:
- *    N/A
- */
  void syslog::SoftWareShutDown()
 {
     if (nullptr != q_fileStream)
@@ -69,17 +42,6 @@ syslog::~syslog()
     }
 }
 
- /*
-  * Prints out debug messages, warnings, critical and fatal error messages
-  *
-  * @Parameters:
-  *    type: enum describes the messages that can be sent to a message handler
-  *    context: additional information about a log message
-  *    msg: message information
-  *
-  * @Retvals:
-  *    N/A
-  */
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     Q_UNUSED(type);
@@ -97,15 +59,6 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }
 }
 
-/*
- * Installs a Qt message handler with log file
- *
- * @Parameters:
- *    strLogFile: log file
- *
- * @Retvals:
- *    N/A
- */
  void installMsgHandler(QString strLogFile)
 {
     QByteArray byteArrayLogFile = strLogFile.toLatin1();
@@ -115,13 +68,11 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         fclose (q_fileStream);
         q_fileStream = nullptr;
     }
-
     q_fileStream = fopen (byteArrayLogFile.constData(), "a+");
     if (nullptr != q_fileStream)
     {
         qDebug("Opened log file.");
         qInstallMessageHandler(myMessageOutput);
-
     }
     else
     {
@@ -129,21 +80,27 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }
 }
 
- /*
-  * Installs a Qt message handler when released
-  *
-  * @Parameters:
-  *    N/A
-  *
-  * @Retvals:
-  *    N/A
-  */
+ bool syslog::isFileExist(QString fullFileName)
+ {
+     QFileInfo fileInfo(fullFileName);
+     if(fileInfo.isFile())
+     {
+         return true;
+     }
+     return false;
+ }
+
 void syslog::installReleaseMsgHandler()
 {
     QString strAppPath = QCoreApplication::applicationDirPath();
     QString strIniFile = strAppPath + "/RunInfo.ini";
     QString strLogFile;
     strLogFile =QString("%1/Omniedge.log").arg(strAppPath);
+    if(isFileExist(strLogFile))
+    {
+        QFile file(strLogFile);
+        file.remove();
+    }
     QSettings pSettings(strIniFile, QSettings::IniFormat);
     g_logLevel = pSettings.value("TraceSet/TraceLevel", 4).toInt();
     installMsgHandler(strLogFile);

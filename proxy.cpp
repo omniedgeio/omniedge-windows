@@ -96,7 +96,6 @@ bool Proxy::refreshToken()
         idToken = responseObj["id_token"].toString();
         accessToken = responseObj["access_token"].toString();
     }
-    qDebug() << reply->readAll();
     qDebug() << "DONE Refresh Token " << (status == ResponseStatus::Success);
     return true;
 }
@@ -250,9 +249,6 @@ void Proxy::getVirtualNetworks()
         }
       return true;
     });
-
-    qDebug() << response.data;
-
     qDebug() << "DONE Get Virtual Network " << (response.status == ResponseStatus::Success);
     emit virtualNetworks(response.status, virtualNetworksList);
 
@@ -280,7 +276,6 @@ void Proxy::joinVirtualNetwork(QString virtualNetworkID)
     obj.insert("virtualNetworkID", virtualNetworkID);// optional, 设备的网卡ip
     QJsonDocument doc(obj);
     QByteArray data = doc.toJson();
-    qDebug() << data;
     networkRequest.setRawHeader("Authorization", idToken.toLocal8Bit());
 
     QEventLoop connection_loop;
@@ -294,7 +289,6 @@ void Proxy::joinVirtualNetwork(QString virtualNetworkID)
 
     if (status == ResponseStatus::Success) {
         QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
-        qDebug() << responseDoc;
         QVariantMap responseObj = responseDoc.object().toVariantMap();
         info.instanceID = responseObj["instaceID"].toString();
         info.virtualNetworkID = responseObj["virtualNetworkID"].toString();
