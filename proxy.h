@@ -6,7 +6,7 @@
 
 const QString LIST_VIRTUAL_NETWORKS_QUERY = " \
 query { \
-  listVirtualNetworks { \
+  listVirtualNetworks(limit: 3000) { \
     items { \
       id \
       ipPrefix \
