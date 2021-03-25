@@ -12,7 +12,7 @@
 #include <QProcess>
 #include <QMessageBox>
 #include <QCoreApplication>
-#include "arch.h"
+//#include "arch.h"
 
 namespace Ui {
     class DownloadUpdateDialog;

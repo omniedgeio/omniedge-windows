@@ -47,7 +47,6 @@ SOURCES += \
 
 HEADERS += \
     aboutdialog.h \
-    arch.h \
     downloadupdatedialog.h \
     log.h \
     menucontroller.h \
