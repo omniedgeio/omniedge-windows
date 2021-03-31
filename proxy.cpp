@@ -218,6 +218,11 @@ void Proxy::getVirtualNetworks()
     GraphqlResponse response = graphqlQuery(request);
     if (response.status == ResponseStatus::Success) {
         response.data = response.data["data"].toMap()["listVirtualNetworks"].toMap();
+        if(response.data["items"].toList().length()==0)
+        {
+            qDebug() << "Virtual Network is Empty...";
+            return;
+        }
         for(QVariant virtualNetworkObj : response.data["items"].toList()){
             QVariantMap virtualNetworkObjMap = virtualNetworkObj.toMap();
             VirtualNetwork virtualNetwork;
