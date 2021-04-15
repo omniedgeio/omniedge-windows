@@ -215,6 +215,8 @@ void Proxy::getVirtualNetworks()
     GraphqlRequest request;
     request.query = LIST_VIRTUAL_NETWORKS_QUERY;
     QList<VirtualNetwork> virtualNetworksList;
+    //2021-04-09,before request,clear the qlist
+    virtualNetworksList.clear();
     GraphqlResponse response = graphqlQuery(request);
     if (response.status == ResponseStatus::Success) {
         response.data = response.data["data"].toMap()["listVirtualNetworks"].toMap();
