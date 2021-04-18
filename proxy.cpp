@@ -81,10 +81,15 @@ bool Proxy::refreshToken()
     params.addQueryItem("refresh_token", settings.value("refreshToken").toString());
 
     QEventLoop connection_loop;
+    QTimer timer;
+    timer.setSingleShot(true);
+    connect(&timer,SIGNAL(timeout()),&connection_loop, SLOT(quit()));
     connect(networkManager, SIGNAL(finished(QNetworkReply*)), &connection_loop, SLOT(quit()));
     reply = networkManager->post(networkRequest, params.query().toUtf8());
+    timer.start(10000);
     connection_loop.exec();
     reply->deleteLater();
+    timer.stop();
 
     ResponseStatus status = this->getResponseStatus(reply);
 
