@@ -120,16 +120,21 @@ void TrayMenu::createMenu(bool loginStatus)
         connectionSeperator->setVisible(true);
 
         dashboardAction->setVisible(true);
-
-        for(Device device : this->controller->virtualNetworks.at(0).devices){
-            deviceActionList[device.virtualIP] = devicesMenu->addAction(device.virtualIP + " " + device.name);
-        }
-        deviceActionList[this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP]
+        //If user register first on windows,maybe will get an empty devices list
+        if(this->controller->virtualNetworks.at(0).devices.count() != 0){
+                for(Device device : this->controller->virtualNetworks.at(0).devices){
+                    deviceActionList[device.virtualIP] = devicesMenu->addAction(device.virtualIP + " " + device.name);
+                }
+            deviceActionList[this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP]
                 ->setText(
-                    deviceActionList[this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP]->text() + "[Current device]"
+                    deviceActionList[this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP]->text() + " [This device]"
                 );
-        trayIconMenu->insertMenu(connectionSeperator, devicesMenu);
-
+            trayIconMenu->insertMenu(connectionSeperator, devicesMenu);
+       }
+        else{
+            devicesMenu->addAction(this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP + " " +QSysInfo::machineHostName() + " [This device]");
+            trayIconMenu->insertMenu(connectionSeperator, devicesMenu);
+        }
 
 
         logoutAction->setText(tr("Logout as " + this->controller->userInfo.email.toLocal8Bit()));
