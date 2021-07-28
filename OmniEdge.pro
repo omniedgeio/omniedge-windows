@@ -1,4 +1,4 @@
-QT       += core gui qml quick network networkauth xml
+QT       += core gui qml quick network networkauth xml websockets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -21,6 +21,7 @@ DEFINES -= UNICODE
 
 SOURCES += \
     aboutdialog.cpp \
+    api.cpp \
     downloadupdatedialog.cpp \
     main.cpp \
     menucontroller.cpp \
@@ -47,6 +48,7 @@ SOURCES += \
 
 HEADERS += \
     aboutdialog.h \
+    api.h \
     downloadupdatedialog.h \
     log.h \
     menucontroller.h \

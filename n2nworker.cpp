@@ -6,11 +6,18 @@ N2NWorker::N2NWorker(int* keep_on_running, QObject *parent) : QObject(parent)
     this->keep_on_running = keep_on_running;
 }
 
-void N2NWorker::connect(QString supernode_addr, QString community_name, QString secret_key, QString virtual_ip)
+void N2NWorker::connect(
+        QString supernode_addr,
+        QString community_name,
+        QString secret_key,
+        QString subnet,
+        QString virtual_ip
+)
 {
     QByteArray ip = virtual_ip.toLatin1();
     QByteArray secret = secret_key.toLatin1();
     QByteArray addr = supernode_addr.toLatin1();
+    QByteArray subnet_mask = subnet.toLatin1();
     QByteArray community = community_name.toLatin1();
 
     int rv;
@@ -37,7 +44,7 @@ void N2NWorker::connect(QString supernode_addr, QString community_name, QString 
                    (char*) "",
                    "static",
                    ip.data(),
-                   (char*) "255.255.255.0",
+                   subnet_mask.data(),
                    (char*) "",
                    DEFAULT_MTU) < 0){
         emit error(N2NWorkerError::WINTAP);

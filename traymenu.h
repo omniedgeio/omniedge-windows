@@ -8,6 +8,13 @@
 #include "menucontroller.h"
 #include "aboutdialog.h"
 #include "updater.h"
+
+enum TrayMenuStatus {
+    Unauthorized,
+    Authorized,
+    Connected,
+};
+
 class TrayMenu : public QDialog
 {
     Q_OBJECT

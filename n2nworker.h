@@ -25,6 +25,7 @@ public slots:
     void connect(
         QString supernode_addr,
         QString community_name,
+        QString subnet_mask,
         QString secret_key,
         QString virtual_ip
     );

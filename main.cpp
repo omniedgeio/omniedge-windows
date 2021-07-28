@@ -1,4 +1,5 @@
 #include "traymenu.h"
+#include "api.h"
 #include <QApplication>
 #include <QSettings>
 #include "menucontroller.h"
@@ -21,6 +22,7 @@ int main(int argc, char *argv[])
     hlog.installReleaseMsgHandler();
 #endif
 
+    qDebug() << QSysInfo::machineUniqueId();
     // Setting for QSetting
     QCoreApplication::setOrganizationName("Omniedge");
     QCoreApplication::setOrganizationDomain("omniedge.io");

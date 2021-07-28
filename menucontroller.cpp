@@ -17,32 +17,20 @@ MenuController::MenuController(QObject *parent) : QObject(parent)
     this->tapManager->moveToThread(this->tapThread);
     this->tapThread->start();
 
-    this->oauthThread = new QThread(this);
-    this->oauth = new OAuth();
-    connect(this, &MenuController::oAuthGrantSignal, this->oauth, &OAuth::grant);
-    connect(this->oauth, &OAuth::granted, this, &MenuController::oAuthGranted);
-    this->oauth->moveToThread(this->oauthThread);
-    this->oauthThread->start();
-
-    this->proxyThread = new QThread(this);
-    this->proxy = new Proxy();
-    connect(this, &MenuController::getUserInfoSignal, this->proxy, &Proxy::getUserInfo, Qt::QueuedConnection);
-    connect(this, &MenuController::getVirtualNetworksSignal, this->proxy, &Proxy::getVirtualNetworks, Qt::QueuedConnection);
-    connect(this, &MenuController::joinVirtualNetworkSignal, this->proxy, &Proxy::joinVirtualNetwork, Qt::QueuedConnection);
-    connect(this->proxy, &Proxy::userInfo, this, &MenuController::userInfoReply);
-    connect(this->proxy, &Proxy::superNodeInfo, this, &MenuController::superNodeInfoReply);
-    connect(this->proxy, &Proxy::virtualNetworks, this, &MenuController::virtualNetworksReply);
-    this->proxy->moveToThread(this->proxyThread);
-    this->proxyThread->start();
-
-    qRegisterMetaType<UserInfo>("UserInfo");
-    qRegisterMetaType<SuperNodeInfo>("SuperNodeInfo");
-    qRegisterMetaType<ResponseStatus>("ResponseStatus");
-    qRegisterMetaType<QList<VirtualNetwork>>("QList<VirtualNetwork>");
+    connect(&this->api, &API::token, [=](Token token){
+    });
+    connect(&this->api, &API::profile, [=](Profile profile){
+    });
+    connect(&this->api, &API::virtualNetworks, [=](QList<VirtualNetwork> virtualNetwork){
+    });
+    connect(&this->api, &API::connectInfo, [=](ConnectInfo connectInfo){
+    });
+    connect(&this->api, &API::error, [=](ResponseStatus status, QString errorString){
+    });
 }
 
 void MenuController::login(){
-    emit oAuthGrantSignal();
+    this->api.getAuthSession();
     emit updateStatus("Status: Logging in...");
 }
 

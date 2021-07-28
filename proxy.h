@@ -23,23 +23,23 @@ query { \
   } \
 }";
 
-struct Device {
-    QString id;
-    QString name;
-    QString virtualIP;
-    QString description;
-        bool operator()(const Device & a, const Device & b) const
-            {
-                return a.virtualIP < b.virtualIP;
-            }
-};
+//struct Device {
+//    QString id;
+//    QString name;
+//    QString virtualIP;
+//    QString description;
+//        bool operator()(const Device & a, const Device & b) const
+//            {
+//                return a.virtualIP < b.virtualIP;
+//            }
+//};
 
-struct VirtualNetwork {
-    QString id;
-    QString ipPrefix;
-    QString communityName;
-    QList<Device> devices;
-};
+//struct VirtualNetwork {
+//    QString id;
+//    QString ipPrefix;
+//    QString communityName;
+//    QList<Device> devices;
+//};
 
 struct UserInfo {
     QString name;

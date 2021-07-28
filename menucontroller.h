@@ -5,17 +5,14 @@
 #include <QThread>
 #include <QtDebug>
 #include "oauth.h"
-#include "proxy.h"
 #include "n2nworker.h"
 #include "tapmanager.h"
+#include "api.h"
 
 class MenuController : public QObject
 {
     Q_OBJECT
 public:
-    UserInfo userInfo;
-    QList<VirtualNetwork> virtualNetworks;
-    QMap<QString, SuperNodeInfo> supernodes;
     explicit MenuController(QObject *parent = nullptr);
 
 public slots:
@@ -52,13 +49,11 @@ signals:
 private:
     QThread* n2nThread;
     QThread* tapThread;
-    QThread* oauthThread;
-    QThread* proxyThread;
-    OAuth* oauth;
-    Proxy* proxy;
     N2NWorker* n2nWorker;
     TapManager* tapManager;
     int keep_on_running = 1;
+
+    API api;
 
 };
 
