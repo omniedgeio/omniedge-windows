@@ -6,7 +6,7 @@ API::API(QObject *parent) : QObject(parent)
     this->networkManager = new QNetworkAccessManager(this);
     this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
 
-    this->baseURL = "http://192.168.0.165:1111/api";
+    this->baseURL = "http://dev.omniedge.io/api";
 }
 
 void API::getAuthSession() {
@@ -42,6 +42,7 @@ void API::getAuthSession() {
                 qDebug() << "Token : " << this->currentToken;
                 this->getUserInfo();
                 this->registerDevice();
+                this->getVirtualNetworks();
                 emit token(Token{ this->currentToken });
             });
             QUrl wsUrl = QUrl(this->baseURL + "/auth/login/session/" + auth.uuid);

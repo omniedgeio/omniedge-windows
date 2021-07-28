@@ -60,10 +60,10 @@ public:
     explicit API(QObject *parent = nullptr);
 
 public slots:
-    void getAuthSession();
-    void registerDevice();
-    void getUserInfo();
-    void getVirtualNetworks();
+    void getAuthSession(); // 开始登入， 会重定向至网页
+    void registerDevice(); // 登入完成后，会自动 register device
+    void getUserInfo();    // 登入成功后，会自动 get user info
+    void getVirtualNetworks(); // 登入成功后，会自动 get virtual networks
     void joinVirtualNetwork(QString virtualNetworkUUID);
 
 signals:
