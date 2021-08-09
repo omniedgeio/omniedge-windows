@@ -1,6 +1,6 @@
 #ifndef API_H
 #define API_H
-#include "proxy.h"
+//#include "proxy.h"
 #include <QObject>
 #include <QDateTime>
 #include <QtNetwork>
@@ -52,13 +52,28 @@ struct VirtualNetwork {
     QString ipRange;
     QList<Device> devices;
 };
+struct UserInfo {
+    QString name;
+    QString email;
+    QString username; // userID
+};
 
+enum class ResponseStatus {
+  UnknownError,
+  AccessDenied, // 400
+  Unauthorized, // 401
+  InternalFailure, // 500
+  InvalidToken, // 403
+  MalformedQueryString, // 404
+  ServiceUnavailable, // 503
+  Success, // 200
+};
 class API : public QObject
 {
     Q_OBJECT
 public:
     explicit API(QObject *parent = nullptr);
-
+    QString currentToken;
 public slots:
     void getAuthSession(); // 开始登入， 会重定向至网页
     void registerDevice(); // 登入完成后，会自动 register device
@@ -72,14 +87,14 @@ signals:
     void deviceInfo();
     void profile(Profile profile);
     void virtualNetworks(QList<VirtualNetwork> virtualNetworks);
-    void connectInfo();
+    void connectInfo(ConnectInfo info);
     void error(ResponseStatus status, QString errorString);
 
 private:
     QString baseURL;
     QWebSocket authSessionWebSocket;
 
-    QString currentToken;
+
     QString currentDeviceUUID;
 
     Profile userProfile;

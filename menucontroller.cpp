@@ -18,14 +18,24 @@ MenuController::MenuController(QObject *parent) : QObject(parent)
     this->tapThread->start();
 
     connect(&this->api, &API::token, [=](Token token){
+        QSettings settings;
+        settings.setValue(SETTINGS_ID_TOKEN, token.token);
     });
     connect(&this->api, &API::profile, [=](Profile profile){
+        userEmail = profile.email;
     });
     connect(&this->api, &API::virtualNetworks, [=](QList<VirtualNetwork> virtualNetwork){
+        this->virtualNetworks = virtualNetwork;
+        emit oauthloginStatus(true);
     });
     connect(&this->api, &API::connectInfo, [=](ConnectInfo connectInfo){
+         emit n2nConnectSignal(
+                 connectInfo.host,connectInfo.communityName,connectInfo.secretKey,connectInfo.subnetMask,connectInfo.virtualIP);
+         emit updateStatus("Status: Connecting...");
+         myVirtualIP = connectInfo.virtualIP;
     });
     connect(&this->api, &API::error, [=](ResponseStatus status, QString errorString){
+        qDebug()<<"[ERROR] "<<errorString;
     });
 }
 
@@ -43,16 +53,15 @@ void MenuController::logout(){
     settings.clear();
     emit oauthloginStatus(false);
 }
-
-void MenuController::connectSN(){
-    SuperNodeInfo info = this->supernodes[this->virtualNetworks.at(0).id];
-    emit n2nConnectSignal(
-            info.addr,
-            info.communityName,
-            info.secretKey,
-            info.virtualIP
-         );
-    emit updateStatus("Status: Connecting...");
+void MenuController::joinVirtualNetworkManual(QString uuid)
+{
+    this->api.joinVirtualNetwork(uuid);
+}
+void MenuController::getUserIdToken(QString token){
+    this->api.currentToken = token;
+    this->api.getUserInfo();
+    this->api.registerDevice();
+    this->api.getVirtualNetworks();
 }
 
 void MenuController::disconnectSN(){
@@ -68,18 +77,14 @@ void MenuController::n2nError(N2NWorkerError error)
     }
 }
 
-void MenuController::oAuthGranted()
-{
-    emit getUserInfoSignal();
-}
 
 void MenuController::userInfoReply(
         ResponseStatus status,
         UserInfo info
         ){
     if(status == ResponseStatus::Success){
-        this->userInfo = info;
-        emit getVirtualNetworksSignal();
+        //this->userInfo = info;
+        //emit getVirtualNetworksSignal();
     } else {
         emit oauthloginStatus(false);
     }
@@ -89,19 +94,19 @@ void MenuController::virtualNetworksReply(
         ResponseStatus status,
         QList<VirtualNetwork> virtualNetworks){
     if(status == ResponseStatus::Success){
-        this->virtualNetworks = virtualNetworks;
-        emit joinVirtualNetworkSignal(virtualNetworks.at(0).id);
+        //this->virtualNetworks = virtualNetworks;
+        //emit joinVirtualNetworkSignal(virtualNetworks.at(0).id);
     } else {
         emit oauthloginStatus(false);
     }
 }
 
-void MenuController::superNodeInfoReply(ResponseStatus status, SuperNodeInfo info)
-{
-    if(status == ResponseStatus::Success){
-        this->supernodes[info.virtualNetworkID] = info;
-    }
-    emit oauthloginStatus(true);
-}
+//void MenuController::superNodeInfoReply(ResponseStatus status, SuperNodeInfo info)
+//{
+//    if(status == ResponseStatus::Success){
+//        //this->supernodes[info.virtualNetworkID] = info;
+//    }
+//    emit oauthloginStatus(true);
+//}
 
 

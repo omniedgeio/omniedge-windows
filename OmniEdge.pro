@@ -26,9 +26,9 @@ SOURCES += \
     main.cpp \
     menucontroller.cpp \
     n2nworker.cpp \
-    oauth.cpp \
-    oauthreplyhandler.cpp \
-    proxy.cpp \
+    #oauth.cpp \
+    #oauthreplyhandler.cpp \
+    #proxy.cpp \
     runguard.cpp \
     syslog.cpp \
     tapmanager.cpp \
@@ -53,9 +53,9 @@ HEADERS += \
     log.h \
     menucontroller.h \
     n2nworker.h \
-    oauth.h \
-    oauthreplyhandler.h \
-    proxy.h \
+    #oauth.h \
+    #oauthreplyhandler.h \
+   #proxy.h \
     runguard.h \
     syslog.h \
     tapmanager.h \

@@ -14,6 +14,7 @@ void N2NWorker::connect(
         QString virtual_ip
 )
 {
+    qDebug() << supernode_addr<<community_name<<secret_key<<subnet<<virtual_ip;
     QByteArray ip = virtual_ip.toLatin1();
     QByteArray secret = secret_key.toLatin1();
     QByteArray addr = supernode_addr.toLatin1();

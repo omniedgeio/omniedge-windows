@@ -33,8 +33,7 @@ private slots:
     void updateStatus(QString statusMsg);
 
 signals:
-    void checkLoginStatus();
-    void loginSignal();
+    void loginSignal(QString idtoken);
     void logoutSignal();
     void connectSNSignal();
     void disconnectSNSignal();
@@ -46,7 +45,7 @@ private:
     QAction *statusAction;
     QAction *statusSeperator;
 
-    QAction *connectAction;
+    QAction *virtualnetworksAction;
     QAction *disconnectAction;
     QMenu   *devicesMenu;
     QAction *connectionSeperator;

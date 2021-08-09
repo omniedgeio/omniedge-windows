@@ -6,7 +6,7 @@ API::API(QObject *parent) : QObject(parent)
     this->networkManager = new QNetworkAccessManager(this);
     this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
 
-    this->baseURL = "http://dev.omniedge.io/api";
+    this->baseURL = "https://dev.omniedge.io/api";
 }
 
 void API::getAuthSession() {
@@ -46,7 +46,7 @@ void API::getAuthSession() {
                 emit token(Token{ this->currentToken });
             });
             QUrl wsUrl = QUrl(this->baseURL + "/auth/login/session/" + auth.uuid);
-            wsUrl.setScheme(QString("ws"));
+            wsUrl.setScheme(QString("wss"));
             authSessionWebSocket.open(wsUrl);
             qDebug() << "API: Connecting to websocket" << wsUrl;
         } else {
@@ -65,7 +65,7 @@ void API::registerDevice() {
 
     QByteArray hardwareUUID = QSysInfo::machineUniqueId();
     QString deviceName = QSysInfo::machineHostName();
-    QString os = QSysInfo::prettyProductName();
+    QString os = QSysInfo::productType()+" "+QSysInfo::productVersion();
     QJsonObject obj;
     obj.insert("os", QString(os));
     obj.insert("name", QString(deviceName));
@@ -73,7 +73,7 @@ void API::registerDevice() {
 
     QJsonDocument doc(obj);
     QByteArray data = doc.toJson();
-    qDebug() << data;
+
     QNetworkReply* reply = this->networkManager->post(networkRequest, data);
     qDebug() << "API: Registering device..."<< networkRequest.url();
     connect(reply, &QNetworkReply::finished, [=](){
@@ -153,7 +153,7 @@ void API::getVirtualNetworks(){
 
 void API::joinVirtualNetwork(QString uuid) {
     QNetworkRequest networkRequest;
-    networkRequest.setUrl(QUrl(this->baseURL + "/virtual_networks/" + uuid + "/devices/" + this->currentDeviceUUID + "/join"));
+    networkRequest.setUrl(QUrl(this->baseURL + "/virtual-networks/" + uuid + "/devices/" + this->currentDeviceUUID + "/join"));
     networkRequest.setRawHeader("Authorization", "Bearer " + this->currentToken.toUtf8());
     QJsonDocument data;
     QNetworkReply* reply = this->networkManager->post(networkRequest, data.toJson());

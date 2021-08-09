@@ -47,15 +47,7 @@ struct UserInfo {
     QString username; // userID
 };
 
-struct SuperNodeInfo {
-    QString instanceID;
-    QString virtualNetworkID;
-    QString addr;
-    QString virtualIP;
-    QString secretKey;
-    QString communityName;
-    QString publicKey;
-};
+
 
 enum class ResponseStatus {
   UnknownError,
@@ -93,8 +85,8 @@ public slots:
 
 signals:
     void userInfo(ResponseStatus status, UserInfo info);
-    void superNodeInfo(ResponseStatus status, SuperNodeInfo info);
-    void virtualNetworks(ResponseStatus status, QList<VirtualNetwork> virtualNetworks);
+    //void superNodeInfo(ResponseStatus status, SuperNodeInfo info);
+    //void virtualNetworks(ResponseStatus status, QList<VirtualNetwork> virtualNetworks);
 
 private:
     // Local

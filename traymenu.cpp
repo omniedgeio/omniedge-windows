@@ -5,7 +5,7 @@
 #include <QCloseEvent>
 #include <QMenu>
 #include <QMessageBox>
-
+#include "api.h"
 
 TrayMenu::TrayMenu()
 {
@@ -16,7 +16,7 @@ TrayMenu::TrayMenu()
     trayIcon->setToolTip("OmniEdge");
     updater = new Updater();
     controller = new MenuController();
-    connect(this, &TrayMenu::checkLoginStatus, controller, &MenuController::getUserInfoSignal);
+    connect(this, SIGNAL(loginSignal(QString)), controller, SLOT(getUserIdToken(QString)));
     connect(controller, &MenuController::showMessage, this, &TrayMenu::showMessage);
     connect(controller, &MenuController::updateStatus, this, &TrayMenu::updateStatus);
     connect(controller, &MenuController::oauthloginStatus, this, &TrayMenu::createMenu);
@@ -29,13 +29,10 @@ TrayMenu::TrayMenu()
     statusSeperator = new QAction();
     statusSeperator->setSeparator(true);
 
-    connectAction = new QAction(tr("Connect"), this);
-    connect(connectAction, &QAction::triggered, controller, &MenuController::connectSN);
-
     disconnectAction = new QAction(tr("Disconnect"), this);
     connect(disconnectAction, &QAction::triggered, controller, &MenuController::disconnectSN);
 
-    devicesMenu = new QMenu("Network devices");
+    devicesMenu = new QMenu("Virtual Networks");
 
     connectionSeperator = new QAction();
     connectionSeperator->setSeparator(true);
@@ -67,9 +64,6 @@ TrayMenu::TrayMenu()
 
     trayIconMenu->addAction(statusSeperator);
 
-    trayIconMenu->addAction(connectAction);
-    connectAction->setVisible(false);
-
     trayIconMenu->addAction(disconnectAction);
     disconnectAction->setVisible(false);
 
@@ -94,7 +88,7 @@ TrayMenu::TrayMenu()
     if(settings.contains(SETTINGS_ID_TOKEN)){
         statusAction->setText("Starting application...");
         statusAction->setVisible(true);
-        emit checkLoginStatus();
+        emit loginSignal(settings.value(SETTINGS_ID_TOKEN).toString());
     }
 
     trayIcon->setContextMenu(trayIconMenu);
@@ -107,37 +101,30 @@ TrayMenu::~TrayMenu()
 
 void TrayMenu::createMenu(bool loginStatus)
 {
+    QMenu* submenu;
     qDebug() << "Tray menu: Login status : " << loginStatus;
     if(loginStatus){
-        statusAction->setText("My Address: " +
-                              this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP);
         statusAction->setVisible(true);
         statusSeperator->setVisible(true);
 
-        connectAction->setVisible(true);
         disconnectAction->setVisible(true);
         disconnectAction->setEnabled(false);
         connectionSeperator->setVisible(true);
 
         dashboardAction->setVisible(true);
-        //If user register first on windows,maybe will get an empty devices list
-        if(this->controller->virtualNetworks.at(0).devices.count() != 0){
-                for(Device device : this->controller->virtualNetworks.at(0).devices){
-                    deviceActionList[device.virtualIP] = devicesMenu->addAction(device.virtualIP + " " + device.name);
-                }
-            deviceActionList[this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP]
-                ->setText(
-                    deviceActionList[this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP]->text() + " [This device]"
-                );
-            trayIconMenu->insertMenu(connectionSeperator, devicesMenu);
-       }
-        else{
-            devicesMenu->addAction(this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP + " " +QSysInfo::machineHostName() + " [This device]");
+        for(int i = 0;i<this->controller->virtualNetworks.length();i++ )
+        {
+            submenu = devicesMenu->addMenu(this->controller->virtualNetworks.at(i).name);
+            QAction* subAction = submenu->addAction("join");
+            connect(subAction,  &QAction::triggered, [=]() {
+                this->controller->joinVirtualNetworkManual(this->controller->virtualNetworks.at(i).uuid);
+              });
+            for(int j =0;j<this->controller->virtualNetworks.at(i).devices.length();j++)
+                submenu->addAction(this->controller->virtualNetworks.at(i).devices.at(j).name);
             trayIconMenu->insertMenu(connectionSeperator, devicesMenu);
         }
 
-
-        logoutAction->setText(tr("Logout as " + this->controller->userInfo.email.toLocal8Bit()));
+        logoutAction->setText("Logout as " + this->controller->userEmail);
         logoutAction->setVisible(true);
 
         loginAction->setVisible(false);
@@ -146,7 +133,6 @@ void TrayMenu::createMenu(bool loginStatus)
         statusAction->setVisible(false);
         statusSeperator->setVisible(false);
 
-        connectAction->setVisible(false);
         disconnectAction->setVisible(false);
         disconnectAction->setEnabled(false);
         connectionSeperator->setVisible(false);
@@ -156,7 +142,7 @@ void TrayMenu::createMenu(bool loginStatus)
         devicesMenu->clear();
         trayIconMenu->removeAction(devicesMenu->menuAction());
 
-        logoutAction->setText(tr("Logout as " + this->controller->userInfo.email.toLocal8Bit()));
+        logoutAction->setText("Logout as " + this->controller->userEmail);
         logoutAction->setVisible(false);
 
         loginAction->setVisible(true);
@@ -166,7 +152,7 @@ void TrayMenu::createMenu(bool loginStatus)
 
 void TrayMenu::dashboard()
 {
-    QString link = "https://dashboard.omniedge.io";
+    QString link = "https://dev.omniedge.io/dashboard";
     QDesktopServices::openUrl(QUrl(link));
 }
 
@@ -203,15 +189,12 @@ void TrayMenu::updateStatus(QString statusMsg)
 
 void TrayMenu::connected()
 {
-    connectAction->setEnabled(false);
     disconnectAction->setEnabled(true);
-    statusAction->setText("My Address: " +
-                          this->controller->supernodes[this->controller->virtualNetworks.at(0).id].virtualIP);
+    statusAction->setText("My Address: " + this->controller->myVirtualIP);
 }
 
 void TrayMenu::disconnected()
 {
-    connectAction->setEnabled(true);
     disconnectAction->setEnabled(false);
     statusAction->setText("Status: Offline");
 }

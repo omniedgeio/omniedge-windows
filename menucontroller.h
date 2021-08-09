@@ -14,30 +14,35 @@ class MenuController : public QObject
     Q_OBJECT
 public:
     explicit MenuController(QObject *parent = nullptr);
+    QString userEmail;
+    QString myVirtualIP;
+    QList<VirtualNetwork> virtualNetworks;
 
 public slots:
     void n2nError(N2NWorkerError error);
-    void oAuthGranted();
     void userInfoReply(ResponseStatus status, UserInfo info);
-    void superNodeInfoReply(ResponseStatus status, SuperNodeInfo info);
+    //void superNodeInfoReply(ResponseStatus status, SuperNodeInfo info);
     void virtualNetworksReply(ResponseStatus status, QList<VirtualNetwork> virtualNetworks);
 
     void login();
     void logout();
-    void connectSN();
+    //void connectSN();
     void disconnectSN();
+    void getUserIdToken(QString token);
+    void joinVirtualNetworkManual(QString uuid);
 
 signals:
     void n2nConnectSignal(
         QString supernode_addr,
         QString community_name,
         QString secret_key,
+        QString subnet,
         QString virtual_ip
     );
     void addTapInterfaceSignal();
     void oAuthGrantSignal();
-    void getUserInfoSignal();
-    void getVirtualNetworksSignal();
+
+    void getVirtualNetworksSignal(QList<VirtualNetwork> virtualNetwork );
     void joinVirtualNetworkSignal(QString virtualNetworkID);
 
     void n2nConnected();

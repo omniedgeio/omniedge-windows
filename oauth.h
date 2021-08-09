@@ -8,9 +8,6 @@
 #include "oauthreplyhandler.h"
 
 const QString SETTINGS_ID_TOKEN = "IdToken";
-const QString SETTINGS_EXPIRES_IN = "ExpiresIn";
-const QString SETTINGS_ACCESS_TOKEN = "AccessToken";
-const QString SETTINGS_REFRESH_TOKEN = "RefreshToken";
 
 class OAuth : public QObject
 {
