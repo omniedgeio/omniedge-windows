@@ -31,6 +31,7 @@ private slots:
     void connected();
     void disconnected();
     void updateStatus(QString statusMsg);
+    void updateEmail(QString mail);
 
 signals:
     void loginSignal(QString idtoken);
@@ -42,6 +43,7 @@ private:
     void createActions();
     void createMenu(bool loginStatus);
 
+    QMenu* submenu;
     QAction *statusAction;
     QAction *statusSeperator;
 

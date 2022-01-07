@@ -23,6 +23,7 @@ MenuController::MenuController(QObject *parent) : QObject(parent)
     });
     connect(&this->api, &API::profile, [=](Profile profile){
         userEmail = profile.email;
+        emit updateEmail(userEmail);
     });
     connect(&this->api, &API::virtualNetworks, [=](QList<VirtualNetwork> virtualNetwork){
         this->virtualNetworks = virtualNetwork;

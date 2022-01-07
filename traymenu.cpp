@@ -12,13 +12,14 @@ TrayMenu::TrayMenu()
     aboutDlg = new AboutDialog();
     trayIcon = new QSystemTrayIcon(QIcon(":/images/AppIcon.png"));
     trayIcon->setVisible(true);
-    trayIcon->showMessage("OmniEdge", "Connect without concern", QSystemTrayIcon::Information, 1000);
+    //trayIcon->showMessage("OmniEdge", "Connect without concern", QSystemTrayIcon::Information, 1000);
     trayIcon->setToolTip("OmniEdge");
     updater = new Updater();
     controller = new MenuController();
     connect(this, SIGNAL(loginSignal(QString)), controller, SLOT(getUserIdToken(QString)));
     connect(controller, &MenuController::showMessage, this, &TrayMenu::showMessage);
     connect(controller, &MenuController::updateStatus, this, &TrayMenu::updateStatus);
+    connect(controller, &MenuController::updateEmail, this, &TrayMenu::updateEmail);
     connect(controller, &MenuController::oauthloginStatus, this, &TrayMenu::createMenu);
     connect(controller, &MenuController::n2nConnected, this, &TrayMenu::connected);
     connect(controller, &MenuController::n2nDisconnected, this, &TrayMenu::disconnected);
@@ -115,10 +116,14 @@ void TrayMenu::createMenu(bool loginStatus)
         for(int i = 0;i<this->controller->virtualNetworks.length();i++ )
         {
             submenu = devicesMenu->addMenu(this->controller->virtualNetworks.at(i).name);
-            QAction* subAction = submenu->addAction("join");
+            QAction* subAction = submenu->addAction("Join");
+            submenu->setDefaultAction(subAction);
+            subAction->setIconText("Join");
+            subAction->setCheckable(true);
+            submenu->addSeparator();
             connect(subAction,  &QAction::triggered, [=]() {
                 this->controller->joinVirtualNetworkManual(this->controller->virtualNetworks.at(i).uuid);
-              });
+            });
             for(int j =0;j<this->controller->virtualNetworks.at(i).devices.length();j++)
                 submenu->addAction(this->controller->virtualNetworks.at(i).devices.at(j).name);
             trayIconMenu->insertMenu(connectionSeperator, devicesMenu);
@@ -138,7 +143,6 @@ void TrayMenu::createMenu(bool loginStatus)
         connectionSeperator->setVisible(false);
 
         dashboardAction->setVisible(false);
-
         devicesMenu->clear();
         trayIconMenu->removeAction(devicesMenu->menuAction());
 
@@ -149,6 +153,7 @@ void TrayMenu::createMenu(bool loginStatus)
         showMessage("Logout successfully", "Looking forward to see you again");
     }
 }
+
 
 void TrayMenu::dashboard()
 {
@@ -185,6 +190,10 @@ void TrayMenu::updateStatus(QString statusMsg)
     statusAction->setText(statusMsg);
     statusAction->setVisible(true);
     statusSeperator->setVisible(true);
+}
+void TrayMenu::updateEmail(QString mail)
+{
+    logoutAction->setText("Logout as " + mail);
 }
 
 void TrayMenu::connected()

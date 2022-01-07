@@ -50,6 +50,7 @@ signals:
     void oauthloginStatus(bool status);
     void showMessage(QString title, QString msg);
     void updateStatus(QString statusMsg);
+    void updateEmail(QString mail);
 
 private:
     QThread* n2nThread;
