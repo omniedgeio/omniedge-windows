@@ -6,7 +6,7 @@ API::API(QObject *parent) : QObject(parent)
     this->networkManager = new QNetworkAccessManager(this);
     this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
 
-    this->baseURL = "https://dev.omniedge.io/api";
+    this->baseURL = "https://api.omniedge.io/api/v1";
 }
 
 void API::getAuthSession() {
@@ -21,7 +21,7 @@ void API::getAuthSession() {
         if(status == ResponseStatus::Success){
             QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
             AuthSession auth;
-            auth.uuid = responseDoc["data"].toObject()["uuid"].toString();
+            auth.uuid = responseDoc["data"].toObject()["id"].toString();
             auth.expiredAt = responseDoc["data"].toObject()["expired_at"].toVariant().toDateTime();
             this->userAuthSession = auth;
             QDesktopServices::openUrl(QUrl(responseDoc["data"].toObject()["auth_url"].toString()));
@@ -45,10 +45,10 @@ void API::getAuthSession() {
                 this->getVirtualNetworks();
                 emit token(Token{ this->currentToken });
             });
-            QUrl wsUrl = QUrl(this->baseURL + "/auth/login/session/" + auth.uuid);
-            wsUrl.setScheme(QString("wss"));
+            QUrl wsUrl = QUrl("http://18.219.229.67:8081/login/session/" + auth.uuid);
+            wsUrl.setScheme(QString("ws"));
             authSessionWebSocket.open(wsUrl);
-            qDebug() << "API: Connecting to websocket" << wsUrl;
+            qDebug() << "API: Connecting to websocket";
         } else {
             emit error(status, reply->errorString());
         }
@@ -67,7 +67,7 @@ void API::registerDevice() {
     QString deviceName = QSysInfo::machineHostName();
     QString os = QSysInfo::productType()+" "+QSysInfo::productVersion();
     QJsonObject obj;
-    obj.insert("os", QString(os));
+    obj.insert("platform", QString(os));
     obj.insert("name", QString(deviceName));
     obj.insert("hardware_uuid", QString(hardwareUUID));
 
@@ -75,12 +75,12 @@ void API::registerDevice() {
     QByteArray data = doc.toJson();
 
     QNetworkReply* reply = this->networkManager->post(networkRequest, data);
-    qDebug() << "API: Registering device..."<< networkRequest.url();
+    qDebug() << "API: Registering device...";
     connect(reply, &QNetworkReply::finished, [=](){
         ResponseStatus status = this->getResponseStatus(reply);
         if (status == ResponseStatus::Success) {
             QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
-            this->currentDeviceUUID = responseDoc["data"].toObject()["uuid"].toString();
+            this->currentDeviceUUID = responseDoc["data"].toObject()["id"].toString();
         } else {
             qDebug() << reply->errorString() << reply->readAll();
         }
@@ -101,7 +101,7 @@ void API::getUserInfo() {
 
         if(status == ResponseStatus::Success){
             QJsonObject data = QJsonDocument::fromJson(reply->readAll())["data"].toObject();
-            this->userProfile.uuid = data["uuid"].toString();
+            this->userProfile.uuid = data["id"].toString();
             this->userProfile.name = data["name"].toString();
             this->userProfile.email = data["email"].toString();
             emit profile(this->userProfile);
@@ -128,13 +128,13 @@ void API::getVirtualNetworks(){
             QJsonArray data = QJsonDocument::fromJson(reply->readAll())["data"].toArray();
             for(QJsonValue res_vn :data){
                 VirtualNetwork vn;
-                vn.uuid = res_vn.toObject()["uuid"].toString();
+                vn.uuid = res_vn.toObject()["id"].toString();
                 vn.name = res_vn.toObject()["name"].toString();
                 vn.ipRange = res_vn.toObject()["ip_range"].toString();
 
                 for(QJsonValue res_dev: res_vn.toObject()["devices"].toArray()){
                     Device dev;
-                    dev.uuid = res_dev.toObject()["uuid"].toString();
+                    dev.uuid = res_dev.toObject()["id"].toString();
                     dev.name = res_dev.toObject()["name"].toString();
                     dev.virtualIP = res_dev.toObject()["virtual_ip"].toString();
                     vn.devices.append(dev);
@@ -153,7 +153,7 @@ void API::getVirtualNetworks(){
 
 void API::joinVirtualNetwork(QString uuid) {
     QNetworkRequest networkRequest;
-    networkRequest.setUrl(QUrl(this->baseURL + "/virtual-networks/" + uuid + "/devices/" + this->currentDeviceUUID + "/join"));
+    networkRequest.setUrl(QUrl(this->baseURL + "/virtual-networks/" + uuid + "/devices/" + this->currentDeviceUUID + "/join" ));
     networkRequest.setRawHeader("Authorization", "Bearer " + this->currentToken.toUtf8());
     QJsonDocument data;
     QNetworkReply* reply = this->networkManager->post(networkRequest, data.toJson());
@@ -174,7 +174,7 @@ void API::joinVirtualNetwork(QString uuid) {
             emit error(status, reply->errorString());
         }
 
-        qDebug() << "API: DONE Get virtual networks " << (status == ResponseStatus::Success);
+        qDebug() << "API: DONE Join virtual networks " << (status == ResponseStatus::Success);
         reply->deleteLater();
     });
 }

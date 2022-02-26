@@ -157,7 +157,7 @@ void TrayMenu::createMenu(bool loginStatus)
 
 void TrayMenu::dashboard()
 {
-    QString link = "https://dev.omniedge.io/dashboard";
+    QString link = "https://omniedge.io/dashboard";
     QDesktopServices::openUrl(QUrl(link));
 }
 
