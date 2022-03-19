@@ -133,7 +133,7 @@ void TrayMenu::createMenu(bool loginStatus)
         logoutAction->setVisible(true);
 
         loginAction->setVisible(false);
-        showMessage("Login successfully", "Connect without concern");
+        showMessage("Login successfully", "Bring intranet on the internet.");
     } else {
         statusAction->setVisible(false);
         statusSeperator->setVisible(false);
