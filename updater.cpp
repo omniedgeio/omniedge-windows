@@ -17,7 +17,7 @@ Updater::~Updater()
 void Updater::checkForUpdates(void)
 {
     QNetworkRequest appUpdateCheckReq;
-    appUpdateCheckReq.setUrl(QUrl("https://raw.githubusercontent.com/omniedgeio/omniedge-windows-update/main/check_version.xml"));
+    appUpdateCheckReq.setUrl(QUrl("https://raw.githubusercontent.com/omniedgeio/app-release/main/windows/check_version.xml"));
     manager->get(appUpdateCheckReq);
 }
 void Updater::showUpdateNotificationDialog()
@@ -33,11 +33,8 @@ void Updater::showUpdateNotificationDialog()
     msgBox.addButton(QMessageBox::Yes);
     msgBox.addButton(QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::Yes);
-    msgBox.setText(tr("There's a new version of Omniedge available. Do you want to update now?"));
+    msgBox.setText(tr("There's a new version ")+ latestVersion + ("  available.\n Do you want to update now?"));
 #endif
-//        msgBox.addButton(&changelogBtn, QMessageBox::HelpRole);
-//        changelogBtn.disconnect(); //Make sure changelog button dosen't close the dialog
-//        connect(&changelogBtn, SIGNAL(clicked()), this, SLOT(showChangelog()));
     connect(this, SIGNAL(updateDialogsRejected()), &msgBox, SLOT(reject()));
 
     int selection = msgBox.exec();
@@ -86,7 +83,11 @@ void Updater::replyFinished(QNetworkReply *reply)
         QDomDocument doc("error");
         if (!doc.setContent(replyText)) {
             //No XML to parse, user is probably disconnected
-            return;
+            QMessageBox msgBox;
+            msgBox.setWindowTitle(tr("Failed to check for updates"));
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setText(tr("Check version XML response ERROR!"));
+            msgBox.exec();
         }else
         {
             QDomElement docElem = doc.documentElement();
@@ -112,7 +113,7 @@ void Updater::replyFinished(QNetworkReply *reply)
         QDomElement outdatedElem = docElem.firstChildElement("outdated");
         latestVersion = versionElem.text();
         bool outdated = QVariant(outdatedElem.text()).toBool();
-        if(outdated  && ( QString::compare(latestVersion, APPVERSION ) != 0 ))
+        if(outdated  && ( QString::compare(latestVersion, APPVERSION ) > 0 ))
         {
             showUpdateNotificationDialog();
         }

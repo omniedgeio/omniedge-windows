@@ -106,7 +106,7 @@ private:
 
     ResponseStatus getResponseStatus(QNetworkReply*);
 
-
+    bool bOnlyConnectOneTime = false;
 
 };
 

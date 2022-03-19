@@ -28,6 +28,7 @@ MenuController::MenuController(QObject *parent) : QObject(parent)
     connect(&this->api, &API::virtualNetworks, [=](QList<VirtualNetwork> virtualNetwork){
         this->virtualNetworks = virtualNetwork;
         emit oauthloginStatus(true);
+        emit updateStatus("Status: Logged in...");
     });
     connect(&this->api, &API::connectInfo, [=](ConnectInfo connectInfo){
          emit n2nConnectSignal(

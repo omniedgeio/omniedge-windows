@@ -103,7 +103,7 @@ TrayMenu::~TrayMenu()
 void TrayMenu::createMenu(bool loginStatus)
 {
     QMenu* submenu;
-    qDebug() << "Tray menu: Login status : " << loginStatus;
+    //qDebug() << "Tray menu: Login status : " << loginStatus;
     if(loginStatus){
         statusAction->setVisible(true);
         statusSeperator->setVisible(true);

@@ -14,8 +14,8 @@ void API::getAuthSession() {
     networkRequest.setUrl(QUrl(this->baseURL + "/auth/login/session"));
     QNetworkReply* reply = this->networkManager->get(networkRequest);
     qDebug() << "API: Getting Auth Session...";
-
-    connect(reply, &QNetworkReply::finished, [=](){
+    bOnlyConnectOneTime = true;
+    connect(reply, &QNetworkReply::finished,this, [=](){
         ResponseStatus status = this->getResponseStatus(reply);
 
         if(status == ResponseStatus::Success){
@@ -35,15 +35,20 @@ void API::getAuthSession() {
             connect(&authSessionWebSocket, &QWebSocket::disconnected,[this](){
                 this->userAuthSession = AuthSession{};
                 qDebug() << "API: Disconencted from websocket";
+                authSessionWebSocket.close();
             });
             connect(&authSessionWebSocket, &QWebSocket::textMessageReceived, [this](QString message){
-                QJsonDocument responseDoc = QJsonDocument::fromJson(message.toUtf8());
-                this->currentToken = responseDoc["token"].toString();
-                qDebug() << "Token : " << this->currentToken;
-                this->getUserInfo();
-                this->registerDevice();
-                this->getVirtualNetworks();
-                emit token(Token{ this->currentToken });
+                if(bOnlyConnectOneTime)
+                {
+                    bOnlyConnectOneTime = false;
+                    QJsonDocument responseDoc = QJsonDocument::fromJson(message.toUtf8());
+                    this->currentToken = responseDoc["token"].toString();
+                    //qDebug() << "Token : " << this->currentToken;
+                    this->getUserInfo();
+                    this->registerDevice();
+                    this->getVirtualNetworks();
+                    emit token(Token{ this->currentToken });
+                }
             });
             QUrl wsUrl = QUrl("http://18.219.229.67:8081/login/session/" + auth.uuid);
             wsUrl.setScheme(QString("ws"));
@@ -54,7 +59,7 @@ void API::getAuthSession() {
         }
         qDebug() << "API: DONE Get Auth Session " << (status == ResponseStatus::Success);
         reply->deleteLater();
-    });
+    },Qt::UniqueConnection);
 }
 
 void API::registerDevice() {
@@ -121,6 +126,8 @@ void API::getVirtualNetworks(){
     QNetworkReply* reply = this->networkManager->get(networkRequest);
 
     qDebug() << "API: Getting virtual networks...";
+
+    this->userVirtualNetworks.clear();
     connect(reply, &QNetworkReply::finished, [=](){
         ResponseStatus status = this->getResponseStatus(reply);
 
@@ -142,6 +149,7 @@ void API::getVirtualNetworks(){
                 this->userVirtualNetworks.append(vn);
             }
             emit virtualNetworks(this->userVirtualNetworks);
+
         } else {
             emit error(status, reply->errorString());
         }
