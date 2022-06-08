@@ -28,12 +28,12 @@ MenuController::MenuController(QObject *parent) : QObject(parent)
     connect(&this->api, &API::virtualNetworks, [=](QList<VirtualNetwork> virtualNetwork){
         this->virtualNetworks = virtualNetwork;
         emit oauthloginStatus(true);
-        emit updateStatus("Status: Logged in...");
+        emit updateStatus(tr("Status: Logged in..."));
     });
     connect(&this->api, &API::connectInfo, [=](ConnectInfo connectInfo){
          emit n2nConnectSignal(
                  connectInfo.host,connectInfo.communityName,connectInfo.secretKey,connectInfo.subnetMask,connectInfo.virtualIP);
-         emit updateStatus("Status: Connecting...");
+         emit updateStatus(tr("Status: Connecting..."));
          myVirtualIP = connectInfo.virtualIP;
     });
     connect(&this->api, &API::error, [=](ResponseStatus status, QString errorString){
@@ -43,13 +43,13 @@ MenuController::MenuController(QObject *parent) : QObject(parent)
 
 void MenuController::login(){
     this->api.getAuthSession();
-    emit updateStatus("Status: Logging in...");
+    emit updateStatus(tr("Status: Logging in..."));
 }
 
 void MenuController::logout(){
     if (keep_on_running) {
         keep_on_running = 0;
-        emit updateStatus("Status: Disconnecting...");
+        emit updateStatus(tr("Status: Disconnecting..."));
     }
     QSettings settings;
     settings.clear();
@@ -62,20 +62,21 @@ void MenuController::joinVirtualNetworkManual(QString uuid)
 void MenuController::getUserIdToken(QString token){
     this->api.currentToken = token;
     this->api.getUserInfo();
+    this->api.getRefreshToken();
     this->api.registerDevice();
     this->api.getVirtualNetworks();
 }
 
 void MenuController::disconnectSN(){
     keep_on_running = 0;
-    emit updateStatus("Status: Disconnecting...");
+    emit updateStatus(tr("Status: Disconnecting..."));
 }
 
 void MenuController::n2nError(N2NWorkerError error)
 {
     if (error == N2NWorkerError::WINTAP){
         emit addTapInterfaceSignal();
-        emit showMessage("Driver error", "Installing tap adapter... Please retry after 15 seconds.");
+        emit showMessage(tr("Driver error"), tr("Installing tap adapter... Please retry after 15 seconds."));
     }
 }
 

@@ -33,7 +33,7 @@ void Updater::showUpdateNotificationDialog()
     msgBox.addButton(QMessageBox::Yes);
     msgBox.addButton(QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::Yes);
-    msgBox.setText(tr("There's a new version ")+ latestVersion + ("  available.\n Do you want to update now?"));
+    msgBox.setText(tr("There's a new version ")+ latestVersion + (tr("  available.\n Do you want to update now?")));
 #endif
     connect(this, SIGNAL(updateDialogsRejected()), &msgBox, SLOT(reject()));
 

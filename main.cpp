@@ -2,6 +2,7 @@
 #include "api.h"
 #include <QApplication>
 #include <QSettings>
+#include <QTranslator>
 #include "menucontroller.h"
 #include "syslog.h"
 #include "runguard.h"
@@ -9,8 +10,23 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QApplication a(argc, argv);
-    a.setQuitOnLastWindowClosed(false);
+    QApplication app(argc, argv);
+    app.setQuitOnLastWindowClosed(false);
+
+    //load default languge by system language
+    QString locale = QLocale::system().name();
+    qDebug() << locale;
+    QTranslator translator;
+    if(locale.compare("zh_CN") ==0)
+    {
+        translator.load(qApp->applicationDirPath()+QString("/languages/zh_CN.qm"));
+    }
+    else
+    {
+        translator.load(qApp->applicationDirPath()+QString("/languages/en_US.qm"));
+    }
+    app.installTranslator(&translator);
+
 
     //single instance
     RunGuard guard( "Omniedge_Desktop_Client" );
@@ -29,5 +45,5 @@ int main(int argc, char *argv[])
 
     TrayMenu menu;
 
-    return a.exec();
+    return app.exec();
 }

@@ -3,5 +3,9 @@
         <file>oauth.json</file>
         <file>images/AppIcon.png</file>
         <file>success.html</file>
+        <file>languages/en_US.qm</file>
+        <file>languages/en_US.ts</file>
+        <file>languages/zh_CN.qm</file>
+        <file>languages/zh_CN.ts</file>
     </qresource>
 </RCC>
