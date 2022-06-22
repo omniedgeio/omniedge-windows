@@ -4,6 +4,8 @@ Windows desktop application for Omniedge.
 
 >Bring the intranet on the internet
 
+[Download Windows](https://omniedge.io/install/download/0.2.3/omniedge-setup-0.2.3.exe)
+
 <!-- [![Build Status]() -->
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 
@@ -31,7 +33,7 @@ curl https://omniedge.io/install/omniedge-install.sh | bash
 -   [macOS cli](https://omniedge.io/install/download/0.2.3/omniedgecli-macos-latest.zip)
 -   [Windows](https://omniedge.io/install/download/0.2.3/omniedge-setup-0.2.3.exe)
 -   [Linux Cli](https://github.com/omniedgeio/app-release/releases/tag/v0.2.3)
--   [iOS & M1 Mac]
+-   [iOS & M1 Mac on App Store](https://apps.apple.com/us/app/omniedgenew/id1603005893)
 -   [Synology](https://omniedge.io/download/synology)
 -   [Raspberry Pi, ARM, Nvidia Jetson](https://github.com/omniedgeio/app-release/releases/tag/v0.2.3)
 
