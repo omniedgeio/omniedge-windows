@@ -27,6 +27,7 @@ jobs:
             qt_arch_install: msvc2019_64
     env:
       targetName: OmniEdge-windows.exe
+      INNO_VERSION: 6.2.0
     # 步骤
     steps:
       # 安装Qt
@@ -42,6 +43,12 @@ jobs:
           modules: 'qtnetworkauth qtwebsockets'
           cached: 'false'
           aqtversion: '==2.0.5'          
+      - name: Download Inno Setup installer
+        run: curl -L -o installer.exe http://files.jrsoftware.org/is/6/innosetup-${{ env.INNO_VERSION }}.exe
+
+      - name: Install Inno Setup
+        run: ./installer.exe /verysilent /allusers /dir=inst
+        
       # 拉取代码
       - uses: actions/checkout@v2
         with:
