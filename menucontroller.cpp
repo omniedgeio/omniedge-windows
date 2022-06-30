@@ -62,7 +62,7 @@ void MenuController::joinVirtualNetworkManual(QString uuid)
 void MenuController::getUserIdToken(QString token){
     this->api.currentToken = token;
     this->api.getUserInfo();
-    this->api.getRefreshToken();
+    //this->api.getRefreshToken();
     this->api.registerDevice();
     this->api.getVirtualNetworks();
 }

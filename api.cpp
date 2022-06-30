@@ -5,7 +5,7 @@ API::API(QObject *parent) : QObject(parent)
 {
     this->networkManager = new QNetworkAccessManager(this);
    // this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
-    this->baseURL = "https://api.omniedge.io/api/v1";
+    this->baseURL = "https://dev-api.omniedge.io/api/v1";
 }
 
 void API::getAuthSession() {
@@ -50,8 +50,8 @@ void API::getAuthSession() {
                     emit token(Token{ this->currentToken });
                 }
             });
-            QUrl wsUrl = QUrl("http://18.219.229.67:8081/login/session/" + auth.uuid);
-            wsUrl.setScheme(QString("ws"));
+            QUrl wsUrl = QUrl("wss://dev-wss.omniedge.io/login/session/"+ auth.uuid);
+            wsUrl.setScheme(QString("wss"));
             authSessionWebSocket.open(wsUrl);
             qDebug() << "API: Connecting to websocket";
         } else {
