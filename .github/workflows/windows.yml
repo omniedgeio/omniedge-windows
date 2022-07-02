@@ -70,12 +70,9 @@ jobs:
         env:
           archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_target }}-${{ matrix.qt_arch }}
           msvcArch: ${{ matrix.msvc_arch }}          
-        shell: pwsh
+        shell: cmd
         run: |
-          & qmake ${env:archiveName} ${env:targetName}
-          # 记录packageName给后续step
-           $name = ${env:archiveName}
-           echo "::set-output name=packageName::$name"       
+          qmake OmniEdge.pro
       # tag 查询github-Release
       # 上传artifacts          
       - uses: actions/upload-artifact@v2
