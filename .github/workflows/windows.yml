@@ -1,16 +1,7 @@
 name: Windows
 on: 
-  # push代码时触发workflow
   push:
-    paths:
-      - '*.pro'
-      - './**'
-      - '.github/workflows/windows.yml'
-  pull_request:
-    paths:
-      - '*.pro'
-      - './**'
-      - '.github/workflows/windows.yml' 
+
 jobs:
   build:
     name: Build
