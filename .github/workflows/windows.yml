@@ -1,7 +1,16 @@
 name: Windows
 on: 
+  # push代码时触发workflow
   push:
-
+    paths:
+      - '*.pro'
+      - './**'
+      - '.github/workflows/windows.yml'
+  pull_request:
+    paths:
+      - '*.pro'
+      - './**'
+      - '.github/workflows/windows.yml' 
 jobs:
   build:
     name: Build
@@ -61,9 +70,12 @@ jobs:
         env:
           archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_target }}-${{ matrix.qt_arch }}
           msvcArch: ${{ matrix.msvc_arch }}          
-        shell: cmd
+        shell: pwsh
         run: |
-          qmake OmniEdge.pro
+          & qmake ${env:archiveName} ${env:targetName}
+          # 记录packageName给后续step
+           $name = ${env:archiveName}
+           echo "::set-output name=packageName::$name"       
       # tag 查询github-Release
       # 上传artifacts          
       - uses: actions/upload-artifact@v2
@@ -80,4 +92,3 @@ jobs:
           asset_name: ${{ steps.package.outputs.packageName }}.zip
           tag: ${{ github.ref }}
           overwrite: true 
-
