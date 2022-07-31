@@ -47,7 +47,7 @@ jobs:
         # if: startsWith(github.event.ref, 'refs/tags/')
         id: package      
         env:
-          archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_target }}-${{ matrix.qt_arch }}
+          archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_target }}-${{ matrix.qt_arch }}.exe
           msvcArch: ${{ matrix.msvc_arch }}          
         shell: cmd
         run: |
@@ -57,13 +57,13 @@ jobs:
         with:
           name: ${{ archiveName }}
           path: ${{ archiveName }}
-      # tag 上传Release
+      
       - name: uploadRelease
         if: startsWith(github.event.ref, 'refs/tags/')
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ archiveName }}.exe
-          asset_name: ${{ archiveName }}.exe
+          file: ${{ archiveName }}
+          asset_name: ${{ archiveName }}
           tag: ${{ github.ref }}
           overwrite: true 
