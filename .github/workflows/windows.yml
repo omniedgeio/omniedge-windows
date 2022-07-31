@@ -29,7 +29,7 @@ jobs:
       - name: Install Inno Setup
         run: |
           ./installer.exe /verysilent /allusers /dir=inst
-          dir C:
+          dir "C:\Program Files (x86)"
         
       - uses: actions/checkout@v2
         with:
@@ -41,7 +41,9 @@ jobs:
         env:
           vc_arch: ${{ matrix.msvc_arch }}
         run: |
-          qmake OmniEdge.pro
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %vc_arch%
+          qmake
+          namke
           dir
           cp build-package\build\OmniEdge.exe build-package\package\
       
