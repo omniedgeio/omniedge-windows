@@ -27,7 +27,9 @@ jobs:
         run: curl -L -o installer.exe http://files.jrsoftware.org/is/6/innosetup-${{ env.INNO_VERSION }}.exe
 
       - name: Install Inno Setup
-        run: ./installer.exe /verysilent /allusers /dir=inst
+        run: |
+          ./installer.exe /verysilent /allusers /dir=inst
+          dir C:
         
       - uses: actions/checkout@v2
         with:
@@ -39,7 +41,6 @@ jobs:
         env:
           vc_arch: ${{ matrix.msvc_arch }}
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %vc_arch%
           qmake OmniEdge.pro
           dir
           cp build-package\build\OmniEdge.exe build-package\package\
