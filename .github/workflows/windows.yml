@@ -1,44 +1,26 @@
 name: Windows
-on: 
-  # push代码时触发workflow
-  push:
-    paths:
-      - '*.pro'
-      - './**'
-      - '.github/workflows/windows.yml'
-  pull_request:
-    paths:
-      - '*.pro'
-      - './**'
-      - '.github/workflows/windows.yml' 
+on: [push, pull_request]
 jobs:
   build:
     name: Build
-    # 运行平台， windows-latest目前是windows server 2019 
-    # 参考文档 https://github.com/actions/virtual-environments/blob/main/images/win/Windows2019-Readme.md
-    runs-on: windows-2019
+    runs-on: windows-latest
     strategy:
-      # 矩阵配置
       matrix:
+        qt_ver: [5.12.12]
+        qt_target: [desktop]
+        qt_arch: [win32_msvc2017]
         include:
-          - qt_ver: 6.2.2
-            qt_arch: win64_msvc2019_64
-            msvc_arch: x64
-            qt_arch_install: msvc2019_64
+          - qt_arch: win32_msvc2017
+            msvc_arch: x86
     env:
       targetName: OmniEdge-windows.exe
       INNO_VERSION: 6.2.0
-    # 步骤
     steps:
-      # 安装Qt
       - name: Install Qt
-        # 使用外部action。这个action专门用来安装Qt
         uses: jurplel/install-qt-action@v2
         with:
-          # Version of Qt to install
           version: ${{ matrix.qt_ver }}
-          # Target platform for build
-          # target: ${{ matrix.qt_target }}
+          target: ${{ matrix.qt_target }}
           arch: ${{ matrix.qt_arch }}
           modules: 'qtnetworkauth qtwebsockets'
           cached: 'false'
@@ -49,32 +31,29 @@ jobs:
       - name: Install Inno Setup
         run: ./installer.exe /verysilent /allusers /dir=inst
         
-      # 拉取代码
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
-      # msvc编译
+      
       - name: msvc-build
         id: build
         shell: cmd
         run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.msvc_arch }}
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %vc_arch%
           qmake OmniEdge.pro
-          echo winSdkDir=%WindowsSdkDir% >> %GITHUB_ENV%
-          echo winSdkVer=%WindowsSdkVersion% >> %GITHUB_ENV%
-          echo vcToolsInstallDir=%VCToolsInstallDir% >> %GITHUB_ENV%
-          echo vcToolsRedistDir=%VCToolsRedistDir% >> %GITHUB_ENV%
-      # 打包 
+          dir
+          cp build-package\build\OmniEdge.exe build-package\package\
+      
       - name: package
+        # if: startsWith(github.event.ref, 'refs/tags/')
         id: package      
         env:
           archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_target }}-${{ matrix.qt_arch }}
           msvcArch: ${{ matrix.msvc_arch }}          
         shell: cmd
         run: |
-          qmake OmniEdge.pro
-      # tag 查询github-Release
-      # 上传artifacts          
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /q build-package\omniedge_withTAP_V02_bat.iss
+        
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.package.outputs.packageName }}
