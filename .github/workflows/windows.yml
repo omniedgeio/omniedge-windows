@@ -42,7 +42,6 @@ jobs:
           vc_arch: ${{ matrix.msvc_arch }}
         run: |
           dir
-          dir "D:\a\omniedge-windows\build-package\build\"
       
       - name: package
         # if: startsWith(github.event.ref, 'refs/tags/')
