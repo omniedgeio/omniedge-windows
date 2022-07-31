@@ -43,8 +43,8 @@ jobs:
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %vc_arch%
           D:\a\omniedge-windows\Qt\5.12.12\msvc2017\bin\qmake.exe OmniEdge.pro
-          dir "build-package\build\"
-          cp build-package\build\OmniEdge.exe build-package\package\
+          dir
+          dir ".\build-package\build\"
       
       - name: package
         # if: startsWith(github.event.ref, 'refs/tags/')
@@ -54,7 +54,7 @@ jobs:
           msvcArch: ${{ matrix.msvc_arch }}          
         shell: cmd
         run: |
-          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /q build-package\omniedge_withTAP_V02_bat.iss
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /q .\build-package\omniedge_withTAP_V02_bat.iss
         
       - uses: actions/upload-artifact@v2
         with:
