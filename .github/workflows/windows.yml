@@ -22,9 +22,7 @@ jobs:
           version: ${{ matrix.qt_ver }}
           target: ${{ matrix.qt_target }}
           arch: ${{ matrix.qt_arch }}
-          modules: 'qtnetworkauth qtwebsockets'
-          cached: 'false'
-          aqtversion: '==2.0.5'          
+               
       - name: Download Inno Setup installer
         run: curl -L -o installer.exe http://files.jrsoftware.org/is/6/innosetup-${{ env.INNO_VERSION }}.exe
 
