@@ -51,19 +51,19 @@ jobs:
           msvcArch: ${{ matrix.msvc_arch }}          
         shell: cmd
         run: |
-          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /q .\build-package\omniedge_withTAP_V02_bat.iss
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /q build-package\omniedge_withTAP_V02_bat.iss
         
       - uses: actions/upload-artifact@v2
         with:
-          name: ${{ steps.package.outputs.packageName }}
-          path: ${{ steps.package.outputs.packageName }}
+          name: ${{ archiveName }}
+          path: ${{ archiveName }}
       # tag 上传Release
       - name: uploadRelease
         if: startsWith(github.event.ref, 'refs/tags/')
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ steps.package.outputs.packageName }}.zip
-          asset_name: ${{ steps.package.outputs.packageName }}.zip
+          file: ${{ archiveName }}.exe
+          asset_name: ${{ archiveName }}.exe
           tag: ${{ github.ref }}
           overwrite: true 
