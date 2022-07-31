@@ -41,7 +41,6 @@ jobs:
         env:
           vc_arch: ${{ matrix.msvc_arch }}
         run: |
-          D:\a\omniedge-windows\Qt\5.12.12\msvc2017\bin\qmake.exe OmniEdge.pro
           dir
           dir "D:\a\omniedge-windows\build-package\build\"
       
