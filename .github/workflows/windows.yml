@@ -40,12 +40,12 @@ jobs:
         shell: cmd
         env:
           vc_arch: ${{ matrix.msvc_arch }}
+          # cp build-package\build\OmniEdge.exe build-package\package\
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %vc_arch%
-          qmake
-          namke
+          D:\a\omniedge-windows\Qt\5.12.12\msvc2017\bin\qmake.exe OmniEdge.pro
           dir
-          cp build-package\build\OmniEdge.exe build-package\package\
+          
       
       - name: package
         # if: startsWith(github.event.ref, 'refs/tags/')
