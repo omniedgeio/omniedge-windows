@@ -1,6 +1,6 @@
 # Omniedge-windows
 
-Windows desktop application for Omniedge. (Made by Qt)
+Windows desktop application for Omniedge. (Made by Qt5.12.12)
 
 # Compiler and debugger
 
