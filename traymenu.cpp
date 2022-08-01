@@ -33,7 +33,7 @@ TrayMenu::TrayMenu()
     disconnectAction = new QAction(tr("Disconnect"), this);
     connect(disconnectAction, &QAction::triggered, controller, &MenuController::disconnectSN);
 
-    devicesMenu = new QMenu("Virtual Networks");
+    devicesMenu = new QMenu(tr("Virtual Networks"));
 
     connectionSeperator = new QAction();
     connectionSeperator->setSeparator(true);
@@ -87,7 +87,7 @@ TrayMenu::TrayMenu()
 
     QSettings settings;
     if(settings.contains(SETTINGS_ID_TOKEN)){
-        statusAction->setText("Starting application...");
+        statusAction->setText(tr("Starting application..."));
         statusAction->setVisible(true);
         emit loginSignal(settings.value(SETTINGS_ID_TOKEN).toString());
     }
@@ -116,9 +116,9 @@ void TrayMenu::createMenu(bool loginStatus)
         for(int i = 0;i<this->controller->virtualNetworks.length();i++ )
         {
             submenu = devicesMenu->addMenu(this->controller->virtualNetworks.at(i).name);
-            QAction* subAction = submenu->addAction("Join");
+            QAction* subAction = submenu->addAction(tr("Join"));
             submenu->setDefaultAction(subAction);
-            subAction->setIconText("Join");
+            subAction->setIconText(tr("Join"));
             subAction->setCheckable(true);
             submenu->addSeparator();
             connect(subAction,  &QAction::triggered, [=]() {
@@ -129,11 +129,11 @@ void TrayMenu::createMenu(bool loginStatus)
             trayIconMenu->insertMenu(connectionSeperator, devicesMenu);
         }
 
-        logoutAction->setText("Logout as " + this->controller->userEmail);
+        logoutAction->setText(tr("Logout as ")+ this->controller->userEmail);
         logoutAction->setVisible(true);
 
         loginAction->setVisible(false);
-        showMessage("Login successfully", "Bring intranet on the internet.");
+        showMessage(tr("Login successfully"), tr("Bring intranet on the internet."));
     } else {
         statusAction->setVisible(false);
         statusSeperator->setVisible(false);
@@ -146,11 +146,11 @@ void TrayMenu::createMenu(bool loginStatus)
         devicesMenu->clear();
         trayIconMenu->removeAction(devicesMenu->menuAction());
 
-        logoutAction->setText("Logout as " + this->controller->userEmail);
+        logoutAction->setText(tr("Logout as ") + this->controller->userEmail);
         logoutAction->setVisible(false);
 
         loginAction->setVisible(true);
-        showMessage("Logout successfully", "Looking forward to see you again");
+        showMessage(tr("Logout successfully"), tr("Looking forward to see you again"));
     }
 }
 
@@ -193,17 +193,17 @@ void TrayMenu::updateStatus(QString statusMsg)
 }
 void TrayMenu::updateEmail(QString mail)
 {
-    logoutAction->setText("Logout as " + mail);
+    logoutAction->setText(tr("Logout as ") + mail);
 }
 
 void TrayMenu::connected()
 {
     disconnectAction->setEnabled(true);
-    statusAction->setText("My Address: " + this->controller->myVirtualIP);
+    statusAction->setText(tr("My Address: ") + this->controller->myVirtualIP);
 }
 
 void TrayMenu::disconnected()
 {
     disconnectAction->setEnabled(false);
-    statusAction->setText("Status: Offline");
+    statusAction->setText(tr("Status: Offline"));
 }

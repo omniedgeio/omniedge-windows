@@ -4,9 +4,8 @@
 API::API(QObject *parent) : QObject(parent)
 {
     this->networkManager = new QNetworkAccessManager(this);
-    this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
-
-    this->baseURL = "https://api.omniedge.io/api/v1";
+   // this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
+    this->baseURL = "https://dev-api.omniedge.io/api/v1";
 }
 
 void API::getAuthSession() {
@@ -43,15 +42,16 @@ void API::getAuthSession() {
                     bOnlyConnectOneTime = false;
                     QJsonDocument responseDoc = QJsonDocument::fromJson(message.toUtf8());
                     this->currentToken = responseDoc["token"].toString();
-                    //qDebug() << "Token : " << this->currentToken;
+                    qDebug() << "Token : " << this->currentToken;
+                    //this->getRefreshToken();
                     this->getUserInfo();
                     this->registerDevice();
                     this->getVirtualNetworks();
                     emit token(Token{ this->currentToken });
                 }
             });
-            QUrl wsUrl = QUrl("http://18.219.229.67:8081/login/session/" + auth.uuid);
-            wsUrl.setScheme(QString("ws"));
+            QUrl wsUrl = QUrl("wss://dev-wss.omniedge.io/login/session/"+ auth.uuid);
+            wsUrl.setScheme(QString("wss"));
             authSessionWebSocket.open(wsUrl);
             qDebug() << "API: Connecting to websocket";
         } else {
@@ -90,6 +90,28 @@ void API::registerDevice() {
             qDebug() << reply->errorString() << reply->readAll();
         }
         qDebug() << "API: Done register device"<< (status == ResponseStatus::Success);
+        reply->deleteLater();
+    });
+}
+
+void API::getRefreshToken() {
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl(QUrl(this->baseURL + "/auth/login/session/notify"));
+    networkRequest.setRawHeader("Authorization", "Bearer " + this->currentToken.toUtf8());
+    QNetworkReply* reply = this->networkManager->get(networkRequest);
+    qDebug() << "API: Getting Refresh Token...";
+
+    connect(reply, &QNetworkReply::finished, [=](){
+        ResponseStatus status = this->getResponseStatus(reply);
+
+        if(status == ResponseStatus::Success){
+            QJsonObject data = QJsonDocument::fromJson(reply->readAll())["data"].toObject();
+
+        } else {
+            emit error(status, reply->errorString());
+        }
+
+        qDebug() << "API: DONE Get Refresh Token " << (status == ResponseStatus::Success);
         reply->deleteLater();
     });
 }

@@ -75,6 +75,9 @@ HEADERS += \
     n2n/n2n_bridging_header.h \
     updater.h
 
+TRANSLATIONS += languages/zh_CN.ts \
+                languages/en_US.ts
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
@@ -90,3 +93,5 @@ RC_ICONS = "./images/logo.ico"
 FORMS += \
     aboutdialog.ui \
     downloadupdatedialog.ui
+
+

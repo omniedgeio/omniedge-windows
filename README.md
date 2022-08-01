@@ -1,6 +1,7 @@
 # Omniedge-windows
 
-Windows desktop application for Omniedge. 
+
+Windows desktop application for Omniedge. (Made by Qt5.12.12)
 
 >Bring the intranet on the internet
 
@@ -12,15 +13,6 @@ Main repo: https://github.com/omniedgeio/omniedge
 # Compiler and debugger
 
 `MSVC 2017 32Bit` in `Qt 5.12.12` Creator
-
-# Promoting updates
-
-1. Copy all required files to release/packages/<package-name>/data
-2. cd to release folder
-3. Re-create repo `repogen.exe --update -p packages -i com.omniedge-inc.omniedge-windows repository`
-4. Re-create installer `binarycreator.exe -c config\config.xml -p packages Omniedge.exe`
-5. cd to repository folder
-6. `git push`
 
 # Contributors
 
