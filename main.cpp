@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(false);
 
-    //load default languge by system language
+    //load default language by system language
     QString locale = QLocale::system().name();
     qDebug() << locale;
     QTranslator translator;
