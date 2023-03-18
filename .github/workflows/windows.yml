@@ -1,55 +1,74 @@
 name: Windows
-
 on:
   push:
     branches:
       - feature/ci
-
 jobs:
   build:
+    name: Build
     runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: |
-        choco install visualstudio2019buildtools -y
-        choco install visualstudio2019-workload-vctools -y
-        choco install openssl.light -y
-        choco install inno-setup -y
-        choco install qt --version=${{ matrix.qt_ver }} --params="'/Desktop/${{ matrix.qt_target }}/${{ matrix.qt_arch }}'" -y
-    - name: Build
-      run: |
-        qmake CONFIG+=release
-        nmake
-        windeployqt --no-translations --no-webkit2 --no-angle --no-opengl-sw --no-system-d3d-compiler --no-gif --no-ico --no-bmp --no-jpg --no-icns omniedge.exe
-    - name: Package
-      run: |
-        iscc /Oomniedge_installer /F"omniedge_setup" /Q "build-package\omniedge_withTAP_V02_bat.iss"
-    - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: |
-          Changes in this release:
-          - Add feature A
-          - Fix bug B
-        draft: false
-        prerelease: false
-    - name: Upload release asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./omniedge_installer/omniedge_setup.exe
-        asset_name: omniedge_setup.exe
-        asset_content_type: application/octet-stream
     strategy:
       matrix:
         qt_ver: [5.12.12]
         qt_target: [desktop]
         qt_arch: [win32_msvc2017]
+        include:
+          - qt_arch: win32_msvc2017
+            msvc_arch: x86
+    env:
+      targetName: OmniEdge-windows.exe
+      INNO_VERSION: 6.2.0
+    steps:
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ matrix.qt_ver }}
+          target: ${{ matrix.qt_target }}
+          arch: ${{ matrix.qt_arch }}
+               
+      - name: Download Inno Setup installer
+        run: curl -L -o installer.exe http://files.jrsoftware.org/is/6/innosetup-${{ env.INNO_VERSION }}.exe
+
+      - name: Install Inno Setup
+        run: |
+          ./installer.exe /verysilent /allusers /dir=inst
+          dir "C:\Program Files (x86)"
+        
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      
+      - name: msvc-build
+        id: build
+        shell: cmd
+        env:
+          vc_arch: ${{ matrix.msvc_arch }}
+        run: |
+          qmake CONFIG+=release
+          nmake
+          windeployqt --no-translations --no-webkit2 --no-angle --no-opengl-sw --no-system-d3d-compiler --no-gif --no-ico --no-bmp --no-jpg --no-icns omniedge.exe
+      
+      - name: package
+        # if: startsWith(github.event.ref, 'refs/tags/')
+        id: package      
+        env:
+          archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_target }}-${{ matrix.qt_arch }}
+          msvcArch: ${{ matrix.msvc_arch }}          
+        shell: cmd
+        run: |
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /q build-package\omniedge_withTAP_V02_bat.iss
+        
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ steps.package.outputs.packageName }}
+      # tag 上传Release
+      - name: uploadRelease
+        if: startsWith(github.event.ref, 'refs/tags/')
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ steps.package.outputs.packageName }}.zip
+          asset_name: ${{ steps.package.outputs.packageName }}.zip
+          tag: ${{ github.ref }}
+          overwrite: true 
