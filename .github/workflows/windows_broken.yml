@@ -1,5 +1,4 @@
 name: Windows
-# on: [push, pull_request]
 jobs:
   build:
     name: Build
