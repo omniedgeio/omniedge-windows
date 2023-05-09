@@ -43,7 +43,7 @@ MenuController::MenuController(QObject *parent) : QObject(parent)
 
 void MenuController::login(){
     this->api.getAuthSession();
-    emit updateStatus(tr("Status: Logging in..."));
+    emit updateStatus(tr("Status:Logged out"));
 }
 
 void MenuController::logout(){

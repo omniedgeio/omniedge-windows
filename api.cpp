@@ -5,7 +5,7 @@ API::API(QObject *parent) : QObject(parent)
 {
     this->networkManager = new QNetworkAccessManager(this);
    // this->networkManager->setNetworkAccessible(QNetworkAccessManager::Accessible);
-    this->baseURL = "https://dev-api.omniedge.io/api/v1";
+    this->baseURL = "https://api.omniedge.io/api/v1";
 }
 
 void API::getAuthSession() {
@@ -14,6 +14,15 @@ void API::getAuthSession() {
     QNetworkReply* reply = this->networkManager->get(networkRequest);
     qDebug() << "API: Getting Auth Session...";
     bOnlyConnectOneTime = true;
+    QString browserExec;
+    #if defined(Q_OS_WIN)
+        browserExec = "cmd /c start";
+    #elif defined(Q_OS_MAC)
+        browserExec = "open";
+    #else
+        browserExec = "xdg-open"
+    #endif
+    QProcess::startDetached(browserExec,QStringList(this->baseURL + "/auth/login/session"));
     connect(reply, &QNetworkReply::finished,this, [=](){
         ResponseStatus status = this->getResponseStatus(reply);
 
@@ -50,7 +59,7 @@ void API::getAuthSession() {
                     emit token(Token{ this->currentToken });
                 }
             });
-            QUrl wsUrl = QUrl("wss://dev-wss.omniedge.io/login/session/"+ auth.uuid);
+            QUrl wsUrl = QUrl("wss://wss.omniedge.io/login/session/"+ auth.uuid);
             wsUrl.setScheme(QString("wss"));
             authSessionWebSocket.open(wsUrl);
             qDebug() << "API: Connecting to websocket";
