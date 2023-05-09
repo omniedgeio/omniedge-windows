@@ -17,7 +17,7 @@ Updater::~Updater()
 void Updater::checkForUpdates(void)
 {
     QNetworkRequest appUpdateCheckReq;
-    appUpdateCheckReq.setUrl(QUrl("https://raw.githubusercontent.com/omniedgeio/app-release/main/windows/check_version.xml"));
+    appUpdateCheckReq.setUrl(QUrl("https://omniedge.io/install/download/check_version.xml"));
     manager->get(appUpdateCheckReq);
 }
 void Updater::showUpdateNotificationDialog()
