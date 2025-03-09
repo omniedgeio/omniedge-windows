@@ -12,11 +12,6 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        submodules: 'recursive'
-      
     - name: Set up Qt environment
       uses: jurplel/install-qt-action@v3
       with:
@@ -35,7 +30,10 @@ jobs:
     - name: Install Inno Setup
       run: |
         choco install innosetup -y
-        
+    
+        - name: Checkout repository
+      uses: actions/checkout@v4
+
     - name: Build Omniedge
       shell: cmd
       run: |
