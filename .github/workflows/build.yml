@@ -1,0 +1,84 @@
+name: Build Omniedge Windows
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        submodules: 'recursive'
+      
+    - name: Set up Qt environment
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.12.12'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win32_msvc2017'
+        tools: 'tools_ifw,4.0.0,qt.tools.ifw.40 tools_qtcreator'
+        cache: true
+        
+    - name: Setup MSVC environment
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x86
+        
+    - name: Install Inno Setup
+      run: |
+        choco install innosetup -y
+        
+    - name: Build Omniedge
+      shell: cmd
+      run: |
+        echo Building Omniedge Windows application...
+        mkdir build
+        cd build
+        qmake ..\OmniEdge.pro CONFIG+=release
+        nmake
+        
+    - name: Prepare files for packaging
+      shell: cmd
+      run: |
+        echo Preparing files for packaging...
+        mkdir -p release
+        copy build\release\OmniEdge.exe release\
+        copy build\release\*.dll release\ || echo No DLLs to copy
+        
+        REM Copy Qt dependencies
+        windeployqt release\OmniEdge.exe --release --no-translations --no-system-d3d-compiler
+        
+        REM Copy TAP driver files
+        mkdir -p release\tap-windows
+        xcopy /E /I /Y build-package\package\third_party\tap-windows release\tap-windows
+        
+    - name: Create installer
+      shell: cmd
+      run: |
+        echo Creating installer package...
+        cd build-package
+        "C:\Program Files (x86)\Inno Setup 6\iscc.exe" omniedge_withTAP_V02_bat.iss
+        
+    - name: Verify installer creation
+      shell: cmd
+      run: |
+        dir build-package\release\*.exe /s /b
+        if not exist "build-package\release\omniedge-setup-*.exe" (
+          echo Installer not found!
+          exit 1
+        )
+        
+    - name: Upload installer artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: omniedge-windows-installer
+        path: build-package/release/omniedge-setup-*.exe
+        if-no-files-found: error
