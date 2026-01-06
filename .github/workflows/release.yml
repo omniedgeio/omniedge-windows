@@ -21,7 +21,7 @@ jobs:
             output_arch: x86
           - arch: win64_msvc2019_arm64
             qt_version: 6.5.3
-            msvc_arch: arm64
+            msvc_arch: x64_arm64
             output_arch: arm64
     
     steps:
@@ -53,6 +53,10 @@ jobs:
       shell: cmd
       run: |
         echo Building Omniedge Windows application for ${{ matrix.output_arch }}...
+        echo Check PATH for qmake and nmake:
+        where qmake || echo qmake not found in PATH
+        where nmake || echo nmake not found in PATH
+        
         if not exist build mkdir build
         cd build
         qmake ..\OmniEdge.pro CONFIG+=release
