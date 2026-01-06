@@ -1,12 +1,16 @@
-name: Release Omniedge Windows
+name: Build and Release Omniedge Windows
 
 on:
   push:
+    branches: [ main ]
     tags:
       - 'v*'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  release:
+  build:
     runs-on: windows-latest
     
     steps:
@@ -51,7 +55,8 @@ jobs:
         copy build\release\OmniEdge.exe build-package\package\
         if exist build\release\*.dll copy build\release\*.dll build-package\package\
         
-        REM Qt dependencies and TAP driver files handling
+        REM Qt dependencies are now in build-package\package\
+        REM TAP driver files are already in build-package\package\third_party\tap-windows from the repo
         dir build-package\package\third_party\tap-windows
         
     - name: Create installer
@@ -60,20 +65,36 @@ jobs:
         echo Creating installer package...
         "C:\Program Files (x86)\Inno Setup 6\iscc.exe" build-package\omniedge_withTAP_V02_bat.iss
         
-    - name: Get installer filename
+    - name: Verify installer creation
+      shell: cmd
+      run: |
+        dir build-package\release\*.exe /s /b
+        if not exist "build-package\release\omniedge-setup-*.exe" (
+          echo Installer not found!
+          exit 1
+        )
+        
+    - name: Upload installer artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: omniedge-windows-installer
+        path: build-package/release/omniedge-setup-*.exe
+        if-no-files-found: error
+
+    - name: Get installer filename for release
+      if: startsWith(github.ref, 'refs/tags/')
       id: get_installer
       shell: bash
       run: |
         INSTALLER_PATH=$(ls build-package/release/omniedge-setup-*.exe | head -n 1)
         echo "installer_path=$INSTALLER_PATH" >> $GITHUB_OUTPUT
-        echo "installer_name=$(basename $INSTALLER_PATH)" >> $GITHUB_OUTPUT
 
     - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
         files: ${{ steps.get_installer.outputs.installer_path }}
         name: OmniEdge Windows ${{ github.ref_name }}
-        tag_name: ${{ github.ref }}
         draft: false
         prerelease: false
       env:
