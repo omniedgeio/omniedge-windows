@@ -2,27 +2,14 @@ name: Build and Release Omniedge Windows
 
 on:
   push:
-    # branches: [ main ]
     tags:
       - 'v*'
   pull_request:
-    # branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        include:
-          - arch: win32_msvc2017
-            qt_version: 5.12.12
-            msvc_arch: x86
-            output_arch: x86
-          - arch: win64_msvc2019_arm64
-            qt_version: 6.5.3
-            msvc_arch: x64_arm64
-            output_arch: arm64
     
     steps:
     - name: Checkout repository
@@ -33,17 +20,17 @@ jobs:
     - name: Set up Qt environment
       uses: jurplel/install-qt-action@v3
       with:
-        version: ${{ matrix.qt_version }}
+        version: '5.12.12'
         host: 'windows'
         target: 'desktop'
-        arch: ${{ matrix.arch }}
+        arch: 'win32_msvc2017'
         modules: 'qtnetworkauth'
         cache: true
         
     - name: Setup MSVC environment
       uses: ilammy/msvc-dev-cmd@v1
       with:
-        arch: ${{ matrix.msvc_arch }}
+        arch: x86
         
     - name: Install Inno Setup
       run: |
@@ -52,32 +39,11 @@ jobs:
     - name: Build Omniedge
       shell: cmd
       run: |
-        echo Building Omniedge Windows application for ${{ matrix.output_arch }}...
-        echo --- Diagnostic Info ---
-        echo Current Directory: %CD%
-        echo Check PATH for tools:
-        where qmake || echo qmake not found
-        where nmake || echo nmake not found
-        where cl || echo cl not found (compiler)
-        echo -----------------------
-        
+        echo Building Omniedge Windows application...
         if not exist build mkdir build
         cd build
-        echo Entered build directory: %CD%
-        
-        echo Running qmake...
         call qmake ..\OmniEdge.pro CONFIG+=release
-        if %errorlevel% neq 0 (
-          echo qmake failed with error %errorlevel%
-          exit /b %errorlevel%
-        )
-        
-        echo Running nmake...
         call nmake
-        if %errorlevel% neq 0 (
-          echo nmake failed with error %errorlevel%
-          exit /b %errorlevel%
-        )
         
     - name: Prepare files for packaging
       shell: cmd
@@ -98,22 +64,18 @@ jobs:
       shell: cmd
       run: |
         echo Creating installer package...
-        "C:\Program Files (x86)\Inno Setup 6\iscc.exe" /DArch=${{ matrix.output_arch }} build-package\omniedge_withTAP_V02_bat.iss
+        "C:\Program Files (x86)\Inno Setup 6\iscc.exe" build-package\omniedge_withTAP_V02_bat.iss
         
     - name: Verify installer creation
       shell: cmd
       run: |
         dir build-package\release\*.exe /s /b
-        if not exist "build-package\release\omniedge-setup-*-${{ matrix.output_arch }}.exe" (
-          echo Installer not found!
-          exit 1
-        )
         
     - name: Upload installer artifact
       uses: actions/upload-artifact@v4
       with:
-        name: omniedge-windows-installer-${{ matrix.output_arch }}
-        path: build-package/release/omniedge-setup-*-${{ matrix.output_arch }}.exe
+        name: omniedge-windows-installer
+        path: build-package/release/omniedge-setup-*.exe
         if-no-files-found: error
 
     - name: Get installer filename for release
@@ -121,7 +83,7 @@ jobs:
       id: get_installer
       shell: bash
       run: |
-        INSTALLER_PATH=$(ls build-package/release/omniedge-setup-*-${{ matrix.output_arch }}.exe | head -n 1)
+        INSTALLER_PATH=$(ls build-package/release/omniedge-setup-*.exe | head -n 1)
         echo "installer_path=$INSTALLER_PATH" >> $GITHUB_OUTPUT
 
     - name: Create Release
