@@ -7,17 +7,15 @@ namespace Ui {
 class Dialog;
 }
 
-class AboutDialog : public QDialog
-{
-    Q_OBJECT
-    #define APPVERSION  "0.2.6"
+class AboutDialog : public QDialog {
+  Q_OBJECT
+#define APPVERSION "0.3.0"
 public:
-    explicit AboutDialog(QWidget *parent = nullptr);
-    ~AboutDialog();
-
+  explicit AboutDialog(QWidget *parent = nullptr);
+  ~AboutDialog();
 
 private:
-    Ui::Dialog *ui;
+  Ui::Dialog *ui;
 };
 
 #endif // ABOUTDIALOG_H

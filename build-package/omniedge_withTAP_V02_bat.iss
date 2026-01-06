@@ -2,9 +2,9 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "OmniEdge"
-#define MyAppVersion "0.2.4"
+#define MyAppVersion "0.3.0"
 #define MyAppPublisher "OmniEdge, Inc."
-#define MyAppURL "https://www.omniedge.io/"
+#define MyAppURL "https://connect.omniedge.io/"
 #define MyAppExeName "OmniEdge.exe"
 
 [Setup]
