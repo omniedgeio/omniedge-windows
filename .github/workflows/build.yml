@@ -24,7 +24,7 @@ jobs:
         host: 'windows'
         target: 'desktop'
         arch: 'win32_msvc2017'
-        modules: 'qtnetworkauth qtwebsockets'
+        modules: 'qtnetworkauth'
         cache: true
         
     - name: Setup MSVC environment
