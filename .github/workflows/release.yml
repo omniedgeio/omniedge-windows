@@ -53,14 +53,31 @@ jobs:
       shell: cmd
       run: |
         echo Building Omniedge Windows application for ${{ matrix.output_arch }}...
-        echo Check PATH for qmake and nmake:
-        where qmake || echo qmake not found in PATH
-        where nmake || echo nmake not found in PATH
+        echo --- Diagnostic Info ---
+        echo Current Directory: %CD%
+        echo Check PATH for tools:
+        where qmake || echo qmake not found
+        where nmake || echo nmake not found
+        where cl || echo cl not found (compiler)
+        echo -----------------------
         
         if not exist build mkdir build
         cd build
-        qmake ..\OmniEdge.pro CONFIG+=release
-        nmake
+        echo Entered build directory: %CD%
+        
+        echo Running qmake...
+        call qmake ..\OmniEdge.pro CONFIG+=release
+        if %errorlevel% neq 0 (
+          echo qmake failed with error %errorlevel%
+          exit /b %errorlevel%
+        )
+        
+        echo Running nmake...
+        call nmake
+        if %errorlevel% neq 0 (
+          echo nmake failed with error %errorlevel%
+          exit /b %errorlevel%
+        )
         
     - name: Prepare files for packaging
       shell: cmd
