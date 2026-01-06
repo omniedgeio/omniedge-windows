@@ -106,3 +106,12 @@ jobs:
         repository: omniedgeio/omniedge-web-frontend
         event-type: windows-release
         client-payload: '{"package": "windows", "version": "${{ github.ref_name }}"}'
+
+    - name: Notify meta-repo to update submodule
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: peter-evans/repository-dispatch@v3
+      with:
+        token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+        repository: omniedgeio/omniedge
+        event-type: meta-release
+        client-payload: '{"package": "windows", "version": "${{ github.ref_name }}"}'
