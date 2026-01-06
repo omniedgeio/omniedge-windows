@@ -24,7 +24,6 @@ jobs:
         host: 'windows'
         target: 'desktop'
         arch: 'win32_msvc2017'
-        tools: 'tools_ifw,4.0.0,qt.tools.ifw.40 tools_qtcreator'
         cache: true
         
     - name: Setup MSVC environment
