@@ -19,7 +19,7 @@ void API::getAuthSession() {
 #elif defined(Q_OS_MAC)
   browserExec = "open";
 #else
-  browserExec = "xdg-open"
+  browserExec = "xdg-open";
 #endif
   QProcess::startDetached(browserExec,
                           QStringList(this->baseURL + "/auth/login/session"));
@@ -86,7 +86,7 @@ void API::getAuthSession() {
 
 void API::registerDevice() {
   QNetworkRequest networkRequest;
-  networkRequest.setUrl(QUrl(this->baseURL + "/devices/register"));
+  networkRequest.setUrl(QUrl(this->baseURL + "/devices"));
   networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
                            "application/json");
   networkRequest.setRawHeader("Authorization",
@@ -252,7 +252,7 @@ void API::getVirtualNetworks() {
 void API::joinVirtualNetwork(QString uuid) {
   QNetworkRequest networkRequest;
   networkRequest.setUrl(QUrl(this->baseURL + "/virtual-networks/" + uuid +
-                             "/devices/" + this->currentDeviceUUID + "/join"));
+                             "/devices/" + this->currentDeviceUUID));
   networkRequest.setRawHeader("Authorization",
                               "Bearer " + this->currentToken.toUtf8());
   QJsonDocument data;
