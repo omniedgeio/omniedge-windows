@@ -20,7 +20,7 @@ jobs:
             msvc_arch: x86
             output_arch: x86
           - arch: win64_msvc2019_arm64
-            qt_version: 5.15.2
+            qt_version: 6.5.3
             msvc_arch: arm64
             output_arch: arm64
     
