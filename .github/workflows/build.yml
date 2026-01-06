@@ -53,13 +53,9 @@ jobs:
         copy build\release\OmniEdge.exe build-package\package\
         if exist build\release\*.dll copy build\release\*.dll build-package\package\
         
-        REM Copy Qt dependencies
-        windeployqt build-package\package\OmniEdge.exe --release --no-translations --no-system-d3d-compiler
-        
-        REM Ensure TAP driver files are in the package directory
-        REM The .iss script expects them in build-package\package\third_party\tap-windows
-        if not exist build-package\package\third_party\tap-windows mkdir build-package\package\third_party\tap-windows
-        xcopy /E /I /Y build-package\third_party\tap-windows build-package\package\third_party\tap-windows || echo TAP files already in place or handled
+        REM Qt dependencies are now in build-package\package\
+        REM TAP driver files are already in build-package\package\third_party\tap-windows from the repo
+        dir build-package\package\third_party\tap-windows
         
     - name: Create installer
       shell: cmd
