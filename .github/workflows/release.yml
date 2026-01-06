@@ -2,16 +2,27 @@ name: Build and Release Omniedge Windows
 
 on:
   push:
-    branches: [ main ]
+    # branches: [ main ]
     tags:
       - 'v*'
   pull_request:
-    branches: [ main ]
+    # branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - arch: win32_msvc2017
+            qt_version: 5.12.12
+            msvc_arch: x86
+            output_arch: x86
+          - arch: win64_msvc2019_arm64
+            qt_version: 5.15.2
+            msvc_arch: arm64
+            output_arch: arm64
     
     steps:
     - name: Checkout repository
@@ -22,17 +33,17 @@ jobs:
     - name: Set up Qt environment
       uses: jurplel/install-qt-action@v3
       with:
-        version: '5.12.12'
+        version: ${{ matrix.qt_version }}
         host: 'windows'
         target: 'desktop'
-        arch: 'win32_msvc2017'
+        arch: ${{ matrix.arch }}
         modules: 'qtnetworkauth'
         cache: true
         
     - name: Setup MSVC environment
       uses: ilammy/msvc-dev-cmd@v1
       with:
-        arch: x86
+        arch: ${{ matrix.msvc_arch }}
         
     - name: Install Inno Setup
       run: |
@@ -41,7 +52,7 @@ jobs:
     - name: Build Omniedge
       shell: cmd
       run: |
-        echo Building Omniedge Windows application...
+        echo Building Omniedge Windows application for ${{ matrix.output_arch }}...
         if not exist build mkdir build
         cd build
         qmake ..\OmniEdge.pro CONFIG+=release
@@ -53,9 +64,12 @@ jobs:
         echo Preparing files for packaging...
         if not exist build-package\package mkdir build-package\package
         copy build\release\OmniEdge.exe build-package\package\
+        
+        echo Running windeployqt...
+        windeployqt build-package\package\OmniEdge.exe
+        
         if exist build\release\*.dll copy build\release\*.dll build-package\package\
         
-        REM Qt dependencies are now in build-package\package\
         REM TAP driver files are already in build-package\package\third_party\tap-windows from the repo
         dir build-package\package\third_party\tap-windows
         
@@ -63,13 +77,13 @@ jobs:
       shell: cmd
       run: |
         echo Creating installer package...
-        "C:\Program Files (x86)\Inno Setup 6\iscc.exe" build-package\omniedge_withTAP_V02_bat.iss
+        "C:\Program Files (x86)\Inno Setup 6\iscc.exe" /DArch=${{ matrix.output_arch }} build-package\omniedge_withTAP_V02_bat.iss
         
     - name: Verify installer creation
       shell: cmd
       run: |
         dir build-package\release\*.exe /s /b
-        if not exist "build-package\release\omniedge-setup-*.exe" (
+        if not exist "build-package\release\omniedge-setup-*-${{ matrix.output_arch }}.exe" (
           echo Installer not found!
           exit 1
         )
@@ -77,8 +91,8 @@ jobs:
     - name: Upload installer artifact
       uses: actions/upload-artifact@v4
       with:
-        name: omniedge-windows-installer
-        path: build-package/release/omniedge-setup-*.exe
+        name: omniedge-windows-installer-${{ matrix.output_arch }}
+        path: build-package/release/omniedge-setup-*-${{ matrix.output_arch }}.exe
         if-no-files-found: error
 
     - name: Get installer filename for release
@@ -86,7 +100,7 @@ jobs:
       id: get_installer
       shell: bash
       run: |
-        INSTALLER_PATH=$(ls build-package/release/omniedge-setup-*.exe | head -n 1)
+        INSTALLER_PATH=$(ls build-package/release/omniedge-setup-*-${{ matrix.output_arch }}.exe | head -n 1)
         echo "installer_path=$INSTALLER_PATH" >> $GITHUB_OUTPUT
 
     - name: Create Release
@@ -95,6 +109,7 @@ jobs:
       with:
         files: ${{ steps.get_installer.outputs.installer_path }}
         name: OmniEdge Windows ${{ github.ref_name }}
+        tag_name: ${{ github.ref_name }}
         draft: false
         prerelease: false
       env:

@@ -7,6 +7,10 @@
 #define MyAppURL "https://connect.omniedge.io/"
 #define MyAppExeName "OmniEdge.exe"
 
+#ifndef Arch
+  #define Arch "x86"
+#endif
+
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
@@ -23,7 +27,7 @@ DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputDir=.\release
-OutputBaseFilename=omniedge-setup-{#MyAppVersion}
+OutputBaseFilename=omniedge-setup-{#MyAppVersion}-{#Arch}
 SetupIconFile=..\images\logo.ico
 UninstallDisplayIcon =  {app}\{#MyAppExeName}
 Compression=lzma
