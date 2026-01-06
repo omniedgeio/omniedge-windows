@@ -1,0 +1,80 @@
+name: Release Omniedge Windows
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: ''
+      
+    - name: Set up Qt environment
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.12.12'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win32_msvc2017'
+        modules: 'qtnetworkauth'
+        cache: true
+        
+    - name: Setup MSVC environment
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x86
+        
+    - name: Install Inno Setup
+      run: |
+        choco install innosetup -y
+        
+    - name: Build Omniedge
+      shell: cmd
+      run: |
+        echo Building Omniedge Windows application...
+        if not exist build mkdir build
+        cd build
+        qmake ..\OmniEdge.pro CONFIG+=release
+        nmake
+        
+    - name: Prepare files for packaging
+      shell: cmd
+      run: |
+        echo Preparing files for packaging...
+        if not exist build-package\package mkdir build-package\package
+        copy build\release\OmniEdge.exe build-package\package\
+        if exist build\release\*.dll copy build\release\*.dll build-package\package\
+        
+        REM Qt dependencies and TAP driver files handling
+        dir build-package\package\third_party\tap-windows
+        
+    - name: Create installer
+      shell: cmd
+      run: |
+        echo Creating installer package...
+        "C:\Program Files (x86)\Inno Setup 6\iscc.exe" build-package\omniedge_withTAP_V02_bat.iss
+        
+    - name: Get installer filename
+      id: get_installer
+      shell: bash
+      run: |
+        INSTALLER_PATH=$(ls build-package/release/omniedge-setup-*.exe | head -n 1)
+        echo "installer_path=$INSTALLER_PATH" >> $GITHUB_OUTPUT
+        echo "installer_name=$(basename $INSTALLER_PATH)" >> $GITHUB_OUTPUT
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ steps.get_installer.outputs.installer_path }}
+        name: OmniEdge Windows ${{ github.ref_name }}
+        tag_name: ${{ github.ref }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
