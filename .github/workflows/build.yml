@@ -35,12 +35,30 @@ jobs:
     - name: Package Windows app
       shell: pwsh
       run: |
-        pwsh -NoProfile -ExecutionPolicy Bypass -File packaging/pack_win.ps1
+        pwsh -NoProfile -ExecutionPolicy Bypass -File packaging/pack_win.ps1 -SourceDir "${{ github.workspace }}/packaging/stage" -OutputFile "${{ github.workspace }}/packaging/output/omniedge-windows-setup.zip"
       env:
         QTDIR: ${{ env.QTDIR }}
 
-    - name: Upload packaging artifact
+    - name: Install NSIS
+      shell: pwsh
+      run: |
+        choco install nsis -y
+
+    - name: Build NSIS Installer
+      shell: pwsh
+      run: |
+        pwsh -NoProfile -ExecutionPolicy Bypass -File packaging/pack_nsis.ps1 -SourceDir "${{ github.workspace }}/packaging/stage" -OutputFile "${{ github.workspace }}/packaging/output/omniedge-windows-installer.exe"
+      env:
+        SOURCE_DIR: ${{ github.workspace }}/packaging/stage
+
+    - name: Upload packaging ZIP
+      uses: actions/upload-artifact@v3
+      with:
+        name: omniedge-windows-zip
+        path: packaging/output/omniedge-windows-setup.zip
+
+    - name: Upload NSIS Installer
       uses: actions/upload-artifact@v3
       with:
         name: omniedge-windows-installer
-        path: packaging/output/omniedge-windows-setup.zip
+        path: packaging/output/omniedge-windows-installer.exe
