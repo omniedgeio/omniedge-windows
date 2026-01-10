@@ -1,0 +1,33 @@
+name: Build OmniEdge Windows
+
+on:
+  push:
+    branches: [ main, update-websocket-url, upgrade-to-wss ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.5.3'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2022_64'
+        dir: '${{ github.workspace }}/qt/'
+
+    - name: Configure Qt
+      run: |
+        echo "${{ github.workspace }}/qt/bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+        echo "QTDIR=${{ github.workspace }}/qt" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+    - name: Build project
+      run: |
+        qmake OmniEdge.pro
+        nmake

@@ -1,10 +1,10 @@
 QT       += core gui qml quick network networkauth xml websockets
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 QMAKE_LFLAGS_WINDOWS += /MANIFESTUAC:"level='requireAdministrator'"
 #QMAKE_CXXFLAGS += /std:c++17 /std: latest
-CONFIG += c++11
+CONFIG += c++17
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -17,7 +17,7 @@ DEFINES -= UNICODE
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
     aboutdialog.cpp \
@@ -33,6 +33,7 @@ SOURCES += \
     syslog.cpp \
     tapmanager.cpp \
     traymenu.cpp \
+    updater.cpp \
     n2n/edge_utils.c \
     n2n/minilzo.c \
     n2n/transform_null.c \
@@ -43,8 +44,7 @@ SOURCES += \
     n2n/win32/getopt1.c \
     n2n/win32/version-msvc.c \
     n2n/win32/wintap.c \
-    n2n/n2n.c \
-    updater.cpp
+    n2n/n2n.c
 
 HEADERS += \
     aboutdialog.h \
@@ -55,11 +55,12 @@ HEADERS += \
     n2nworker.h \
     #oauth.h \
     #oauthreplyhandler.h \
-   #proxy.h \
+    #proxy.h \
     runguard.h \
     syslog.h \
     tapmanager.h \
     traymenu.h \
+    updater.h \
     n2n/lzoconf.h \
     n2n/lzodefs.h \
     n2n/minilzo.h \
@@ -72,8 +73,7 @@ HEADERS += \
     n2n/win32/n2n_win32.h \
     n2n/win32/winconfig.h \
     n2n/win32/wintap.h \
-    n2n/n2n_bridging_header.h \
-    updater.h
+    n2n/n2n_bridging_header.h
 
 TRANSLATIONS += languages/zh_CN.ts \
                 languages/en_US.ts

@@ -9,7 +9,7 @@ class Dialog;
 
 class AboutDialog : public QDialog {
   Q_OBJECT
-#define APPVERSION "0.3.0"
+#define APPVERSION "0.4.0"
 public:
   explicit AboutDialog(QWidget *parent = nullptr);
   ~AboutDialog();

@@ -1,7 +1,6 @@
 # Omniedge-windows
 
-
-Windows desktop application for Omniedge. (Made by Qt5.12.12)
+Windows desktop application for Omniedge. (Made by Qt6.x, C++17, n2n 3.1.1)
 
 >Bring the intranet on the internet
 
@@ -12,7 +11,7 @@ Main repo: https://github.com/omniedgeio/omniedge
 
 # Compiler and debugger
 
-`MSVC 2017 32Bit` in `Qt 5.12.12` Creator
+`MSVC 2022 32Bit` in `Qt 6.x` Creator
 
 # Contributors
 

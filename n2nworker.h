@@ -11,7 +11,6 @@ enum N2NWorkerError {
 
 extern "C" {
 #include "n2n/n2n.h"
-#include "n2n/n2n_transforms.h"
 }
 
 class N2NWorker : public QObject

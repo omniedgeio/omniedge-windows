@@ -16,22 +16,14 @@ TrayMenu::TrayMenu() {
   trayIcon->setToolTip("OmniEdge");
   updater = new Updater();
   controller = new MenuController();
-  connect(this, SIGNAL(loginSignal(QString)), controller,
-          SLOT(getUserIdToken(QString)));
-  connect(controller, &MenuController::showMessage, this,
-          &TrayMenu::showMessage);
-  connect(controller, &MenuController::updateStatus, this,
-          &TrayMenu::updateStatus);
-  connect(controller, &MenuController::updateEmail, this,
-          &TrayMenu::updateEmail);
-  connect(controller, &MenuController::oauthloginStatus, this,
-          &TrayMenu::createMenu);
-  connect(controller, &MenuController::n2nConnected, this,
-          &TrayMenu::connected);
-  connect(controller, &MenuController::n2nDisconnected, this,
-          &TrayMenu::disconnected);
-  connect(controller, SIGNAL(showMessage(QString, QString)), this,
-          SLOT(showMessage(QString, QString)));
+   connect(this, &TrayMenu::loginSignal, controller, &MenuController::getUserIdToken);
+   connect(controller, &MenuController::showMessage, this, &TrayMenu::showMessage);
+   connect(controller, &MenuController::updateStatus, this, &TrayMenu::updateStatus);
+   connect(controller, &MenuController::updateEmail, this, &TrayMenu::updateEmail);
+   connect(controller, &MenuController::oauthloginStatus, this, &TrayMenu::createMenu);
+   connect(controller, &MenuController::n2nConnected, this, &TrayMenu::connected);
+   connect(controller, &MenuController::n2nDisconnected, this, &TrayMenu::disconnected);
+   connect(controller, &MenuController::showMessage, this, &TrayMenu::showMessage);
   /* Create actions */
   statusAction = new QAction(tr("Starting application..."), this);
 
