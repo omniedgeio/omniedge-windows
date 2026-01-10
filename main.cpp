@@ -3,32 +3,35 @@
 #include <QApplication>
 #include <QSettings>
 #include <QTranslator>
+#include <QLocale>
+#include <QDebug>
 #include "menucontroller.h"
 #include "syslog.h"
 #include "runguard.h"
+#include <QString>
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
     app.setQuitOnLastWindowClosed(false);
 
-    //load default languge by system language
+    // load default language by system language
     QString locale = QLocale::system().name();
     qDebug() << locale;
     QTranslator translator;
-    if(locale.compare("zh_CN") ==0)
+    if(locale.startsWith("zh_CN"))
     {
-        translator.load(qApp->applicationDirPath()+QString("/languages/zh_CN.qm"));
+        translator.load(app.applicationDirPath() + "/languages/zh_CN.qm");
     }
     else
     {
-        translator.load(qApp->applicationDirPath()+QString("/languages/en_US.qm"));
+        translator.load(app.applicationDirPath() + "/languages/en_US.qm");
     }
     app.installTranslator(&translator);
 
-
-    //single instance
-    RunGuard guard( "Omniedge_Desktop_Client" );
+    // single instance lock
+    RunGuard guard(QStringLiteral("Omniedge_Desktop_Client"));
     if ( !guard.tryToRun() )
         return 0;
 
@@ -37,7 +40,7 @@ int main(int argc, char *argv[])
     hlog.installReleaseMsgHandler();
 #endif
 
-    // Setting for QSetting
+    // Setting for QSettings
     QCoreApplication::setOrganizationName("Omniedge");
     QCoreApplication::setOrganizationDomain("omniedge.io");
     QCoreApplication::setApplicationName("Omniedge Desktop Client");
