@@ -1,13 +1,12 @@
-#include "traymenu.h"
-#include "api.h"
 #include <QApplication>
+#include <QCoreApplication>
 #include <QSettings>
 #include <QTranslator>
 #include <QLocale>
 #include <QDebug>
-#include "menucontroller.h"
-#include "syslog.h"
+#include "traymenu.h"
 #include "runguard.h"
+#include "syslog.h"
 #include <QString>
 
 int main(int argc, char *argv[])
@@ -20,13 +19,10 @@ int main(int argc, char *argv[])
     QString locale = QLocale::system().name();
     qDebug() << locale;
     QTranslator translator;
-    if(locale.startsWith("zh_CN"))
-    {
-        translator.load(app.applicationDirPath() + "/languages/zh_CN.qm");
-    }
-    else
-    {
-        translator.load(app.applicationDirPath() + "/languages/en_US.qm");
+    if (locale.startsWith("zh_CN")) {
+        translator.load(QCoreApplication::applicationDirPath() + "/languages/zh_CN.qm");
+    } else {
+        translator.load(QCoreApplication::applicationDirPath() + "/languages/en_US.qm");
     }
     app.installTranslator(&translator);
 

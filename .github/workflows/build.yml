@@ -31,3 +31,16 @@ jobs:
       run: |
         qmake OmniEdge.pro
         nmake
+
+    - name: Package Windows app
+      shell: pwsh
+      run: |
+        pwsh -NoProfile -ExecutionPolicy Bypass -File packaging/pack_win.ps1
+      env:
+        QTDIR: ${{ env.QTDIR }}
+
+    - name: Upload packaging artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: omniedge-windows-installer
+        path: packaging/output/omniedge-windows-setup.zip
